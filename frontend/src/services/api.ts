@@ -206,5 +206,22 @@ export const adminAPI = {
         get: (type: string, id: number) => api.get(`/admin/seo/${type}/${id}`),
         update: (type: string, id: number, data: any) => api.put(`/admin/seo/${type}/${id}`, data),
       },
+      countries: {
+        getAll: (params?: any) => api.get('/admin/countries', { params }),
+        getById: (id: number) => api.get(`/admin/countries/${id}`),
+        create: (data: any) => api.post('/admin/countries', data),
+        update: (id: number, data: any) => api.put(`/admin/countries/${id}`, data),
+        delete: (id: number) => api.delete(`/admin/countries/${id}`),
+        toggleStatus: (id: number) => api.patch(`/admin/countries/${id}/toggle-status`),
+      },
+      states: {
+        getByCountry: (countryId: number, params?: any) =>
+          api.get(`/admin/countries/${countryId}/states`, { params }),
+        getById: (stateId: number) => api.get(`/admin/states/${stateId}`),
+        create: (countryId: number, data: any) => api.post(`/admin/countries/${countryId}/states`, data),
+        update: (stateId: number, data: any) => api.put(`/admin/states/${stateId}`, data),
+        delete: (stateId: number) => api.delete(`/admin/states/${stateId}`),
+        toggleStatus: (stateId: number) => api.patch(`/admin/states/${stateId}/toggle-status`),
+      },
 }
 

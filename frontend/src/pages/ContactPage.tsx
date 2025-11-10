@@ -197,52 +197,76 @@ const ContactPage = () => {
         <div className="space-y-6">
           {/* Dubai Office */}
           <div className="card p-6">
-            <h3 className="text-xl font-semibold mb-4">Dubai Office</h3>
-            <div className="space-y-2 text-gray-700">
-              <p>
-                <strong>Address:</strong> Dubai Address, Dubai, UAE
-              </p>
-              <p>
-                <strong>Dubai Safezone:</strong> Dubai Safezone Address, Dubai, UAE
-              </p>
-              <p>
-                <strong>Phone:</strong> +971 XX XXX XXXX
-              </p>
-              <p>
-                <strong>Email:</strong> dubai@shamsnaturals.com
-              </p>
+            <h3 className="text-xl font-semibold mb-4 text-primary-700 uppercase tracking-wide">
+              Dubai Address:
+            </h3>
+            <div className="space-y-3 text-gray-700">
+              <div>
+                <p className="font-semibold text-gray-900 uppercase">
+                  Shams Bag Industries LLC
+                </p>
+                <p>Warehouse No. 1,</p>
+                <p>Al Qusais Industrial Area 4,</p>
+                <p>Dubai, UAE.</p>
+              </div>
+              <div className="space-y-1">
+                <p className="flex items-center gap-2">
+                  <span aria-hidden="true">📞</span>
+                  <span>+971 42 673449</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <span aria-hidden="true">📞</span>
+                  <span>+971 55 1906177</span>
+                </p>
+              </div>
+              <hr className="border-gray-200 my-4" />
+              <div className="space-y-1">
+                <p className="font-semibold text-primary-700 uppercase tracking-wide">
+                  Warehouse Address:
+                </p>
+                <p className="font-semibold text-gray-900 uppercase">Saifzone Sharjah</p>
+                <p className="font-semibold text-gray-900 uppercase">Shams Bag Industries LLC</p>
+                <p>Q4-003, Saif Zone,</p>
+                <p>Sharjah, UAE</p>
+              </div>
             </div>
           </div>
 
           {/* Poland Office */}
           <div className="card p-6">
-            <h3 className="text-xl font-semibold mb-4">Poland Office</h3>
-            <div className="space-y-2 text-gray-700">
-              <p>
-                <strong>Address:</strong> Poland Address, Poland
-              </p>
-              <p>
-                <strong>Poland Safezone:</strong> Poland Safezone Address, Poland
-              </p>
-              <p>
-                <strong>Phone:</strong> +48 XX XXX XXXX
-              </p>
-              <p>
-                <strong>Email:</strong> poland@shamsnaturals.com
-              </p>
+            <h3 className="text-xl font-semibold mb-4 text-primary-700 uppercase tracking-wide">
+              Poland Address:
+            </h3>
+            <div className="space-y-3 text-gray-700">
+              <div>
+                <p className="font-semibold text-gray-900 uppercase">
+                  Shams Naturals Sp. z.o.o
+                </p>
+                <p>Marcina Kasprzaka 31, Room 119,</p>
+                <p>Warsaw, Post Code 00-123,</p>
+                <p>Poland</p>
+              </div>
+              <div className="space-y-1">
+                <p className="flex items-center gap-2">
+                  <span aria-hidden="true">📞</span>
+                  <span>+48 578 625 210</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <span aria-hidden="true">📞</span>
+                  <span>+48 795 876 741</span>
+                </p>
+              </div>
+              <hr className="border-gray-200 my-4" />
+              <div className="space-y-1">
+                <p className="font-semibold text-primary-700 uppercase tracking-wide">
+                  Warehouse Address:
+                </p>
+                <p className="font-semibold text-gray-900 uppercase">Poland</p>
+                <p>Lodz, 93-231, at 3B Dostawcza Street.</p>
+              </div>
             </div>
           </div>
 
-          {/* Dealer Login Button */}
-          <div className="card p-6 bg-primary-50">
-            <h3 className="text-xl font-semibold mb-4">Dealer Portal</h3>
-            <p className="text-gray-700 mb-4">
-              Access your dealer account to manage orders and view exclusive content.
-            </p>
-            <button className="btn-primary w-full">
-              Dealer Login
-            </button>
-          </div>
         </div>
       </div>
       </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class BannerController extends Controller
@@ -77,7 +78,7 @@ class BannerController extends Controller
             $validated['page'] = !empty($pageValue) ? $pageValue : null;
         }
 
-        \Log::info('Updating banner', [
+        Log::info('Updating banner', [
             'id' => $id,
             'page_value' => $request->input('page'),
             'validated_page' => $validated['page'] ?? 'not set'
@@ -88,7 +89,7 @@ class BannerController extends Controller
         // Refresh to get updated values
         $banner->refresh();
         
-        \Log::info('Banner updated', [
+        Log::info('Banner updated', [
             'id' => $banner->id,
             'page' => $banner->page,
             'is_active' => $banner->is_active

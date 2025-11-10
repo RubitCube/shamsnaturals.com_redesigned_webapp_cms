@@ -19,6 +19,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { path: '/admin/blogs', label: 'Blogs', icon: '📝' },
     { path: '/admin/events', label: 'Events', icon: '📅' },
     { path: '/admin/pages', label: 'Pages', icon: '📄' },
+    { path: '/admin/countries', label: 'Countries (Region)', icon: '🌍' },
     { path: '/admin/seo', label: 'SEO Management', icon: '🔍' },
   ]
 
@@ -41,7 +42,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <nav className="mt-8 flex-1 overflow-y-auto">
           <ul className="space-y-1 px-2">
             {menuItems.map((item) => {
-              const isActive = location.pathname === item.path
+              const isActive = location.pathname.startsWith(item.path)
               return (
                 <li key={item.path}>
                   <Link
@@ -81,7 +82,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <header className="bg-white shadow">
           <div className="px-6 py-4">
             <h1 className="text-2xl font-semibold text-gray-900">
-              {menuItems.find(item => item.path === location.pathname)?.label || 'Admin Panel'}
+              {menuItems.find(item => location.pathname.startsWith(item.path))?.label || 'Admin Panel'}
             </h1>
           </div>
         </header>

@@ -26,6 +26,8 @@ import AdminBlogs from './pages/admin/AdminBlogs'
 import AdminEvents from './pages/admin/AdminEvents'
 import AdminPages from './pages/admin/AdminPages'
 import AdminSEO from './pages/admin/AdminSEO'
+import AdminCountries from './pages/admin/AdminCountries'
+import AdminCountryStates from './pages/admin/AdminCountryStates'
 
 // Component to handle /admin redirect
 const AdminRedirect = () => {
@@ -63,9 +65,11 @@ function App() {
                     <Route path="dealers" element={<AdminDealers />} />
                     <Route path="blogs" element={<AdminBlogs />} />
                     <Route path="events" element={<AdminEvents />} />
-                        <Route path="pages" element={<AdminPages />} />
-                        <Route path="seo" element={<AdminSEO />} />
-                      </Routes>
+                    <Route path="pages" element={<AdminPages />} />
+                    <Route path="seo" element={<AdminSEO />} />
+                    <Route path="countries" element={<AdminCountries />} />
+                    <Route path="countries/:countryId/states" element={<AdminCountryStates />} />
+                  </Routes>
                 </AdminLayout>
               </ProtectedRoute>
             }

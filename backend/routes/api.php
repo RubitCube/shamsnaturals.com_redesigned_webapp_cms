@@ -69,6 +69,21 @@ Route::prefix('v1/admin')->middleware('auth:sanctum')->group(function () {
     // Dealers
     Route::apiResource('dealers', \App\Http\Controllers\Admin\DealerController::class);
     
+    // Countries & States
+    Route::get('countries', [\App\Http\Controllers\Admin\CountryController::class, 'index']);
+    Route::post('countries', [\App\Http\Controllers\Admin\CountryController::class, 'store']);
+    Route::get('countries/{country}', [\App\Http\Controllers\Admin\CountryController::class, 'show']);
+    Route::put('countries/{country}', [\App\Http\Controllers\Admin\CountryController::class, 'update']);
+    Route::delete('countries/{country}', [\App\Http\Controllers\Admin\CountryController::class, 'destroy']);
+    Route::patch('countries/{country}/toggle-status', [\App\Http\Controllers\Admin\CountryController::class, 'toggleStatus']);
+
+    Route::get('countries/{country}/states', [\App\Http\Controllers\Admin\StateController::class, 'index']);
+    Route::post('countries/{country}/states', [\App\Http\Controllers\Admin\StateController::class, 'store']);
+    Route::get('states/{state}', [\App\Http\Controllers\Admin\StateController::class, 'show']);
+    Route::put('states/{state}', [\App\Http\Controllers\Admin\StateController::class, 'update']);
+    Route::delete('states/{state}', [\App\Http\Controllers\Admin\StateController::class, 'destroy']);
+    Route::patch('states/{state}/toggle-status', [\App\Http\Controllers\Admin\StateController::class, 'toggleStatus']);
+    
     // Blogs
     Route::apiResource('blogs', \App\Http\Controllers\Admin\BlogController::class);
     

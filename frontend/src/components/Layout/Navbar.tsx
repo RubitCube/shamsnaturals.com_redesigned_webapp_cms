@@ -15,7 +15,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-gray-700 hover:text-primary-600 transition-colors">
               Home
             </Link>
@@ -37,6 +37,14 @@ const Navbar = () => {
             <Link to="/contact" className="text-gray-700 hover:text-primary-600 transition-colors">
               Contact
             </Link>
+            <a
+              href="https://ecobagdealers.rubitcubedev.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary px-4 py-2 text-sm font-semibold"
+            >
+              Dealer Login
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -82,6 +90,14 @@ const Navbar = () => {
             <Link to="/contact" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded">
               Contact
             </Link>
+            <a
+              href="https://ecobagdealers.rubitcubedev.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block px-3 py-2 text-center text-white bg-primary-600 hover:bg-primary-700 rounded"
+            >
+              Dealer Login
+            </a>
           </div>
         </div>
       )}
