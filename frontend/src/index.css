@@ -1,0 +1,206 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Leaflet Map Styles */
+.leaflet-container {
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+}
+
+@layer base {
+  body {
+    @apply text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden;
+  }
+}
+
+/* React Quill Editor Styles */
+.rich-text-editor .ql-container {
+  min-height: 300px;
+  font-size: 16px;
+}
+
+.rich-text-editor .ql-editor {
+  min-height: 300px;
+}
+
+.rich-text-editor .ql-toolbar {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+}
+
+.rich-text-editor .ql-container {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-top: none;
+}
+
+.rich-text-editor .ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: normal;
+}
+
+/* About Page Content Styles */
+.about-content {
+  line-height: 1.8;
+}
+
+.about-content h1.tsubhead {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #16a34a;
+  margin-bottom: 0;
+  padding-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .about-content h1.tsubhead {
+    padding-bottom: 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .about-content h1.tsubhead {
+    padding-bottom: 1rem;
+  }
+}
+
+.about-content h1.thead {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4b5563;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.about-content p.ttext {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #374151;
+  margin-bottom: 0;
+  padding-bottom: 1rem;
+}
+
+.about-content p.ttext:last-child {
+  padding-bottom: 0;
+}
+
+.about-content ul.ttext,
+.about-content ol.ttext {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #374151;
+  margin-left: 1.5rem;
+  margin-bottom: 0;
+  padding-bottom: 1rem;
+  list-style-type: disc;
+}
+
+.about-content li {
+  margin-bottom: 0.5rem;
+}
+
+.about-content strong {
+  font-weight: 700;
+  color: #111827;
+}
+
+.about-content a {
+  color: #16a34a;
+  text-decoration: underline;
+}
+
+.about-content a:hover {
+  color: #15803d;
+}
+
+.about-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* About Page Layout */
+.aboutbg {
+  position: relative;
+  z-index: 10;
+}
+
+.aboutbg img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  position: relative;
+  z-index: 10;
+}
+
+/* Background decorative images - Bottom left outline illustrations */
+.aboutimg {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* about02 - Upper outline illustration (tote bag) - Behind content text */
+.aboutbgicon02 {
+  bottom: 140px;
+  left: 2%;
+  max-width: 220px;
+  opacity: 0.3;
+  z-index: 1;
+  filter: grayscale(100%) opacity(0.3);
+}
+
+/* about03 - Lower outline illustration (drawstring bag) - Behind content text */
+.aboutbgicon03 {
+  bottom: 40px;
+  left: 5%;
+  max-width: 180px;
+  opacity: 0.3;
+  z-index: 1;
+  filter: grayscale(100%) opacity(0.3);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animatedFadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.fadeInUp {
+  animation-fill-mode: both;
+}
+
