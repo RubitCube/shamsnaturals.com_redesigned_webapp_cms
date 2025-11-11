@@ -11,6 +11,8 @@ use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\PageController;
 use App\Http\Controllers\API\ContactController;
+use App\Http\Controllers\API\AnalyticsController as PublicAnalyticsController;
+use App\Http\Controllers\Admin\AnalyticsController as AdminAnalyticsController;
 
 // Public API Routes
 Route::prefix('v1')->group(function () {
@@ -51,6 +53,11 @@ Route::prefix('v1')->group(function () {
     
     // Contact
     Route::post('/contact', [ContactController::class, 'store']);
+
+    // Analytics (public)
+    Route::post('/analytics/visit', [PublicAnalyticsController::class, 'storeVisit']);
+    Route::post('/analytics/event', [PublicAnalyticsController::class, 'storeEvent']);
+    Route::get('/analytics/summary', [PublicAnalyticsController::class, 'publicSummary']);
 });
 
 // Protected Admin Routes
@@ -99,6 +106,9 @@ Route::prefix('v1/admin')->middleware('auth:sanctum')->group(function () {
     Route::get('/seo', [\App\Http\Controllers\Admin\SeoController::class, 'index']);
     Route::get('/seo/{type}/{id}', [\App\Http\Controllers\Admin\SeoController::class, 'show']);
     Route::put('/seo/{type}/{id}', [\App\Http\Controllers\Admin\SeoController::class, 'update']);
+
+    // Analytics summary
+    Route::get('/analytics/summary', [AdminAnalyticsController::class, 'summary']);
 });
 
 // Auth Routes

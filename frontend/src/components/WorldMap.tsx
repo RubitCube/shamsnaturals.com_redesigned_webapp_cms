@@ -17,6 +17,25 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon
 
+const parsePhoneNumbers = (value?: string) => {
+  if (!value) return [] as string[]
+
+  try {
+    const parsed = JSON.parse(value)
+    if (Array.isArray(parsed)) {
+      return parsed
+        .map((item) => (typeof item === 'string' ? item : ''))
+        .filter(Boolean)
+    }
+  } catch (_error) {
+    if (typeof value === 'string' && value.trim()) {
+      return [value.trim()]
+    }
+  }
+
+  return []
+}
+
 interface WorldMapProps {
   dealers?: Array<{
     id: number
@@ -25,6 +44,7 @@ interface WorldMapProps {
     longitude?: number | string
     country?: string
     state?: string
+    phone?: string
   }>
 }
 
@@ -83,8 +103,15 @@ const WorldMap = ({ dealers = [] }: WorldMapProps) => {
               icon: DefaultIcon,
             }).addTo(mapRef.current!)
 
+            const phoneNumbers = parsePhoneNumbers(dealer.phone as any)
+            const phoneHtml = phoneNumbers.length
+              ? `<div class="text-xs text-gray-600"><strong>Phone:</strong> ${phoneNumbers
+                  .map((phone) => `<span class="mr-1">${phone}</span>`)
+                  .join(', ')}</div>`
+              : ''
+
             marker.bindPopup(
-              `<b>${dealer.company_name}</b><br/>${dealer.country || ''}${dealer.state ? ', ' + dealer.state : ''}`
+              `<b>${dealer.company_name}</b><br/>${dealer.country || ''}${dealer.state ? ', ' + dealer.state : ''}${phoneHtml ? `<br/>${phoneHtml}` : ''}`
             )
 
             marker.on('click', () => {

@@ -85,7 +85,16 @@ export const authAPI = {
   getUser: () => api.get('/auth/user'),
 }
 
+export const analyticsAPI = {
+  logVisit: (data: any) => api.post('/analytics/visit', data),
+  logEvent: (data: any) => api.post('/analytics/event', data),
+  getSummary: () => api.get('/analytics/summary'),
+}
+
 export const adminAPI = {
+  analytics: {
+    getSummary: () => api.get('/admin/analytics/summary'),
+  },
   products: {
     getAll: (params?: any) => api.get('/admin/products', { params }),
     getById: (id: number) => api.get(`/admin/products/${id}`),
@@ -190,38 +199,38 @@ export const adminAPI = {
     },
     delete: (id: number) => api.delete(`/admin/events/${id}`),
   },
-      pages: {
-        getAll: () => api.get('/admin/pages'),
-        getById: (id: number) => api.get(`/admin/pages/${id}`),
-        create: (data: any) => api.post('/admin/pages', data),
-        update: (id: number, data: any) => api.put(`/admin/pages/${id}`, data),
-        delete: (id: number) => api.delete(`/admin/pages/${id}`),
-        uploadImage: (id: number, formData: FormData) => api.post(`/admin/pages/${id}/upload-image`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }),
-        removeImage: (id: number, imageType: string) => api.post(`/admin/pages/${id}/remove-image`, { image_type: imageType }),
-      },
-      seo: {
-        getAll: () => api.get('/admin/seo'),
-        get: (type: string, id: number) => api.get(`/admin/seo/${type}/${id}`),
-        update: (type: string, id: number, data: any) => api.put(`/admin/seo/${type}/${id}`, data),
-      },
-      countries: {
-        getAll: (params?: any) => api.get('/admin/countries', { params }),
-        getById: (id: number) => api.get(`/admin/countries/${id}`),
-        create: (data: any) => api.post('/admin/countries', data),
-        update: (id: number, data: any) => api.put(`/admin/countries/${id}`, data),
-        delete: (id: number) => api.delete(`/admin/countries/${id}`),
-        toggleStatus: (id: number) => api.patch(`/admin/countries/${id}/toggle-status`),
-      },
-      states: {
-        getByCountry: (countryId: number, params?: any) =>
-          api.get(`/admin/countries/${countryId}/states`, { params }),
-        getById: (stateId: number) => api.get(`/admin/states/${stateId}`),
-        create: (countryId: number, data: any) => api.post(`/admin/countries/${countryId}/states`, data),
-        update: (stateId: number, data: any) => api.put(`/admin/states/${stateId}`, data),
-        delete: (stateId: number) => api.delete(`/admin/states/${stateId}`),
-        toggleStatus: (stateId: number) => api.patch(`/admin/states/${stateId}/toggle-status`),
-      },
+  pages: {
+    getAll: () => api.get('/admin/pages'),
+    getById: (id: number) => api.get(`/admin/pages/${id}`),
+    create: (data: any) => api.post('/admin/pages', data),
+    update: (id: number, data: any) => api.put(`/admin/pages/${id}`, data),
+    delete: (id: number) => api.delete(`/admin/pages/${id}`),
+    uploadImage: (id: number, formData: FormData) => api.post(`/admin/pages/${id}/upload-image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+    removeImage: (id: number, imageType: string) => api.post(`/admin/pages/${id}/remove-image`, { image_type: imageType }),
+  },
+  seo: {
+    getAll: () => api.get('/admin/seo'),
+    get: (type: string, id: number) => api.get(`/admin/seo/${type}/${id}`),
+    update: (type: string, id: number, data: any) => api.put(`/admin/seo/${type}/${id}`, data),
+  },
+  countries: {
+    getAll: (params?: any) => api.get('/admin/countries', { params }),
+    getById: (id: number) => api.get(`/admin/countries/${id}`),
+    create: (data: any) => api.post('/admin/countries', data),
+    update: (id: number, data: any) => api.put(`/admin/countries/${id}`, data),
+    delete: (id: number) => api.delete(`/admin/countries/${id}`),
+    toggleStatus: (id: number) => api.patch(`/admin/countries/${id}/toggle-status`),
+  },
+  states: {
+    getByCountry: (countryId: number, params?: any) =>
+      api.get(`/admin/countries/${countryId}/states`, { params }),
+    getById: (stateId: number) => api.get(`/admin/states/${stateId}`),
+    create: (countryId: number, data: any) => api.post(`/admin/countries/${countryId}/states`, data),
+    update: (stateId: number, data: any) => api.put(`/admin/states/${stateId}`, data),
+    delete: (stateId: number) => api.delete(`/admin/states/${stateId}`),
+    toggleStatus: (stateId: number) => api.patch(`/admin/states/${stateId}/toggle-status`),
+  },
 }
 

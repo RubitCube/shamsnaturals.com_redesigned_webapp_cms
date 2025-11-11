@@ -24,7 +24,7 @@ class DealerController extends Controller
             'company_name' => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'email' => 'required|email|unique:dealers,email',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable',
             'address' => 'required|string',
             'city' => 'required|string|max:255',
             'state' => 'required|string|max:255',
@@ -36,6 +36,13 @@ class DealerController extends Controller
 
         if ($request->has('is_active')) {
             $validated['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $normalizedPhones = $this->normalizePhones($request->input('phone'));
+        if ($normalizedPhones !== null) {
+            $validated['phone'] = $normalizedPhones;
+        } else {
+            unset($validated['phone']);
         }
 
         // Geocode address to get latitude and longitude
@@ -64,7 +71,7 @@ class DealerController extends Controller
             'company_name' => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'email' => 'required|email|unique:dealers,email,' . $id,
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable',
             'address' => 'required|string',
             'city' => 'required|string|max:255',
             'state' => 'required|string|max:255',
@@ -76,6 +83,13 @@ class DealerController extends Controller
 
         if ($request->has('is_active')) {
             $validated['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $normalizedPhones = $this->normalizePhones($request->input('phone'));
+        if ($normalizedPhones !== null) {
+            $validated['phone'] = $normalizedPhones;
+        } else {
+            unset($validated['phone']);
         }
 
         // Re-geocode if address changed
@@ -133,6 +147,50 @@ class DealerController extends Controller
         }
 
         return null;
+    }
+
+    private function normalizePhones($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $phones = [];
+
+        if (is_array($value)) {
+            $phones = $value;
+        } elseif (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $phones = $decoded;
+            } elseif (trim($value) !== '') {
+                $phones = [$value];
+            }
+        }
+
+        $normalized = collect($phones)
+            ->map(function ($phone) {
+                if (!is_string($phone)) {
+                    return null;
+                }
+
+                $trimmed = preg_replace('/\\s+/', '', trim($phone));
+                if (!$trimmed) {
+                    return null;
+                }
+
+                if (!str_starts_with($trimmed, '+')) {
+                    $trimmed = '+' . ltrim($trimmed, '+');
+                }
+
+                return $trimmed;
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return count($normalized) ? json_encode($normalized) : null;
     }
 }
 

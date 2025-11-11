@@ -1,6 +1,35 @@
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { analyticsAPI } from '../../services/api'
 
 const Footer = () => {
+  const [totalVisits, setTotalVisits] = useState<number | null>(null)
+  const [todayVisits, setTodayVisits] = useState<number | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchSummary = async () => {
+      try {
+        const response = await analyticsAPI.getSummary()
+        if (!isMounted) return
+        setTotalVisits(response.data.total_visits)
+        setTodayVisits(response.data.today_visits)
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.debug('Unable to fetch analytics summary', error)
+      }
+    }
+
+    fetchSummary()
+    const interval = setInterval(fetchSummary, 30000)
+
+    return () => {
+      isMounted = false
+      clearInterval(interval)
+    }
+  }, [])
+
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -11,6 +40,11 @@ const Footer = () => {
             <p className="text-sm">
               Leading provider of eco-friendly bags and sustainable products.
             </p>
+            <div className="mt-4 text-sm text-primary-300">
+              <p className="font-semibold">Live Visitor Count</p>
+              <p>Total Visits: {totalVisits !== null ? totalVisits.toLocaleString() : '—'}</p>
+              <p>Today: {todayVisits !== null ? todayVisits.toLocaleString() : '—'}</p>
+            </div>
           </div>
 
           {/* Quick Links */}

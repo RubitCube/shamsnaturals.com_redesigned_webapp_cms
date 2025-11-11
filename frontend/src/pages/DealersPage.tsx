@@ -1,6 +1,8 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { dealersAPI, bannersAPI } from '../services/api'
 import BannerCarousel from '../components/BannerCarousel'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
 interface Dealer {
   id: number
@@ -17,6 +19,73 @@ interface Dealer {
   description?: string
 }
 
+const parseDealerMeta = (description?: string) => {
+  if (!description) {
+    return { location: '', website: '' }
+  }
+
+  try {
+    const parsed = JSON.parse(description)
+    if (typeof parsed === 'object' && parsed !== null) {
+      return {
+        location: typeof parsed.location === 'string' ? parsed.location : '',
+        website: typeof parsed.website === 'string' ? parsed.website : '',
+      }
+    }
+  } catch (_error) {
+    return { location: description, website: '' }
+  }
+
+  return { location: '', website: '' }
+}
+
+const parseDealerPhones = (value?: string) => {
+  if (!value) return [] as string[]
+
+  try {
+    const parsed = JSON.parse(value)
+    if (Array.isArray(parsed)) {
+      return parsed
+        .map((item) => (typeof item === 'string' ? item : ''))
+        .filter(Boolean)
+    }
+  } catch (_error) {
+    if (typeof value === 'string' && value.trim()) {
+      return [value.trim()]
+    }
+  }
+
+  return []
+}
+
+const GOOGLE_MAPS_EMBED_BASE = 'https://www.google.com/maps/embed'
+
+const buildGoogleEmbedIframe = (src: string) =>
+  `<iframe src="${src}" width="100%" height="220" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+
+const extractLocationInfo = (raw: string) => {
+  if (!raw) {
+    return { embedHtml: '', text: '' }
+  }
+
+  const trimmed = raw.trim()
+
+  const iframeMatch = trimmed.match(/<iframe[^>]*src=("|')(.*?)(\1)[^>]*><\/iframe>/i)
+  if (iframeMatch) {
+    const src = iframeMatch[2]
+    if (src.startsWith(GOOGLE_MAPS_EMBED_BASE)) {
+      return { embedHtml: buildGoogleEmbedIframe(src), text: '' }
+    }
+  }
+
+  const urlMatch = trimmed.match(/https:\/\/www\.google\.com\/maps\/embed[^"'\s>]*/i)
+  if (urlMatch) {
+    return { embedHtml: buildGoogleEmbedIframe(urlMatch[0]), text: '' }
+  }
+
+  return { embedHtml: '', text: trimmed }
+}
+
 const DealersPage = () => {
   const [dealers, setDealers] = useState<Dealer[]>([])
   const [banners, setBanners] = useState<any[]>([])
@@ -24,8 +93,30 @@ const DealersPage = () => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
   const [expandedDealer, setExpandedDealer] = useState<number | null>(null)
   const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<any>(null)
-  const markersRef = useRef<any[]>([])
+  const mapInstanceRef = useRef<L.Map | null>(null)
+  const markersRef = useRef<L.Marker[]>([])
+  const highlightRef = useRef<L.Circle[]>([])
+
+  useEffect(() => {
+    // Configure default marker icons via CDN, similar to homepage map
+    const ButterflyIcon = L.divIcon({
+      className: '',
+      html: `
+        <svg width="38" height="34" viewBox="0 0 38 34" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" fill-rule="evenodd">
+            <path d="M19 17c-1.1-5.3-5.4-9-10.5-9C3.8 8 .2 12 .2 17s3.6 9 8.3 9c3.3 0 6.2-2 7.5-5 0 0 1.5 3 2.9 3s2.9-3 2.9-3c1.3 3 4.2 5 7.5 5 4.6 0 8.3-4 8.3-9s-3.6-9-8.3-9c-5.1 0-9.4 3.7-10.5 9Z" fill="#16a34a" fill-opacity=".75"/>
+            <circle cx="19" cy="17" r="3.3" fill="#166534"/>
+            <path d="M19 3.5c.7 0 1.3.6 1.3 1.3v5.4c0 .7-.6 1.3-1.3 1.3-.7 0-1.3-.6-1.3-1.3V4.8c0-.7.6-1.3 1.3-1.3Zm0-3.5c1 0 1.8.8 1.8 1.8v1.2c0 1-.8 1.8-1.8 1.8-1 0-1.8-.8-1.8-1.8V1.8C17.2.8 18 .0 19 0Z" fill="#14532d"/>
+          </g>
+        </svg>
+      `,
+      iconSize: [38, 34],
+      iconAnchor: [19, 17],
+      popupAnchor: [0, -18],
+    })
+
+    L.Marker.prototype.options.icon = ButterflyIcon
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,93 +137,130 @@ const DealersPage = () => {
     fetchData()
   }, [])
 
+  const countries = useMemo(
+    () => Array.from(new Set(dealers.map((d) => d.country))).sort(),
+    [dealers]
+  )
+
+  const filteredDealers = useMemo(() => {
+    return selectedCountry ? dealers.filter((d) => d.country === selectedCountry) : dealers
+  }, [dealers, selectedCountry])
+
   useEffect(() => {
-    if (mapRef.current && dealers.length > 0) {
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-      if (!apiKey) {
-        console.warn('Google Maps API key not found')
-        return
-      }
+    if (!mapRef.current) return
 
-      // Load Google Maps script
-      const script = document.createElement('script')
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
-      script.async = true
-      script.defer = true
+    if (!mapInstanceRef.current) {
+      mapInstanceRef.current = L.map(mapRef.current, {
+        center: [20, 0],
+        zoom: 2,
+        minZoom: 2,
+        maxZoom: 10,
+      })
 
-      script.onload = () => {
-        if (!mapRef.current || !(window as any).google) return
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(mapInstanceRef.current)
+    }
 
-        const google = (window as any).google
-        const map = new google.maps.Map(mapRef.current, {
-          center: { lat: 20, lng: 0 },
-          zoom: 2,
+    // Clear previous markers
+    markersRef.current.forEach((marker) => {
+      mapInstanceRef.current?.removeLayer(marker)
+    })
+    markersRef.current = []
+    highlightRef.current.forEach((circle) => {
+      mapInstanceRef.current?.removeLayer(circle)
+    })
+    highlightRef.current = []
+
+    filteredDealers
+      .filter((dealer) => dealer.latitude && dealer.longitude)
+      .forEach((dealer) => {
+        const lat =
+          typeof dealer.latitude === 'string' ? parseFloat(dealer.latitude) : dealer.latitude
+        const lng =
+          typeof dealer.longitude === 'string' ? parseFloat(dealer.longitude) : dealer.longitude
+
+        if (!lat || !lng || Number.isNaN(lat) || Number.isNaN(lng)) {
+          return
+        }
+
+        const { location, website } = parseDealerMeta(dealer.description)
+        const phoneNumbers = parseDealerPhones(dealer.phone)
+
+        const marker = L.marker([lat, lng]).addTo(mapInstanceRef.current!)
+        const popupHtml = `
+          <div class="dealer-popup">
+            <h3 class="font-semibold text-sm mb-1">${dealer.company_name}</h3>
+            <p class="text-xs text-gray-600">${dealer.address}${dealer.city ? `, ${dealer.city}` : ''}</p>
+            <p class="text-xs text-gray-600">${dealer.state}, ${dealer.country}</p>
+            ${dealer.contact_person ? `<p class="text-xs text-gray-600"><strong>Contact:</strong> ${dealer.contact_person}</p>` : ''}
+            ${phoneNumbers.length ? `<div class="text-xs text-gray-600"><strong>Phone:</strong> ${phoneNumbers
+              .map((phone) => `<a href="tel:${phone.replace(/[^0-9+]/g, '')}" class="text-primary-600 underline">${phone}</a>`)
+              .join(', ')}</div>` : ''}
+            ${dealer.email ? `<p class="text-xs text-gray-600"><strong>Email:</strong> ${dealer.email}</p>` : ''}
+            ${website ? `<p class="text-xs text-gray-600"><strong>Website:</strong> <a href="${website}" target="_blank" rel="noopener" class="text-primary-600 underline">Visit site</a></p>` : ''}
+            ${location ? `<p class="text-xs text-gray-600 mt-1">${location}</p>` : ''}
+          </div>
+        `
+        marker.bindPopup(popupHtml, { className: 'dealer-popup-container' })
+
+        const radius = 50000
+        const circle = L.circle([lat, lng], {
+          radius,
+          color: '#22c55e',
+          weight: 1,
+          fillColor: '#22c55e',
+          fillOpacity: 0.15,
+          interactive: false,
+        }).addTo(mapInstanceRef.current!)
+
+        markersRef.current.push(marker)
+        highlightRef.current.push(circle)
+
+        marker.on('click', () => {
+          setSelectedCountry(dealer.country)
+          setExpandedDealer(dealer.id)
+          const cardElement = document.getElementById(`dealer-card-${dealer.id}`)
+          if (cardElement) {
+            cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
         })
 
-        mapInstanceRef.current = map
+        marker.on('popupopen', () => {
+          setSelectedCountry(dealer.country)
+          setExpandedDealer(dealer.id)
+        })
+      })
 
-        // Clear existing markers
-        markersRef.current.forEach((marker: any) => marker.setMap(null))
-        markersRef.current = []
+    if (markersRef.current.length > 0) {
+      const bounds = L.latLngBounds(markersRef.current.map((marker) => marker.getLatLng()))
+      mapInstanceRef.current.fitBounds(bounds, { padding: [40, 40] })
+    } else {
+      mapInstanceRef.current.setView([20, 0], 2)
+    }
 
-        // Add markers for dealers with coordinates
-        dealers
-          .filter((dealer) => dealer.latitude && dealer.longitude)
-          .forEach((dealer) => {
-            const marker = new google.maps.Marker({
-              position: {
-                lat: dealer.latitude!,
-                lng: dealer.longitude!,
-              },
-              map,
-              title: dealer.company_name,
-            })
+    // Invalidate size in case container resized
+    setTimeout(() => {
+      mapInstanceRef.current?.invalidateSize()
+    }, 200)
 
-            const infoWindow = new google.maps.InfoWindow({
-              content: `
-                <div class="p-2">
-                  <h3 class="font-bold">${dealer.company_name}</h3>
-                  <p>${dealer.address}, ${dealer.city}</p>
-                  <p>${dealer.state}, ${dealer.country}</p>
-                  ${dealer.phone ? `<p>Phone: ${dealer.phone}</p>` : ''}
-                </div>
-              `,
-            })
-
-            marker.addListener('click', () => {
-              infoWindow.open(map, marker)
-            })
-
-            markersRef.current.push(marker)
-          })
-
-        // Fit bounds to show all markers
-        if (markersRef.current.length > 0) {
-          const bounds = new google.maps.LatLngBounds()
-          markersRef.current.forEach((marker: any) => {
-            const position = marker.getPosition()
-            if (position) bounds.extend(position)
-          })
-          map.fitBounds(bounds)
-        }
-      }
-
-      document.head.appendChild(script)
-
-      return () => {
-        // Cleanup
-        if (document.head.contains(script)) {
-          document.head.removeChild(script)
-        }
+    return () => {
+      // Cleanup map on unmount
+      if (mapInstanceRef.current && filteredDealers.length === 0) {
+        mapInstanceRef.current.setView([20, 0], 2)
       }
     }
-  }, [dealers])
+  }, [filteredDealers])
 
-  const countries = Array.from(new Set(dealers.map((d) => d.country))).sort()
-
-  const filteredDealers = selectedCountry
-    ? dealers.filter((d) => d.country === selectedCountry)
-    : dealers
+  useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove()
+        mapInstanceRef.current = null
+      }
+    }
+  }, [])
 
   const dealersByCountry = filteredDealers.reduce((acc, dealer) => {
     if (!acc[dealer.country]) {
@@ -184,25 +312,32 @@ const DealersPage = () => {
 
           {/* Dealers Accordion */}
           <div className="space-y-4">
-            {Object.entries(dealersByCountry).map(([country, countryDealers]) => (
-              <div key={country} className="border border-gray-200 rounded-lg">
-                <button
-                  onClick={() =>
-                    setExpandedDealer(
-                      expandedDealer === countryDealers[0].id ? null : countryDealers[0].id
-                    )
-                  }
-                  className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50"
-                >
-                  <span className="font-semibold text-lg">{country}</span>
-                  <span className="text-gray-500">
-                    {expandedDealer === countryDealers[0].id ? '−' : '+'}
-                  </span>
-                </button>
-                {expandedDealer === countryDealers[0].id && (
-                  <div className="px-6 pb-4 space-y-4">
-                    {countryDealers.map((dealer) => (
-                      <div key={dealer.id} className="border-t pt-4">
+            {Object.entries(dealersByCountry).map(([country, countryDealers]) => {
+              const isCountryExpanded = countryDealers.some((dealer) => dealer.id === expandedDealer)
+
+              return (
+                <div key={country} className="border border-gray-200 rounded-lg">
+                  <button
+                    onClick={() =>
+                      setExpandedDealer(isCountryExpanded ? null : countryDealers[0].id)
+                    }
+                    className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50"
+                  >
+                    <span className="font-semibold text-lg">{country}</span>
+                    <span className="text-gray-500">{isCountryExpanded ? '−' : '+'}</span>
+                  </button>
+                  {isCountryExpanded && (
+                    <div className="px-6 pb-4 space-y-4">
+                      {countryDealers.map((dealer) => (
+                        <div
+                          key={dealer.id}
+                          id={`dealer-card-${dealer.id}`}
+                          className={`border-t pt-4 ${
+                            expandedDealer === dealer.id
+                              ? 'bg-green-50 border-green-200 rounded-lg px-4 py-3 mt-2'
+                              : ''
+                          }`}
+                        >
                         <h3 className="font-semibold text-lg mb-2">{dealer.company_name}</h3>
                         <p className="text-gray-600 mb-2">
                           <strong>Contact:</strong> {dealer.contact_person}
@@ -210,11 +345,26 @@ const DealersPage = () => {
                         <p className="text-gray-600 mb-2">
                           <strong>Address:</strong> {dealer.address}, {dealer.city}, {dealer.state}
                         </p>
-                        {dealer.phone && (
-                          <p className="text-gray-600 mb-2">
-                            <strong>Phone:</strong> {dealer.phone}
-                          </p>
-                        )}
+                        {(() => {
+                          const numbers = parseDealerPhones(dealer.phone)
+                          if (!numbers.length) return null
+                          return (
+                            <p className="text-gray-600 mb-2 space-y-1">
+                              <strong>Phone:</strong>{' '}
+                              {numbers.map((phone, idx) => (
+                                <span key={idx} className="inline-flex items-center mr-2">
+                                  <a
+                                    href={`tel:${phone.replace(/[^0-9+]/g, '')}`}
+                                    className="text-primary-600 hover:underline"
+                                  >
+                                    {phone}
+                                  </a>
+                                  {idx < numbers.length - 1 ? ',' : ''}
+                                </span>
+                              ))}
+                            </p>
+                          )
+                        })()}
                         <p className="text-gray-600 mb-2">
                           <strong>Email:</strong>{' '}
                           <a
@@ -224,15 +374,43 @@ const DealersPage = () => {
                             {dealer.email}
                           </a>
                         </p>
-                        {dealer.description && (
-                          <p className="text-gray-600 mt-2">{dealer.description}</p>
-                        )}
+                        {(() => {
+                          const { location, website } = parseDealerMeta(dealer.description)
+                          const { embedHtml, text } = extractLocationInfo(location)
+
+                          return (
+                            <>
+                              {website && (
+                                <p className="text-gray-600 mb-2">
+                                  <strong>Website:</strong>{' '}
+                                  <a
+                                    href={website}
+                                    target="_blank"
+                                    rel="noopener"
+                                    className="text-primary-600 hover:underline"
+                                  >
+                                    {website}
+                                  </a>
+                                </p>
+                              )}
+                              {embedHtml ? (
+                                <div
+                                  className="mt-4 overflow-hidden rounded-lg border border-gray-200"
+                                  dangerouslySetInnerHTML={{ __html: embedHtml }}
+                                />
+                              ) : text ? (
+                                <p className="text-gray-600 mt-2">{text}</p>
+                              ) : null}
+                            </>
+                          )
+                        })()}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            ))}
+            )
+            })}
           </div>
         </div>
 

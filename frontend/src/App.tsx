@@ -28,6 +28,7 @@ import AdminPages from './pages/admin/AdminPages'
 import AdminSEO from './pages/admin/AdminSEO'
 import AdminCountries from './pages/admin/AdminCountries'
 import AdminCountryStates from './pages/admin/AdminCountryStates'
+import AnalyticsTracker from './components/AnalyticsTracker'
 
 // Component to handle /admin redirect
 const AdminRedirect = () => {
@@ -48,6 +49,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <AnalyticsTracker />
         <Routes>
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminRedirect />} />
