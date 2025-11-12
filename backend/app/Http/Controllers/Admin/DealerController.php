@@ -24,13 +24,14 @@ class DealerController extends Controller
             'company_name' => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'email' => 'required|email|unique:dealers,email',
-            'phone' => 'nullable',
+            'phoneNumbers' => 'nullable|array',
+            'phoneNumbers.*' => 'nullable|string|max:255',
             'address' => 'required|string',
             'city' => 'required|string|max:255',
             'state' => 'required|string|max:255',
             'country' => 'required|string|max:255',
-            'postal_code' => 'nullable|string|max:20',
-            'description' => 'nullable|string',
+            'location_embed' => 'nullable|string',
+            'website' => 'nullable|string|url',
             'is_active' => 'nullable',
         ]);
 
@@ -38,12 +39,19 @@ class DealerController extends Controller
             $validated['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
         }
 
-        $normalizedPhones = $this->normalizePhones($request->input('phone'));
-        if ($normalizedPhones !== null) {
-            $validated['phone'] = $normalizedPhones;
-        } else {
-            unset($validated['phone']);
-        }
+        // Handle phone numbers
+        $validated['phone'] = $this->normalizePhones($request->input('phoneNumbers'));
+        
+        // Handle description (location_embed + website)
+        $validated['description'] = json_encode([
+            'location' => $request->input('location_embed'),
+            'website' => $request->input('website'),
+        ]);
+
+        // Remove temporary fields
+        unset($validated['phoneNumbers']);
+        unset($validated['location_embed']);
+        unset($validated['website']);
 
         // Geocode address to get latitude and longitude
         $coordinates = $this->geocodeAddress($validated);
@@ -71,13 +79,14 @@ class DealerController extends Controller
             'company_name' => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'email' => 'required|email|unique:dealers,email,' . $id,
-            'phone' => 'nullable',
+            'phoneNumbers' => 'nullable|array',
+            'phoneNumbers.*' => 'nullable|string|max:255',
             'address' => 'required|string',
             'city' => 'required|string|max:255',
             'state' => 'required|string|max:255',
             'country' => 'required|string|max:255',
-            'postal_code' => 'nullable|string|max:20',
-            'description' => 'nullable|string',
+            'location_embed' => 'nullable|string',
+            'website' => 'nullable|string|url',
             'is_active' => 'nullable',
         ]);
 
@@ -85,15 +94,23 @@ class DealerController extends Controller
             $validated['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
         }
 
-        $normalizedPhones = $this->normalizePhones($request->input('phone'));
-        if ($normalizedPhones !== null) {
-            $validated['phone'] = $normalizedPhones;
-        } else {
-            unset($validated['phone']);
-        }
+        // Handle phone numbers
+        $validated['phone'] = $this->normalizePhones($request->input('phoneNumbers'));
+        
+        // Handle description (location_embed + website)
+        $validated['description'] = json_encode([
+            'location' => $request->input('location_embed'),
+            'website' => $request->input('website'),
+        ]);
 
-        // Re-geocode if address changed
-        if ($dealer->address !== $validated['address'] || 
+        // Remove temporary fields
+        unset($validated['phoneNumbers']);
+        unset($validated['location_embed']);
+        unset($validated['website']);
+
+        // Re-geocode if address changed OR if coordinates are missing
+        if (!$dealer->latitude || !$dealer->longitude ||
+            $dealer->address !== $validated['address'] || 
             $dealer->city !== $validated['city'] ||
             $dealer->state !== $validated['state'] ||
             $dealer->country !== $validated['country']) {
@@ -117,33 +134,62 @@ class DealerController extends Controller
         return response()->json(['message' => 'Dealer deleted successfully']);
     }
 
+    /**
+     * Geocode address using Nominatim (OpenStreetMap) - completely FREE
+     * No API key required, no usage limits (fair use: max 1 request/sec)
+     */
     private function geocodeAddress($data)
     {
-        $apiKey = config('services.google_maps.api_key');
-        if (!$apiKey) {
+        $address = implode(', ', array_filter([
+            $data['address'] ?? '',
+            $data['city'] ?? '',
+            $data['state'] ?? '',
+            $data['country'] ?? '',
+        ]));
+
+        if (empty($address)) {
             return null;
         }
 
-        $address = implode(', ', [
-            $data['address'],
-            $data['city'],
-            $data['state'],
-            $data['country']
-        ]);
+        try {
+            // Use Nominatim (OpenStreetMap) - FREE geocoding service
+            $response = Http::withHeaders([
+                'User-Agent' => 'Shams-Naturals-ECommerce/1.0', // Required by Nominatim
+            ])->timeout(10)->get('https://nominatim.openstreetmap.org/search', [
+                'q' => $address,
+                'format' => 'json',
+                'limit' => 1,
+                'addressdetails' => 1,
+            ]);
 
-        $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
-            'address' => $address,
-            'key' => $apiKey,
-        ]);
+            // Respect Nominatim's usage policy: max 1 request per second
+            sleep(1);
 
-        $result = $response->json();
+            if ($response->successful()) {
+                $results = $response->json();
 
-        if ($result['status'] === 'OK' && !empty($result['results'])) {
-            $location = $result['results'][0]['geometry']['location'];
-            return [
-                'lat' => $location['lat'],
-                'lng' => $location['lng'],
-            ];
+                if (!empty($results)) {
+                    $location = $results[0];
+
+                    \Log::info('Nominatim geocoding successful', [
+                        'address' => $address,
+                        'lat' => $location['lat'],
+                        'lon' => $location['lon'],
+                    ]);
+
+                    return [
+                        'lat' => (float) $location['lat'],
+                        'lng' => (float) $location['lon'],
+                    ];
+                }
+
+                \Log::warning('Nominatim: no results found', ['address' => $address]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Nominatim geocoding error', [
+                'message' => $e->getMessage(),
+                'address' => $address,
+            ]);
         }
 
         return null;

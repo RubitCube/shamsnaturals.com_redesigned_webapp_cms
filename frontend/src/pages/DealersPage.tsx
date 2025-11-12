@@ -2,7 +2,9 @@ import { useEffect, useState, useRef, useMemo } from 'react'
 import { dealersAPI, bannersAPI } from '../services/api'
 import BannerCarousel from '../components/BannerCarousel'
 import L from 'leaflet'
+import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet-geosearch/dist/geosearch.css'
 
 interface Dealer {
   id: number
@@ -91,6 +93,7 @@ const DealersPage = () => {
   const [banners, setBanners] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [expandedDealer, setExpandedDealer] = useState<number | null>(null)
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<L.Map | null>(null)
@@ -143,8 +146,31 @@ const DealersPage = () => {
   )
 
   const filteredDealers = useMemo(() => {
-    return selectedCountry ? dealers.filter((d) => d.country === selectedCountry) : dealers
-  }, [dealers, selectedCountry])
+    let filtered = dealers
+
+    // Filter by country
+    if (selectedCountry) {
+      filtered = filtered.filter((d) => d.country === selectedCountry)
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter((dealer) => {
+        return (
+          dealer.company_name.toLowerCase().includes(query) ||
+          dealer.contact_person.toLowerCase().includes(query) ||
+          dealer.city.toLowerCase().includes(query) ||
+          dealer.state.toLowerCase().includes(query) ||
+          dealer.country.toLowerCase().includes(query) ||
+          dealer.address.toLowerCase().includes(query) ||
+          dealer.email.toLowerCase().includes(query)
+        )
+      })
+    }
+
+    return filtered
+  }, [dealers, selectedCountry, searchQuery])
 
   useEffect(() => {
     if (!mapRef.current) return
@@ -161,6 +187,28 @@ const DealersPage = () => {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
       }).addTo(mapInstanceRef.current)
+
+      // Add FREE location search control (powered by OpenStreetMap)
+      const provider = new OpenStreetMapProvider()
+      const searchControl = new (GeoSearchControl as any)({
+        provider,
+        style: 'bar',
+        showMarker: true,
+        showPopup: false,
+        marker: {
+          icon: new L.Icon.Default(),
+          draggable: false,
+        },
+        popupFormat: ({ query, result }: any) => result.label,
+        maxMarkers: 1,
+        retainZoomLevel: false,
+        animateZoom: true,
+        autoClose: true,
+        searchLabel: 'Search for any location on map...',
+        keepResult: true,
+      })
+
+      mapInstanceRef.current.addControl(searchControl)
     }
 
     // Clear previous markers
@@ -286,11 +334,61 @@ const DealersPage = () => {
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Our Dealer Network</h1>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Dealer Network</h1>
+          <p className="text-gray-600">
+            Find our authorized dealers worldwide. Click on dealer names or map markers to view location details.
+          </p>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Dealers List */}
         <div>
+          {/* Search Bar */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Search Dealers
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by company, location, or contact..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+              <svg
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Clear search"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Country Filter */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -310,7 +408,53 @@ const DealersPage = () => {
             </select>
           </div>
 
+          {/* Results count */}
+          {(searchQuery || selectedCountry) && (
+            <div className="mb-4 text-sm text-gray-600">
+              Showing {filteredDealers.length} of {dealers.length} dealer{filteredDealers.length !== 1 ? 's' : ''}
+            </div>
+          )}
+
+          {/* No Results Message */}
+          {filteredDealers.length === 0 && (
+            <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <h3 className="mt-4 text-lg font-medium text-gray-900">No dealers found</h3>
+              <p className="mt-2 text-sm text-gray-500">
+                {searchQuery
+                  ? `No results for "${searchQuery}". Try a different search term.`
+                  : selectedCountry
+                  ? `No dealers found in ${selectedCountry}.`
+                  : 'No dealers available at this time.'}
+              </p>
+              {(searchQuery || selectedCountry) && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setSelectedCountry(null)
+                  }}
+                  className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Dealers Accordion */}
+          {filteredDealers.length > 0 && (
           <div className="space-y-4">
             {Object.entries(dealersByCountry).map(([country, countryDealers]) => {
               const isCountryExpanded = countryDealers.some((dealer) => dealer.id === expandedDealer)
@@ -328,7 +472,10 @@ const DealersPage = () => {
                   </button>
                   {isCountryExpanded && (
                     <div className="px-6 pb-4 space-y-4">
-                      {countryDealers.map((dealer) => (
+                      {countryDealers.map((dealer) => {
+                        const hasCoordinates = dealer.latitude && dealer.longitude
+                        
+                        return (
                         <div
                           key={dealer.id}
                           id={`dealer-card-${dealer.id}`}
@@ -338,7 +485,45 @@ const DealersPage = () => {
                               : ''
                           }`}
                         >
-                        <h3 className="font-semibold text-lg mb-2">{dealer.company_name}</h3>
+                        <div className="flex items-start justify-between gap-4">
+                          <h3 
+                            className={`font-semibold text-lg mb-2 ${
+                              hasCoordinates 
+                                ? 'text-primary-600 hover:text-primary-700 cursor-pointer hover:underline' 
+                                : 'text-gray-900'
+                            }`}
+                            onClick={() => {
+                              if (hasCoordinates) {
+                                const lat = typeof dealer.latitude === 'string' 
+                                  ? parseFloat(dealer.latitude) 
+                                  : dealer.latitude!
+                                const lng = typeof dealer.longitude === 'string' 
+                                  ? parseFloat(dealer.longitude) 
+                                  : dealer.longitude!
+                                
+                                if (mapInstanceRef.current && !isNaN(lat) && !isNaN(lng)) {
+                                  mapInstanceRef.current.setView([lat, lng], 8, { animate: true })
+                                  
+                                  const marker = markersRef.current.find((m) => {
+                                    const markerPos = m.getLatLng()
+                                    return Math.abs(markerPos.lat - lat) < 0.001 && Math.abs(markerPos.lng - lng) < 0.001
+                                  })
+                                  
+                                  if (marker) {
+                                    marker.openPopup()
+                                  }
+                                  
+                                  setExpandedDealer(dealer.id)
+                                }
+                              }
+                            }}
+                          >
+                            {dealer.company_name}
+                            {hasCoordinates && (
+                              <span className="ml-2 text-xs text-gray-500 font-normal">📍 View on map</span>
+                            )}
+                          </h3>
+                        </div>
                         <p className="text-gray-600 mb-2">
                           <strong>Contact:</strong> {dealer.contact_person}
                         </p>
@@ -405,13 +590,15 @@ const DealersPage = () => {
                           )
                         })()}
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </div>
             )
             })}
           </div>
+          )}
         </div>
 
         {/* Google Map */}
