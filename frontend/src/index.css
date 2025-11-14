@@ -5,14 +5,92 @@
 /* Leaflet Map Styles */
 .leaflet-container {
   font-family: inherit;
+  z-index: 0;
+  position: relative;
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 8px;
+  border-radius: 10px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .leaflet-popup-content {
-  margin: 12px;
+  margin: 0;
+  padding: 0;
+  width: auto !important;
+  max-width: 340px !important;
+}
+
+/* Dealer Card Popup Styles */
+.dealer-card-popup-container .leaflet-popup-content-wrapper {
+  background: white;
+  border-radius: 10px;
+  overflow: visible;
+  max-width: 340px;
+}
+
+.dealer-card-popup-container .leaflet-popup-tip {
+  background: white;
+}
+
+.dealer-card-popup-container .leaflet-popup-close-button {
+  font-size: 20px;
+  padding: 4px 8px;
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  text-align: center;
+  line-height: 20px;
+  right: 8px;
+  top: 8px;
+  z-index: 10;
+}
+
+.dealer-card-popup-container .leaflet-popup-close-button:hover {
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+}
+
+/* Ensure map doesn't overlay navigation */
+.leaflet-pane,
+.leaflet-tile-pane,
+.leaflet-overlay-pane {
+  z-index: 1 !important;
+}
+
+.leaflet-marker-pane {
+  z-index: 6 !important;
+}
+
+.leaflet-popup-pane {
+  z-index: 700 !important;
+}
+
+.leaflet-control {
+  z-index: 800 !important;
+}
+
+/* Scrollbar for popup content */
+.dealer-card-popup::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dealer-card-popup::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.dealer-card-popup::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.dealer-card-popup::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 @layer base {

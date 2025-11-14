@@ -31,7 +31,7 @@ class DealerController extends Controller
             'state' => 'required|string|max:255',
             'country' => 'required|string|max:255',
             'location_embed' => 'nullable|string',
-            'website' => 'nullable|string|url',
+            'website' => 'nullable|string', // Allow any string, not just valid URLs
             'is_active' => 'nullable',
         ]);
 
@@ -48,16 +48,26 @@ class DealerController extends Controller
             'website' => $request->input('website'),
         ]);
 
+        // Extract coordinates from Google Maps embed iframe (PRIORITY)
+        $embedCoordinates = $this->extractCoordinatesFromEmbed($request->input('location_embed'));
+        
         // Remove temporary fields
         unset($validated['phoneNumbers']);
         unset($validated['location_embed']);
         unset($validated['website']);
 
-        // Geocode address to get latitude and longitude
-        $coordinates = $this->geocodeAddress($validated);
-        if ($coordinates) {
-            $validated['latitude'] = $coordinates['lat'];
-            $validated['longitude'] = $coordinates['lng'];
+        // Use embed coordinates if available, otherwise geocode address
+        if ($embedCoordinates) {
+            $validated['latitude'] = $embedCoordinates['lat'];
+            $validated['longitude'] = $embedCoordinates['lng'];
+            \Log::info('Using coordinates from Google Maps embed', $embedCoordinates);
+        } else {
+            // Fallback: Geocode address to get latitude and longitude
+            $coordinates = $this->geocodeAddress($validated);
+            if ($coordinates) {
+                $validated['latitude'] = $coordinates['lat'];
+                $validated['longitude'] = $coordinates['lng'];
+            }
         }
 
         $dealer = Dealer::create($validated);
@@ -86,7 +96,7 @@ class DealerController extends Controller
             'state' => 'required|string|max:255',
             'country' => 'required|string|max:255',
             'location_embed' => 'nullable|string',
-            'website' => 'nullable|string|url',
+            'website' => 'nullable|string', // Allow any string, not just valid URLs
             'is_active' => 'nullable',
         ]);
 
@@ -103,17 +113,25 @@ class DealerController extends Controller
             'website' => $request->input('website'),
         ]);
 
+        // Extract coordinates from Google Maps embed iframe (PRIORITY)
+        $embedCoordinates = $this->extractCoordinatesFromEmbed($request->input('location_embed'));
+        
         // Remove temporary fields
         unset($validated['phoneNumbers']);
         unset($validated['location_embed']);
         unset($validated['website']);
 
-        // Re-geocode if address changed OR if coordinates are missing
-        if (!$dealer->latitude || !$dealer->longitude ||
+        // Use embed coordinates if available, otherwise geocode if needed
+        if ($embedCoordinates) {
+            $validated['latitude'] = $embedCoordinates['lat'];
+            $validated['longitude'] = $embedCoordinates['lng'];
+            \Log::info('Using coordinates from Google Maps embed (update)', $embedCoordinates);
+        } elseif (!$dealer->latitude || !$dealer->longitude ||
             $dealer->address !== $validated['address'] || 
             $dealer->city !== $validated['city'] ||
             $dealer->state !== $validated['state'] ||
             $dealer->country !== $validated['country']) {
+            // Fallback: Re-geocode if address changed OR if coordinates are missing
             $coordinates = $this->geocodeAddress($validated);
             if ($coordinates) {
                 $validated['latitude'] = $coordinates['lat'];
@@ -132,6 +150,106 @@ class DealerController extends Controller
         $dealer->delete();
 
         return response()->json(['message' => 'Dealer deleted successfully']);
+    }
+
+    /**
+     * Extract latitude and longitude from Google Maps embed iframe URL
+     * Example: pb=!1m18!1m12!1m3!1d3961.537!2d39.276426!3d-6.825993!...
+     * The 3d parameter after 1m3 contains: 3d{latitude}!2d{longitude}
+     */
+    private function extractCoordinatesFromEmbed($embedCode)
+    {
+        if (empty($embedCode)) {
+            return null;
+        }
+
+        try {
+            // Extract src URL from iframe
+            if (preg_match('/src=["\']([^"\']+)["\']/', $embedCode, $matches)) {
+                $url = $matches[1];
+            } else {
+                $url = $embedCode;
+            }
+
+            // Decode URL-encoded characters
+            $url = urldecode($url);
+
+            // Method 1: Extract from pb parameter (most accurate for embed URLs)
+            // Format: !3d{latitude}!2d{longitude} or !2d{longitude}!3d{latitude}
+            if (preg_match('/!2d([-\d.]+)!3d([-\d.]+)/', $url, $matches)) {
+                $lng = (float) $matches[1];
+                $lat = (float) $matches[2];
+                
+                if ($this->isValidCoordinate($lat, $lng)) {
+                    \Log::info('Extracted coordinates from Google Maps embed (pb parameter)', [
+                        'lat' => $lat,
+                        'lng' => $lng,
+                        'url' => substr($url, 0, 100)
+                    ]);
+                    
+                    return [
+                        'lat' => $lat,
+                        'lng' => $lng,
+                    ];
+                }
+            }
+
+            // Method 2: Extract from ll parameter (fallback)
+            if (preg_match('/ll=([-\d.]+),([-\d.]+)/', $url, $matches)) {
+                $lat = (float) $matches[1];
+                $lng = (float) $matches[2];
+                
+                if ($this->isValidCoordinate($lat, $lng)) {
+                    \Log::info('Extracted coordinates from Google Maps embed (ll parameter)', [
+                        'lat' => $lat,
+                        'lng' => $lng
+                    ]);
+                    
+                    return [
+                        'lat' => $lat,
+                        'lng' => $lng,
+                    ];
+                }
+            }
+
+            // Method 3: Extract from center parameter
+            if (preg_match('/center=([-\d.]+)%2C([-\d.]+)/', $url, $matches)) {
+                $lat = (float) $matches[1];
+                $lng = (float) $matches[2];
+                
+                if ($this->isValidCoordinate($lat, $lng)) {
+                    \Log::info('Extracted coordinates from Google Maps embed (center parameter)', [
+                        'lat' => $lat,
+                        'lng' => $lng
+                    ]);
+                    
+                    return [
+                        'lat' => $lat,
+                        'lng' => $lng,
+                    ];
+                }
+            }
+
+            \Log::warning('Could not extract coordinates from Google Maps embed', [
+                'url' => substr($url, 0, 150)
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error extracting coordinates from embed', [
+                'message' => $e->getMessage(),
+                'embed' => substr($embedCode, 0, 100)
+            ]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Validate latitude and longitude ranges
+     */
+    private function isValidCoordinate($lat, $lng)
+    {
+        return $lat >= -90 && $lat <= 90 && $lng >= -180 && $lng <= 180;
     }
 
     /**

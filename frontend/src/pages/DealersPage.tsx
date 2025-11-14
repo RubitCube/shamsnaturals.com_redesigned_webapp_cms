@@ -99,6 +99,7 @@ const DealersPage = () => {
   const mapInstanceRef = useRef<L.Map | null>(null)
   const markersRef = useRef<L.Marker[]>([])
   const highlightRef = useRef<L.Circle[]>([])
+  const lastDealerCountRef = useRef<number>(0)
 
   useEffect(() => {
     // Configure default marker icons via CDN, similar to homepage map
@@ -128,7 +129,53 @@ const DealersPage = () => {
           dealersAPI.getAll(),
           bannersAPI.getByPage('dealers')
         ])
-        setDealers(dealersResponse.data)
+        
+        const newDealers = dealersResponse.data
+        
+        // Check if new dealer was added
+        if (lastDealerCountRef.current > 0 && newDealers.length > lastDealerCountRef.current) {
+          // Find the newest dealer (last one in the list with coordinates)
+          const newestDealer = newDealers
+            .filter(d => d.latitude && d.longitude)
+            .sort((a, b) => b.id - a.id)[0]
+          
+          if (newestDealer && mapInstanceRef.current) {
+            const lat = typeof newestDealer.latitude === 'string' 
+              ? parseFloat(newestDealer.latitude) 
+              : newestDealer.latitude
+            const lng = typeof newestDealer.longitude === 'string' 
+              ? parseFloat(newestDealer.longitude) 
+              : newestDealer.longitude
+            
+            if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+              // Automatically fly to the new dealer location
+              setTimeout(() => {
+                mapInstanceRef.current?.flyTo([lat, lng], 12, {
+                  animate: true,
+                  duration: 2,
+                })
+                
+                // Open the popup for the new dealer after animation
+                setTimeout(() => {
+                  const marker = markersRef.current.find((m) => {
+                    const markerPos = m.getLatLng()
+                    return Math.abs(markerPos.lat - lat) < 0.001 && Math.abs(markerPos.lng - lng) < 0.001
+                  })
+                  
+                  if (marker) {
+                    marker.openPopup()
+                  }
+                }, 2000)
+              }, 500)
+              
+              setSelectedCountry(newestDealer.country)
+              setExpandedDealer(newestDealer.id)
+            }
+          }
+        }
+        
+        lastDealerCountRef.current = newDealers.length
+        setDealers(newDealers)
         setBanners(bannersResponse.data)
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -138,6 +185,11 @@ const DealersPage = () => {
     }
 
     fetchData()
+    
+    // Poll for new dealers every 10 seconds
+    const interval = setInterval(fetchData, 10000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   const countries = useMemo(
@@ -234,24 +286,89 @@ const DealersPage = () => {
         }
 
         const { location, website } = parseDealerMeta(dealer.description)
+        const { embedHtml } = extractLocationInfo(location)
         const phoneNumbers = parseDealerPhones(dealer.phone)
 
         const marker = L.marker([lat, lng]).addTo(mapInstanceRef.current!)
+        
+        // Create compact dealer card popup with embedded map
         const popupHtml = `
-          <div class="dealer-popup">
-            <h3 class="font-semibold text-sm mb-1">${dealer.company_name}</h3>
-            <p class="text-xs text-gray-600">${dealer.address}${dealer.city ? `, ${dealer.city}` : ''}</p>
-            <p class="text-xs text-gray-600">${dealer.state}, ${dealer.country}</p>
-            ${dealer.contact_person ? `<p class="text-xs text-gray-600"><strong>Contact:</strong> ${dealer.contact_person}</p>` : ''}
-            ${phoneNumbers.length ? `<div class="text-xs text-gray-600"><strong>Phone:</strong> ${phoneNumbers
-              .map((phone) => `<a href="tel:${phone.replace(/[^0-9+]/g, '')}" class="text-primary-600 underline">${phone}</a>`)
-              .join(', ')}</div>` : ''}
-            ${dealer.email ? `<p class="text-xs text-gray-600"><strong>Email:</strong> ${dealer.email}</p>` : ''}
-            ${website ? `<p class="text-xs text-gray-600"><strong>Website:</strong> <a href="${website}" target="_blank" rel="noopener" class="text-primary-600 underline">Visit site</a></p>` : ''}
-            ${location ? `<p class="text-xs text-gray-600 mt-1">${location}</p>` : ''}
+          <div class="dealer-card-popup" style="width: 320px; font-family: system-ui, -apple-system, sans-serif;">
+            <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 12px 16px; border-radius: 8px 8px 0 0; color: white;">
+              <h3 style="font-size: 16px; font-weight: 700; margin: 0 0 4px 0; line-height: 1.3;">${dealer.company_name}</h3>
+              <p style="font-size: 12px; opacity: 0.95; margin: 0;">${dealer.contact_person || 'N/A'}</p>
+            </div>
+            
+            <div style="padding: 12px 16px; background: white; max-height: 400px; overflow-y: auto;">
+              <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb;">
+                <p style="font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin: 0 0 4px 0;">Address</p>
+                <p style="font-size: 12px; color: #374151; line-height: 1.5; margin: 0;">
+                  ${dealer.address}${dealer.city ? `, ${dealer.city}` : ''}<br/>
+                  ${dealer.state}, ${dealer.country}
+                </p>
+              </div>
+              
+              ${phoneNumbers.length ? `
+                <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb;">
+                  <p style="font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin: 0 0 6px 0;">Phone</p>
+                  ${phoneNumbers.slice(0, 2).map((phone) => `
+                    <a href="tel:${phone.replace(/[^0-9+]/g, '')}" 
+                       style="display: block; font-size: 12px; color: #16a34a; text-decoration: none; margin-bottom: 3px; font-weight: 500;"
+                       onmouseover="this.style.textDecoration='underline'" 
+                       onmouseout="this.style.textDecoration='none'">
+                      📞 ${phone}
+                    </a>
+                  `).join('')}
+                  ${phoneNumbers.length > 2 ? `<p style="font-size: 11px; color: #6b7280; margin: 4px 0 0 0;">+${phoneNumbers.length - 2} more</p>` : ''}
+                </div>
+              ` : ''}
+              
+              ${dealer.email ? `
+                <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb;">
+                  <p style="font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin: 0 0 6px 0;">Email</p>
+                  <a href="mailto:${dealer.email}" 
+                     style="font-size: 12px; color: #16a34a; text-decoration: none; font-weight: 500; word-break: break-all;"
+                     onmouseover="this.style.textDecoration='underline'" 
+                     onmouseout="this.style.textDecoration='none'">
+                    ✉️ ${dealer.email}
+                  </a>
+                </div>
+              ` : ''}
+              
+              ${website ? `
+                <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb;">
+                  <p style="font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin: 0 0 6px 0;">Website</p>
+                  <a href="${website}" target="_blank" rel="noopener noreferrer" 
+                     style="font-size: 12px; color: #16a34a; text-decoration: none; font-weight: 500; word-break: break-all;"
+                     onmouseover="this.style.textDecoration='underline'" 
+                     onmouseout="this.style.textDecoration='none'">
+                    🌐 ${website.replace(/^https?:\/\/(www\.)?/, '')}
+                  </a>
+                </div>
+              ` : ''}
+              
+              ${embedHtml ? `
+                <div>
+                  <p style="font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; margin: 0 0 8px 0;">📍 Location Map</p>
+                  <div style="border-radius: 6px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                    ${embedHtml.replace('height="220"', 'height="160"').replace('height="450"', 'height="160"').replace('width="600"', 'width="100%"').replace('width="100%"', 'width="100%"')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
           </div>
         `
-        marker.bindPopup(popupHtml, { className: 'dealer-popup-container' })
+        
+        marker.bindPopup(popupHtml, { 
+          className: 'dealer-card-popup-container',
+          maxWidth: 340,
+          minWidth: 320,
+          maxHeight: 500,
+          closeButton: true,
+          autoPan: true,
+          autoPanPadding: [80, 80],
+          keepInView: true
+        })
 
         const radius = 50000
         const circle = L.circle([lat, lng], {
@@ -267,12 +384,23 @@ const DealersPage = () => {
         highlightRef.current.push(circle)
 
         marker.on('click', () => {
+          // Fly to marker location with smooth animation
+          mapInstanceRef.current?.flyTo([lat, lng], 10, {
+            animate: true,
+            duration: 1.5,
+          })
+          
+          // Update UI state
           setSelectedCountry(dealer.country)
           setExpandedDealer(dealer.id)
-          const cardElement = document.getElementById(`dealer-card-${dealer.id}`)
-          if (cardElement) {
-            cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          }
+          
+          // Scroll to dealer card in sidebar
+          setTimeout(() => {
+            const cardElement = document.getElementById(`dealer-card-${dealer.id}`)
+            if (cardElement) {
+              cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            }
+          }, 500)
         })
 
         marker.on('popupopen', () => {
@@ -502,16 +630,23 @@ const DealersPage = () => {
                                   : dealer.longitude!
                                 
                                 if (mapInstanceRef.current && !isNaN(lat) && !isNaN(lng)) {
-                                  mapInstanceRef.current.setView([lat, lng], 8, { animate: true })
-                                  
-                                  const marker = markersRef.current.find((m) => {
-                                    const markerPos = m.getLatLng()
-                                    return Math.abs(markerPos.lat - lat) < 0.001 && Math.abs(markerPos.lng - lng) < 0.001
+                                  // Fly to location with smooth animation
+                                  mapInstanceRef.current.flyTo([lat, lng], 12, {
+                                    animate: true,
+                                    duration: 1.5,
                                   })
                                   
-                                  if (marker) {
-                                    marker.openPopup()
-                                  }
+                                  // Find and open the marker popup
+                                  setTimeout(() => {
+                                    const marker = markersRef.current.find((m) => {
+                                      const markerPos = m.getLatLng()
+                                      return Math.abs(markerPos.lat - lat) < 0.001 && Math.abs(markerPos.lng - lng) < 0.001
+                                    })
+                                    
+                                    if (marker) {
+                                      marker.openPopup()
+                                    }
+                                  }, 1000)
                                   
                                   setExpandedDealer(dealer.id)
                                 }
@@ -602,8 +737,12 @@ const DealersPage = () => {
         </div>
 
         {/* Google Map */}
-        <div>
-          <div ref={mapRef} className="w-full h-[600px] rounded-lg border border-gray-300" />
+        <div className="relative">
+          <div 
+            ref={mapRef} 
+            className="w-full h-[600px] rounded-lg border border-gray-300 shadow-md relative z-0" 
+            style={{ position: 'relative' }}
+          />
         </div>
       </div>
       </div>

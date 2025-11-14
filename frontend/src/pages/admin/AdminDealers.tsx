@@ -83,6 +83,28 @@ const normalizePhoneForInput = (value?: string) => {
   return value.replace(/[^0-9]/g, '')
 }
 
+// Parse phone numbers for display (keeps + symbol and formatting)
+const parsePhoneNumbersForDisplay = (value?: string): string[] => {
+  if (!value) return []
+
+  try {
+    const parsed = JSON.parse(value)
+    if (Array.isArray(parsed) && parsed.length) {
+      const phones = parsed
+        .map((item) => (typeof item === 'string' ? item.trim() : ''))
+        .filter(Boolean)
+      return phones
+    }
+  } catch (_error) {
+    if (typeof value === 'string' && value.trim()) {
+      return [value.trim()]
+    }
+  }
+
+  return []
+}
+
+// Parse phone numbers for editing (removes + for PhoneInput component)
 const parsePhoneNumbers = (value?: string): PhoneArray => {
   if (!value) return ['']
 
@@ -149,6 +171,7 @@ const AdminDealers = () => {
   const [pendingCountryName, setPendingCountryName] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [viewingDealer, setViewingDealer] = useState<Dealer | null>(null)
+  const [statusChangeDealer, setStatusChangeDealer] = useState<Dealer | null>(null)
 
   const inputClassName = (hasError?: boolean) =>
     `mt-1 block w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 ${
@@ -243,6 +266,30 @@ const AdminDealers = () => {
     }
   }
 
+  const handleStatusToggle = (dealer: Dealer) => {
+    setStatusChangeDealer(dealer)
+  }
+
+  const confirmStatusChange = async () => {
+    if (!statusChangeDealer) return
+
+    try {
+      await adminAPI.dealers.update(statusChangeDealer.id, {
+        ...statusChangeDealer,
+        is_active: !statusChangeDealer.is_active,
+      })
+      fetchDealers()
+      setStatusChangeDealer(null)
+    } catch (error) {
+      alert('Error updating dealer status')
+      setStatusChangeDealer(null)
+    }
+  }
+
+  const cancelStatusChange = () => {
+    setStatusChangeDealer(null)
+  }
+
   const handleEdit = (dealer: Dealer) => {
     setEditingDealer(dealer)
     const { location, website } = parseDealerMetadata(dealer.description)
@@ -288,36 +335,26 @@ const AdminDealers = () => {
       return
     }
 
-    const payload = {
-      ...formData,
+    // Filter out empty phone numbers and keep them with country codes
+    const cleanedPhones = formData.phoneNumbers
+      .map((phone) => phone.trim())
+      .filter((phone) => phone.length > 0)
+
+    const submissionData: Record<string, any> = {
       company_name: formData.company_name.trim(),
       contact_person: formData.contact_person.trim(),
       email: formData.email.trim(),
-      phoneNumbers: formData.phoneNumbers.map((value) => value.trim()),
+      phoneNumbers: cleanedPhones, // Send as array, backend will handle JSON conversion
       address: formData.address.trim(),
-      city: (formData.state || formData.city).trim(),
+      city: formData.state.trim(), // Use state as city
       state: formData.state.trim(),
       country: formData.country.trim(),
       location_embed: formData.location_embed.trim(),
       website: formData.website.trim(),
+      is_active: formData.is_active,
     }
 
-    const sanitizedPhones = payload.phoneNumbers
-      .map((phone) => phone.replace(/[^0-9]/g, ''))
-      .filter(Boolean)
-
-    const submissionData: Record<string, any> = {
-      company_name: payload.company_name,
-      contact_person: payload.contact_person,
-      email: payload.email,
-      phone: sanitizedPhones.length ? JSON.stringify(sanitizedPhones.map((phone) => `+${phone}`)) : '',
-      address: payload.address,
-      city: payload.city || payload.state,
-      state: payload.state,
-      country: payload.country,
-      description: buildDealerDescription(payload.location_embed, payload.website),
-      is_active: payload.is_active,
-    }
+    console.log('Submitting dealer data:', submissionData)
 
     try {
       if (editingDealer) {
@@ -328,6 +365,7 @@ const AdminDealers = () => {
       fetchDealers()
       resetForm()
     } catch (error: any) {
+      console.error('Error saving dealer:', error)
       alert(error.response?.data?.message || 'Error saving dealer')
     }
   }
@@ -466,14 +504,17 @@ const AdminDealers = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {dealers.map((dealer, index) => {
               const { website } = parseDealerMetadata(dealer.description)
-              const phoneNumbers = parsePhoneNumbers(dealer.phone)
+              const phoneNumbers = parsePhoneNumbersForDisplay(dealer.phone)
               const showCity =
                 dealer.city &&
                 dealer.state &&
                 dealer.city.toLowerCase() !== dealer.state.toLowerCase()
 
               return (
-                <tr key={dealer.id}>
+                <tr 
+                  key={dealer.id}
+                  className={dealer.is_active ? 'bg-green-50' : 'bg-red-50'}
+                >
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{dealer.company_name}</div>
@@ -510,13 +551,16 @@ const AdminDealers = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full ${
-                        dealer.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    <button
+                      onClick={() => handleStatusToggle(dealer)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors cursor-pointer ${
+                        dealer.is_active 
+                          ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                          : 'bg-red-100 text-red-800 hover:bg-red-200'
                       }`}
                     >
-                      {dealer.is_active ? 'Active' : 'Inactive'}
-                    </span>
+                      {dealer.is_active ? '● Active' : '● Inactive'}
+                    </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button
@@ -850,7 +894,7 @@ const AdminDealers = () => {
       {viewingDealer && (() => {
         const { location, website } = parseDealerMetadata(viewingDealer.description)
         const { embedHtml, text } = extractLocationInfo(location)
-        const phones = parsePhoneNumbers(viewingDealer.phone)
+        const phones = parsePhoneNumbersForDisplay(viewingDealer.phone)
 
         return (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -898,9 +942,9 @@ const AdminDealers = () => {
                     </p>
                   </div>
 
-                  {phones.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Phone Numbers</p>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Phone Numbers</p>
+                    {phones.length > 0 ? (
                       <ul className="mt-1 space-y-1 text-sm text-gray-700">
                         {phones.map((phone, idx) => (
                           <li key={idx}>
@@ -913,12 +957,14 @@ const AdminDealers = () => {
                           </li>
                         ))}
                       </ul>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-sm text-gray-400">—</p>
+                    )}
+                  </div>
 
-                  {website && (
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Website</p>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Website</p>
+                    {website ? (
                       <a
                         href={website}
                         target="_blank"
@@ -927,8 +973,10 @@ const AdminDealers = () => {
                       >
                         {website}
                       </a>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-sm text-gray-400">—</p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -969,6 +1017,63 @@ const AdminDealers = () => {
           </div>
         )
       })()}
+
+      {statusChangeDealer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="bg-red-500 text-white px-6 py-4 rounded-t-lg flex items-center justify-between">
+              <h3 className="text-lg font-semibold uppercase">
+                Dealer : {statusChangeDealer.company_name}
+              </h3>
+              <button
+                onClick={cancelStatusChange}
+                className="text-white hover:text-gray-200 text-2xl leading-none"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="px-6 py-5">
+              <h4 className="text-base font-semibold text-gray-900 mb-3">
+                CHANGE {statusChangeDealer.company_name.toUpperCase()} STATUS
+              </h4>
+              
+              <p className="text-sm text-gray-700 mb-2">
+                Are you sure you want to change the {statusChangeDealer.company_name} Status?
+              </p>
+              
+              <p className="text-sm text-gray-600">
+                All the <strong>data</strong> under this dealer will {statusChangeDealer.is_active ? 'not be displayed' : 'be displayed'}.
+              </p>
+            </div>
+            
+            <div className="px-6 pb-5 flex items-center gap-3">
+              <button
+                onClick={confirmStatusChange}
+                className="flex-1 bg-red-500 text-white px-4 py-2.5 rounded hover:bg-red-600 font-medium text-sm"
+              >
+                Yes, Make the Status {statusChangeDealer.is_active ? 'Inactive' : 'Active'}
+              </button>
+              <button
+                onClick={cancelStatusChange}
+                className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 font-medium text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+            
+            <div className="px-6 pb-5">
+              <button
+                onClick={cancelStatusChange}
+                className="w-full bg-gray-500 text-white px-4 py-2.5 rounded hover:bg-gray-600 font-medium text-sm uppercase"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
