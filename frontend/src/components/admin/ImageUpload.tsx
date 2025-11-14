@@ -114,7 +114,7 @@ const ImageUpload = ({
       <div
         className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
           isDragging
-            ? 'border-primary-500 bg-primary-50'
+            ? 'border-[#9dbf93] bg-[#f5f9f4]'
             : 'border-gray-300 hover:border-gray-400'
         }`}
         onDragEnter={handleDragEnter}

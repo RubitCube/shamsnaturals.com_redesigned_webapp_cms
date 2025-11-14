@@ -28,6 +28,7 @@ import AdminPages from './pages/admin/AdminPages'
 import AdminSEO from './pages/admin/AdminSEO'
 import AdminCountries from './pages/admin/AdminCountries'
 import AdminCountryStates from './pages/admin/AdminCountryStates'
+import AdminChangePassword from './pages/admin/AdminChangePassword'
 import AnalyticsTracker from './components/AnalyticsTracker'
 
 // Component to handle /admin redirect
@@ -71,6 +72,7 @@ function App() {
                     <Route path="seo" element={<AdminSEO />} />
                     <Route path="countries" element={<AdminCountries />} />
                     <Route path="countries/:countryId/states" element={<AdminCountryStates />} />
+                    <Route path="change-password" element={<AdminChangePassword />} />
                   </Routes>
                 </AdminLayout>
               </ProtectedRoute>

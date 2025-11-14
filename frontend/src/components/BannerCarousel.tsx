@@ -1,65 +1,66 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 interface Banner {
-  id: number
-  title?: string
-  description?: string
-  image_path: string
-  link?: string
+  id: number;
+  title?: string;
+  description?: string;
+  image_path: string;
+  link?: string;
 }
 
 interface BannerCarouselProps {
-  banners: Banner[]
+  banners: Banner[];
 }
 
 const BannerCarousel = ({ banners }: BannerCarouselProps) => {
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    if (banners.length <= 1) return
+    if (banners.length <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % banners.length)
-    }, 5000)
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
+    }, 5000);
 
-    return () => clearInterval(interval)
-  }, [banners.length])
+    return () => clearInterval(interval);
+  }, [banners.length]);
 
-  if (!banners || banners.length === 0) return null
-
-  const currentBanner = banners[currentIndex]
-  const imageUrl = currentBanner.image_path.startsWith('http')
-    ? currentBanner.image_path
-    : `http://localhost:8000/storage/${currentBanner.image_path}`
+  if (!banners || banners.length === 0) return null;
 
   return (
-    <div className="relative h-[500px] md:h-[600px] overflow-hidden">
+    <div className="relative w-full overflow-hidden rounded-3xl min-h-[240px] sm:min-h-[320px] lg:h-[520px]">
       {banners.map((banner, index) => {
-        const bannerImageUrl = banner.image_path.startsWith('http')
+        const bannerImageUrl = banner.image_path.startsWith("http")
           ? banner.image_path
-          : `http://localhost:8000/storage/${banner.image_path}`
-        
+          : `http://localhost:8000/storage/${banner.image_path}`;
+
         return (
           <div
             key={banner.id}
             className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentIndex ? 'opacity-100' : 'opacity-0'
+              index === currentIndex ? "opacity-100" : "opacity-0"
             }`}
           >
             {banner.link ? (
               <Link to={banner.link}>
                 <img
                   src={bannerImageUrl}
-                  alt={banner.title || 'Banner'}
+                  alt={banner.title || "Banner"}
                   className="w-full h-full object-cover"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  sizes="(max-width: 640px) 100vw, 1200px"
                 />
               </Link>
             ) : (
               <img
                 src={bannerImageUrl}
-                alt={banner.title || 'Banner'}
+                alt={banner.title || "Banner"}
                 className="w-full h-full object-cover"
+                loading={index === 0 ? "eager" : "lazy"}
+                decoding="async"
+                sizes="(max-width: 640px) 100vw, 1200px"
               />
             )}
             {(banner.title || banner.description) && (
@@ -77,7 +78,7 @@ const BannerCarousel = ({ banners }: BannerCarouselProps) => {
               </div>
             )}
           </div>
-        )
+        );
       })}
 
       {/* Navigation Dots */}
@@ -88,7 +89,7 @@ const BannerCarousel = ({ banners }: BannerCarouselProps) => {
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`w-3 h-3 rounded-full transition-colors ${
-                index === currentIndex ? 'bg-white' : 'bg-white bg-opacity-50'
+                index === currentIndex ? "bg-white" : "bg-white bg-opacity-50"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
@@ -96,8 +97,7 @@ const BannerCarousel = ({ banners }: BannerCarouselProps) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default BannerCarousel
-
+export default BannerCarousel;

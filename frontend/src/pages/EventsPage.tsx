@@ -86,7 +86,7 @@ const EventsPage = () => {
                   </div>
                   <Link
                     to={`/events/${event.slug}`}
-                    className="inline-block bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                    className="inline-block btn-primary px-6 py-2"
                   >
                     Read More
                   </Link>

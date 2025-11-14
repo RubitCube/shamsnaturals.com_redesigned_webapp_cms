@@ -152,7 +152,7 @@ const AdminPages = () => {
             })
             setShowModal(true)
           }}
-          className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700"
+          className="btn-primary px-4 py-2"
         >
           Add New Page
         </button>
@@ -181,7 +181,7 @@ const AdminPages = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                   <button
                     onClick={() => handleEdit(page)}
-                    className="text-primary-600 hover:text-primary-900"
+                    className="text-[#1f4b2b] hover:text-[#0b2f19]"
                   >
                     Edit
                   </button>
@@ -310,7 +310,7 @@ const AdminPages = () => {
                 <button
                   type="submit"
                   disabled={uploadingImages}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {uploadingImages ? 'Saving...' : editingPage ? 'Update' : 'Create'}
                 </button>

@@ -481,7 +481,7 @@ const AdminDealers = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Dealers Management</h2>
-        <button onClick={openCreateModal} className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700">
+        <button onClick={openCreateModal} className="btn-primary px-4 py-2">
           Add New Dealer
         </button>
       </div>
@@ -777,7 +777,7 @@ const AdminDealers = () => {
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, phoneNumbers: [...formData.phoneNumbers, ''] })}
-                      className="self-start px-3 py-2 text-sm text-primary-700 border border-primary-200 rounded-lg hover:bg-primary-50"
+                      className="self-start px-3 py-2 text-sm text-[#1f4b2b] border border-[#b8d2b0] rounded-lg hover:bg-[#ecf4e6]"
                     >
                       + Add another phone
                     </button>
@@ -880,7 +880,7 @@ const AdminDealers = () => {
                   </button>
                   <button
                     type="submit"
-                    className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700"
+                    className="btn-primary rounded-lg px-4 py-2 text-sm shadow-sm transition"
                   >
                     {editingDealer ? 'Update Dealer' : 'Create Dealer'}
                   </button>
@@ -1000,13 +1000,13 @@ const AdminDealers = () => {
                         setViewingDealer(null)
                         handleEdit(viewingDealer)
                       }}
-                      className="px-4 py-2 border border-primary-200 text-primary-600 rounded-lg hover:bg-primary-50"
+                      className="px-4 py-2 border border-[#b8d2b0] text-[#1f4b2b] rounded-lg hover:bg-[#ecf4e6]"
                     >
                       Edit Dealer
                     </button>
                     <button
                       onClick={() => setViewingDealer(null)}
-                      className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                      className="btn-primary px-4 py-2 rounded-lg"
                     >
                       Close
                     </button>

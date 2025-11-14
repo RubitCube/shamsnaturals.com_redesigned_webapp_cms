@@ -83,6 +83,8 @@ export const authAPI = {
   login: (email: string, password: string) => api.post('/auth/login', { email, password }),
   logout: () => api.post('/auth/logout'),
   getUser: () => api.get('/auth/user'),
+  changePassword: (data: { current_password: string; new_password: string; new_password_confirmation: string }) =>
+    api.post('/auth/change-password', data),
 }
 
 export const analyticsAPI = {

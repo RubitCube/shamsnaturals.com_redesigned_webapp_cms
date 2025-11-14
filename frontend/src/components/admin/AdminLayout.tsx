@@ -1,5 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import logo from '../../assets/company_logo_image/shamsnaturals-logo.png'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -9,6 +11,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { user, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const menuItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
@@ -21,6 +24,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { path: '/admin/pages', label: 'Pages', icon: '📄' },
     { path: '/admin/countries', label: 'Countries (Region)', icon: '🌍' },
     { path: '/admin/seo', label: 'SEO Management', icon: '🔍' },
+    { path: '/admin/change-password', label: 'Change Password', icon: '🔐' },
   ]
 
   const handleLogout = () => {
@@ -31,12 +35,23 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-100 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-800 text-white min-h-screen flex flex-col fixed left-0 top-0 bottom-0">
-        <div className="p-4">
-          <Link to="/admin/dashboard" className="text-2xl font-bold text-white">
-            Shams Naturals
+      <aside
+        className={`w-64 bg-gray-800 text-white min-h-screen flex flex-col fixed left-0 top-0 bottom-0 transform transition-transform duration-300 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="p-4 flex flex-col items-center text-center">
+          <Link to="/admin/dashboard" className="inline-flex items-center justify-center mb-2" aria-label="Shams Naturals Admin">
+            <img
+              src={logo}
+              alt="Shams Naturals"
+              className="h-16 w-auto object-contain drop-shadow-lg"
+              loading="lazy"
+              width={160}
+              height={48}
+            />
           </Link>
-          <p className="text-gray-400 text-sm mt-1">Admin Panel</p>
+          <p className="text-sm font-semibold tracking-wide text-[#dcecd5] uppercase">Admin Panel</p>
         </div>
         
         <nav className="mt-8 flex-1 overflow-y-auto">
@@ -49,7 +64,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                     to={item.path}
                     className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
                       isActive
-                        ? 'bg-primary-600 text-white'
+                        ? 'bg-[#dcecd5] text-[#0f3b1e] font-semibold shadow-sm'
                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                     }`}
                   >
@@ -69,18 +84,45 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           </div>
           <button
             onClick={handleLogout}
-            className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            className="btn-primary w-full px-4 py-2 text-center"
           >
             Logout
           </button>
         </div>
       </aside>
 
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-10 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Main Content */}
-      <div className="flex-1 flex flex-col ml-64">
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300 ${
+          sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'
+        } ml-0 relative z-20`}
+      >
         {/* Header */}
-        <header className="bg-white shadow">
-          <div className="px-6 py-4">
+        <header className="bg-white shadow sticky top-0 z-30">
+          <div className="px-4 sm:px-6 py-4 flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="inline-flex items-center justify-center text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a7c28] rounded-lg border border-gray-200 p-2 bg-white shadow-sm"
+              aria-label="Toggle navigation menu"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                {sidebarOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
             <h1 className="text-2xl font-semibold text-gray-900">
               {menuItems.find(item => location.pathname.startsWith(item.path))?.label || 'Admin Panel'}
             </h1>

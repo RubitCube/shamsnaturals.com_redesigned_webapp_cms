@@ -71,7 +71,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#dcecd5]"></div>
       </div>
     )
   }
@@ -150,7 +150,7 @@ const AdminDashboard = () => {
                 title="Total Visits"
                 value={summary.totals.visits}
                 subtitle="All-time"
-                accent="bg-primary-100 text-primary-700"
+                accent="bg-[#f3f7ef] text-[#2f4c32]"
               />
               <AnalyticsCard
                 title="Visits Today"
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
                     <div key={bar.day} className="flex-1 flex flex-col items-center">
                       <div className="text-xs text-gray-500 mb-2">{bar.value}</div>
                       <div
-                        className="w-full max-w-[32px] bg-gradient-to-t from-primary-500 via-primary-400 to-primary-300 rounded-t"
+                        className="w-full max-w-[32px] bg-gradient-to-t from-[#dcecd5] via-[#c4d5bb] to-[#b0c8a5] rounded-t"
                         style={{ height: `${Math.max(bar.height, 8)}%` }}
                         title={`${bar.day}: ${bar.value} visits`}
                       ></div>

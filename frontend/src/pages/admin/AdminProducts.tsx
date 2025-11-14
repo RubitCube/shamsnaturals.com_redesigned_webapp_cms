@@ -172,7 +172,7 @@ const AdminProducts = () => {
             })
             setShowModal(true)
           }}
-          className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700"
+          className="btn-primary px-4 py-2"
         >
           Add New Product
         </button>
@@ -414,7 +414,7 @@ const AdminProducts = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                  className="btn-primary px-4 py-2 rounded-md"
                 >
                   {editingProduct ? 'Update' : 'Create'}
                 </button>

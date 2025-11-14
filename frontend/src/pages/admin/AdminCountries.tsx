@@ -152,7 +152,7 @@ const AdminCountries = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#dcecd5]"></div>
       </div>
     )
   }
@@ -199,7 +199,7 @@ const AdminCountries = () => {
           </div>
           <button
             onClick={() => openModal()}
-            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 whitespace-nowrap"
+            className="btn-primary px-4 py-2 whitespace-nowrap"
           >
             + Add Country (Region)
           </button>
@@ -249,7 +249,7 @@ const AdminCountries = () => {
                       <span className="font-semibold">{country.states_count}</span>
                       <button
                         onClick={() => navigate(`/admin/countries/${country.id}/states`)}
-                        className="text-primary-600 hover:text-primary-800 text-xs font-semibold"
+                        className="text-[#1f4b2b] hover:text-[#0f3b1e] text-xs font-semibold"
                       >
                         View States
                       </button>
@@ -258,7 +258,7 @@ const AdminCountries = () => {
                         onClick={() =>
                           navigate(`/admin/countries/${country.id}/states?mode=add`)
                         }
-                        className="text-primary-600 hover:text-primary-800 text-xs font-semibold"
+                        className="text-[#1f4b2b] hover:text-[#0f3b1e] text-xs font-semibold"
                       >
                         + Add State
                       </button>
@@ -282,7 +282,7 @@ const AdminCountries = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                     <button
                       onClick={() => openModal(country)}
-                      className="text-primary-600 hover:text-primary-900"
+                      className="text-[#1f4b2b] hover:text-[#0b2f19]"
                     >
                       Edit
                     </button>
@@ -335,7 +335,7 @@ const AdminCountries = () => {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-[#9dbf93] focus:border-[#9dbf93]"
                   placeholder="Enter country / region name"
                 />
               </div>
@@ -348,7 +348,7 @@ const AdminCountries = () => {
                   type="text"
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary-500 focus:border-primary-500 uppercase"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 uppercase focus:ring-[#9dbf93] focus:border-[#9dbf93]"
                   placeholder="e.g., AE"
                 />
               </div>
@@ -378,7 +378,7 @@ const AdminCountries = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? 'Saving...' : editingCountry ? 'Update Country' : 'Create Country'}
                 </button>

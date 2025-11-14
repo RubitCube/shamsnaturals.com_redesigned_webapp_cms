@@ -172,7 +172,7 @@ const AdminCountryStates = () => {
   if (loading && !country) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#dcecd5]"></div>
       </div>
     )
   }
@@ -185,7 +185,7 @@ const AdminCountryStates = () => {
             <h2 className="text-2xl font-semibold">
               States (Emirates){' '}
               {country ? (
-                <span className="text-primary-600">— {country.name}</span>
+                <span className="text-[#1f4b2b]">— {country.name}</span>
               ) : null}
             </h2>
           </div>
@@ -232,7 +232,7 @@ const AdminCountryStates = () => {
           </div>
           <button
             onClick={() => openModal()}
-            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 whitespace-nowrap"
+            className="btn-primary px-4 py-2 whitespace-nowrap"
           >
             + Add State (Emirate)
           </button>
@@ -289,7 +289,7 @@ const AdminCountryStates = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                     <button
                       onClick={() => openModal(stateItem)}
-                      className="text-primary-600 hover:text-primary-900"
+                      className="text-[#1f4b2b] hover:text-[#0b2f19]"
                     >
                       Edit
                     </button>
@@ -354,7 +354,7 @@ const AdminCountryStates = () => {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-[#9dbf93] focus:border-[#9dbf93]"
                   placeholder="Enter state / emirate name"
                 />
               </div>
@@ -384,7 +384,7 @@ const AdminCountryStates = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? 'Saving...' : editingState ? 'Update State' : 'Create State'}
                 </button>

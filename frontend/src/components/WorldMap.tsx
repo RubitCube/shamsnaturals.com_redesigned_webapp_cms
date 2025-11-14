@@ -2,20 +2,18 @@ import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import butterflyMarker from '../assets/map marker image/buterrfly_map_marker.png'
 
-// Fix for default marker icons in Leaflet - using CDN URLs
-// This avoids Vite import issues with node_modules images
-const DefaultIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
+const BrandMarkerIcon = L.icon({
+  iconUrl: butterflyMarker,
+  iconRetinaUrl: butterflyMarker,
+  iconSize: [46, 46],
+  iconAnchor: [23, 40],
+  popupAnchor: [0, -38],
+  className: 'dealer-brand-marker',
 })
 
-L.Marker.prototype.options.icon = DefaultIcon
+L.Marker.prototype.options.icon = BrandMarkerIcon
 
 const parsePhoneNumbers = (value?: string) => {
   if (!value) return [] as string[]
@@ -99,9 +97,7 @@ const WorldMap = ({ dealers = [] }: WorldMapProps) => {
           const lng = typeof dealer.longitude === 'string' ? parseFloat(dealer.longitude) : dealer.longitude
           
           if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-            const marker = L.marker([lat, lng], {
-              icon: DefaultIcon,
-            }).addTo(mapRef.current!)
+            const marker = L.marker([lat, lng]).addTo(mapRef.current!)
 
             const phoneNumbers = parsePhoneNumbers(dealer.phone as any)
             const phoneHtml = phoneNumbers.length

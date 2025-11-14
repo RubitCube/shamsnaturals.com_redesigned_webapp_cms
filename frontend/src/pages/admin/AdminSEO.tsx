@@ -107,7 +107,7 @@ const AdminSEO = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#dcecd5]"></div>
       </div>
     )
   }
@@ -152,7 +152,7 @@ const AdminSEO = () => {
                   key={`${page.type}-${page.id}`}
                   className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
                     editingPage?.id === page.id && editingPage?.type === page.type
-                      ? 'bg-primary-50 border-l-4 border-primary-600'
+                      ? 'bg-[#f5f9f4] border-l-4 border-[#dcecd5]'
                       : ''
                   }`}
                   onClick={() => handleEdit(page)}
@@ -446,7 +446,7 @@ const AdminSEO = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? 'Saving...' : 'Save SEO Settings'}
                 </button>

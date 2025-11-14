@@ -38,7 +38,7 @@ const ProductsPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#dcecd5]"></div>
       </div>
     )
   }
@@ -57,7 +57,7 @@ const ProductsPage = () => {
             }}
             className={`px-4 py-2 rounded-lg ${
               !selectedCategory
-                ? 'bg-primary-600 text-white'
+                ? 'btn-primary'
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             }`}
           >
@@ -72,7 +72,7 @@ const ProductsPage = () => {
                 }}
                 className={`px-4 py-2 rounded-lg ${
                   selectedCategory === cat.slug
-                    ? 'bg-primary-600 text-white'
+                    ? 'btn-primary'
                     : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                 }`}
               >
