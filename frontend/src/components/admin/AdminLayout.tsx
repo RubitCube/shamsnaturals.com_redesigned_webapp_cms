@@ -133,6 +133,20 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <main className="flex-1 p-6 bg-gray-100">
           {children}
         </main>
+        <footer className="bg-gray-50 border-t border-gray-200 px-6 py-4 text-xs text-gray-500 text-center">
+          <p>&copy; {new Date().getFullYear()} Shams Naturals. Secure CMS.</p>
+          <p className="mt-1">
+            Designed &amp; Developed by{' '}
+            <a
+              href="https://rubitcube.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[#14532d] hover:text-[#4a7c28] underline-offset-2 hover:underline transition-colors"
+            >
+              RubitCube
+            </a>
+          </p>
+        </footer>
       </div>
     </div>
   )

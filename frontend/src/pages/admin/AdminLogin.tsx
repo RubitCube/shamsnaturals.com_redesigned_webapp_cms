@@ -80,14 +80,21 @@ const AdminLogin = () => {
       <div className="relative z-10 flex min-h-screen items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 bg-white/90 backdrop-blur rounded-2xl shadow-2xl border border-white/40 px-8 py-10">
         <div className="text-center">
-          <img
-            src={logo}
-            alt="Shams Naturals"
-            className="mx-auto h-20 w-auto object-contain drop-shadow"
-            loading="lazy"
-            width={200}
-            height={60}
-          />
+          <a
+            href="https://shamsnaturals.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Shams Naturals Website"
+          >
+            <img
+              src={logo}
+              alt="Shams Naturals"
+              className="mx-auto h-20 w-auto object-contain drop-shadow"
+              loading="lazy"
+              width={200}
+              height={60}
+            />
+          </a>
           <p className="mt-4 text-center text-2xl font-extrabold text-gray-900 tracking-wide">
             Shams Naturals CMS Admin Panel
           </p>

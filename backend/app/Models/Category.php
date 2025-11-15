@@ -15,8 +15,14 @@ class Category extends Model
         'slug',
         'description',
         'image',
+        'banner',
         'order',
         'is_active',
+    ];
+
+    protected $appends = [
+        'image_url',
+        'banner_url',
     ];
 
     public function subcategories(): HasMany
@@ -27,6 +33,16 @@ class Category extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
+
+    public function getBannerUrlAttribute(): ?string
+    {
+        return $this->banner ? asset('storage/' . $this->banner) : null;
     }
 
     public function seo()

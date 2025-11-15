@@ -37,16 +37,24 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <img
-              src={logo}
-              alt="Shams Naturals"
-              className="h-16 w-auto object-contain mb-4"
-              loading="lazy"
-              width={160}
-              height={48}
-            />
+            <a
+              href="https://shamsnaturals.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Shams Naturals Website"
+              className="inline-flex"
+            >
+              <img
+                src={logo}
+                alt="Shams Naturals"
+                className="h-16 w-auto object-contain mb-4"
+                loading="lazy"
+                width={160}
+                height={48}
+              />
+            </a>
             <p className="text-sm">
-              Leading provider of eco-friendly bags and sustainable products.
+              Your go-to partner for eco-friendly, promotional &amp; custom bags in the UAE.
             </p>
             <div className="mt-4 text-sm text-[#4a7c28]">
               <p className="font-semibold">Live Visitor Count</p>
@@ -108,14 +116,41 @@ const Footer = () => {
           <div>
             <h4 className="text-[#1a4a2a] font-semibold mb-4">Contact</h4>
             <ul className="space-y-2 text-sm">
-              <li>Email: info@shamsnaturals.com</li>
-              <li>Phone: +971 XX XXX XXXX</li>
+              <li>
+                Email:{' '}
+                <a
+                  href="mailto:info@shamsnaturals.com"
+                  className="text-[#1a4a2a] hover:text-[#4a7c28] transition-colors underline-offset-2 hover:underline"
+                >
+                  info@shamsnaturals.com
+                </a>
+              </li>
+              <li>
+                Phone:{' '}
+                <a
+                  href="tel:+971551906177"
+                  className="text-[#1a4a2a] hover:text-[#4a7c28] transition-colors"
+                >
+                  +971 55 190 6177
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-[#d7ccb9] mt-8 pt-8 text-center text-sm">
+        <div className="border-t border-[#d7ccb9] mt-8 pt-8 text-center text-sm space-y-2">
           <p>&copy; {new Date().getFullYear()} Shams Naturals. All rights reserved.</p>
+          <p className="text-xs text-gray-600">
+            Website Designed &amp; Developed by{' '}
+            <a
+              href="https://rubitcube.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[#1a4a2a] hover:text-[#4a7c28] underline-offset-2 hover:underline transition-colors"
+            >
+              RubitCube
+            </a>
+          </p>
         </div>
       </div>
     </footer>

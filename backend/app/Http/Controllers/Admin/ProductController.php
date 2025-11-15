@@ -11,11 +11,17 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['category', 'subcategory', 'images'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $query = Product::with(['category', 'subcategory', 'images'])
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        $perPage = $request->input('per_page', 20);
+        $products = $query->paginate($perPage);
 
         return response()->json($products);
     }

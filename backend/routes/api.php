@@ -67,6 +67,7 @@ Route::prefix('v1/admin')->middleware('auth:sanctum')->group(function () {
     Route::post('products/{id}/upload', [\App\Http\Controllers\Admin\ProductController::class, 'uploadImage']);
     
     // Categories
+    Route::post('categories/reorder', [\App\Http\Controllers\Admin\CategoryController::class, 'reorder']);
     Route::apiResource('categories', \App\Http\Controllers\Admin\CategoryController::class);
     
     // Banners

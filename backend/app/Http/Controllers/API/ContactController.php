@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ContactEnquirySubmitted;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
@@ -31,7 +34,7 @@ class ContactController extends Controller
 
         if (!$recaptchaData['success']) {
             return response()->json([
-                'message' => 'reCAPTCHA verification failed',
+                'message' => 'We could not verify the reCAPTCHA. Please try again.',
             ], 422);
         }
 
@@ -42,6 +45,26 @@ class ContactController extends Controller
             'subject',
             'message',
         ]));
+
+        $mailPayload = [
+            'name' => $request->input('name', '-'),
+            'email' => $request->input('email', '-'),
+            'phone' => $request->input('phone', '-'),
+            'message' => $request->input('message', '-'),
+        ];
+
+        try {
+            Mail::to(env('MAIL_CONTACT_TO', 'info@shamsbags.com'))
+                ->cc($request->email)
+                ->send(new ContactEnquirySubmitted($mailPayload));
+        } catch (\Throwable $th) {
+            Log::error('Contact enquiry email failed', ['error' => $th->getMessage()]);
+
+            return response()->json([
+                'message' => 'We received your enquiry but email delivery failed. Please try again later.',
+                'contact' => $contact,
+            ], 500);
+        }
 
         return response()->json([
             'message' => 'Contact form submitted successfully',

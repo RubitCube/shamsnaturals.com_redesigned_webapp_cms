@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { adminAPI } from '../../services/api'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 interface Product {
   id: number
@@ -38,11 +38,26 @@ const AdminProducts = () => {
   })
   const [categories, setCategories] = useState<any[]>([])
   const [subcategories, setSubcategories] = useState<any[]>([])
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [pendingEditId, setPendingEditId] = useState<number | null>(null)
 
   useEffect(() => {
     fetchProducts()
     fetchCategories()
   }, [])
+
+  useEffect(() => {
+    const editId = searchParams.get('edit')
+    if (editId) {
+      setPendingEditId(Number(editId))
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    if (pendingEditId) {
+      handleEditById(pendingEditId)
+    }
+  }, [pendingEditId])
 
   const fetchProducts = async () => {
     try {
@@ -75,11 +90,11 @@ const AdminProducts = () => {
     }
   }
 
-  const handleEdit = (product: Product) => {
-    setEditingProduct(product)
-    // Fetch full product details
-    adminAPI.products.getById(product.id).then((response) => {
+  const handleEditById = async (id: number) => {
+    try {
+      const response = await adminAPI.products.getById(id)
       const data = response.data
+      setEditingProduct(data)
       setFormData({
         name: data.name || '',
         category_id: data.category_id?.toString() || '',
@@ -97,7 +112,20 @@ const AdminProducts = () => {
         order: data.order?.toString() || '0',
       })
       setShowModal(true)
-    })
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev)
+        params.delete('edit')
+        return params
+      })
+      setPendingEditId(null)
+    } catch (error) {
+      console.error('Unable to load product for editing.')
+    }
+  }
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product)
+    handleEditById(product.id)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -143,6 +171,8 @@ const AdminProducts = () => {
     }
   }
 
+  const navigate = useNavigate()
+
   if (loading) {
     return <div>Loading...</div>
   }
@@ -151,29 +181,7 @@ const AdminProducts = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Products Management</h2>
-        <button
-          onClick={() => {
-            setEditingProduct(null)
-            setFormData({
-              name: '',
-              category_id: '',
-              subcategory_id: '',
-              description: '',
-              short_description: '',
-              price: '',
-              sale_price: '',
-              sku: '',
-              stock_quantity: '',
-              is_best_seller: false,
-              is_new_arrival: false,
-              is_featured: false,
-              is_active: true,
-              order: '0',
-            })
-            setShowModal(true)
-          }}
-          className="btn-primary px-4 py-2"
-        >
+        <button onClick={() => navigate('/admin/products/new')} className="btn-primary px-4 py-2">
           Add New Product
         </button>
       </div>

@@ -13,6 +13,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::with('subcategories')
+            ->withCount('products')
             ->orderBy('order')
             ->get();
 
@@ -25,6 +26,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
+            'banner' => 'nullable|image|max:4096',
             'order' => 'nullable|integer',
             'is_active' => 'nullable',
         ]);
@@ -32,7 +34,11 @@ class CategoryController extends Controller
         $validated['slug'] = Str::slug($validated['name']);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('categories', 'public');
+            $validated['image'] = $request->file('image')->store('categories/images', 'public');
+        }
+
+        if ($request->hasFile('banner')) {
+            $validated['banner'] = $request->file('banner')->store('categories/banners', 'public');
         }
 
         if ($request->has('is_active')) {
@@ -58,6 +64,7 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
+            'banner' => 'nullable|image|max:4096',
             'order' => 'nullable|integer',
             'is_active' => 'nullable',
         ]);
@@ -68,7 +75,14 @@ class CategoryController extends Controller
             if ($category->image) {
                 Storage::disk('public')->delete($category->image);
             }
-            $validated['image'] = $request->file('image')->store('categories', 'public');
+            $validated['image'] = $request->file('image')->store('categories/images', 'public');
+        }
+
+        if ($request->hasFile('banner')) {
+            if ($category->banner) {
+                Storage::disk('public')->delete($category->banner);
+            }
+            $validated['banner'] = $request->file('banner')->store('categories/banners', 'public');
         }
 
         if ($request->has('is_active')) {
@@ -83,9 +97,30 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $category = Category::findOrFail($id);
+        if ($category->image) {
+            Storage::disk('public')->delete($category->image);
+        }
+        if ($category->banner) {
+            Storage::disk('public')->delete($category->banner);
+        }
         $category->delete();
 
         return response()->json(['message' => 'Category deleted successfully']);
+    }
+
+    public function reorder(Request $request)
+    {
+        $validated = $request->validate([
+            'orders' => 'required|array',
+            'orders.*.id' => 'required|integer|exists:categories,id',
+            'orders.*.order' => 'required|integer',
+        ]);
+
+        foreach ($validated['orders'] as $orderData) {
+            Category::where('id', $orderData['id'])->update(['order' => $orderData['order']]);
+        }
+
+        return response()->json(['message' => 'Category priority updated successfully']);
     }
 }
 

@@ -19,7 +19,11 @@ import EventDetailPage from './pages/EventDetailPage'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminProducts from './pages/admin/AdminProducts'
+import AdminProductCreate from './pages/admin/AdminProductCreate'
+import AdminCategoryProducts from './pages/admin/AdminCategoryProducts'
 import AdminCategories from './pages/admin/AdminCategories'
+import AdminCategoryCreate from './pages/admin/AdminCategoryCreate'
+import AdminCategoryPriority from './pages/admin/AdminCategoryPriority'
 import AdminBanners from './pages/admin/AdminBanners'
 import AdminDealers from './pages/admin/AdminDealers'
 import AdminBlogs from './pages/admin/AdminBlogs'
@@ -63,7 +67,11 @@ function App() {
                   <Routes>
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="products" element={<AdminProducts />} />
+                    <Route path="products/new" element={<AdminProductCreate />} />
+                    <Route path="categories/:categoryId/products" element={<AdminCategoryProducts />} />
                     <Route path="categories" element={<AdminCategories />} />
+                    <Route path="categories/new" element={<AdminCategoryCreate />} />
+                    <Route path="categories/priority" element={<AdminCategoryPriority />} />
                     <Route path="banners" element={<AdminBanners />} />
                     <Route path="dealers" element={<AdminDealers />} />
                     <Route path="blogs" element={<AdminBlogs />} />

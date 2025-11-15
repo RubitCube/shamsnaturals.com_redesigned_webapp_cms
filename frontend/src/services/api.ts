@@ -110,6 +110,8 @@ export const adminAPI = {
   categories: {
     getAll: () => api.get('/admin/categories'),
     getById: (id: number) => api.get(`/admin/categories/${id}`),
+    reorder: (orders: { id: number; order: number }[]) =>
+      api.post('/admin/categories/reorder', { orders }),
     create: (data: FormData | any) => {
       if (data instanceof FormData) {
         return api.post('/admin/categories', data, {
