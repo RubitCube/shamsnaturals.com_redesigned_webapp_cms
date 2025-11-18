@@ -65,6 +65,7 @@ Route::prefix('v1/admin')->middleware('auth:sanctum')->group(function () {
     // Products
     Route::apiResource('products', \App\Http\Controllers\Admin\ProductController::class);
     Route::post('products/{id}/upload', [\App\Http\Controllers\Admin\ProductController::class, 'uploadImage']);
+    Route::post('products/{id}/images/reorder', [\App\Http\Controllers\Admin\ProductController::class, 'reorderImages']);
     
     // Categories
     Route::post('categories/reorder', [\App\Http\Controllers\Admin\CategoryController::class, 'reorder']);

@@ -33,3 +33,64 @@
 - Admin login carousel w/ glass card, CMS tagline, larger logos, hamburger sidebar toggle.
 - Added change password API + admin page, Products mega menu, About Us reorder.
 - Commit: `Day_5_14112025: Add CMS change password screen, brand marker updates, admin UI polish`.
+
+## Day 6 – 15 Nov 2025
+
+- **Category Management Redesign:**
+
+  - Redesigned category management page with table layout matching reference design (columns: #, Category, Sub Category Level 1, Products, Image, Banner, Priority, Status, Actions)
+  - Added "View Products" and "Add Products" buttons in Products column for each category
+  - Created standalone "Add Category" page (`AdminCategoryCreate.tsx`) with form matching reference (Category Name, Category Image, Category Banner fields with size hints)
+  - Implemented "Set Priority Category" page (`AdminCategoryPriority.tsx`) with drag-and-drop reordering functionality
+  - Added banner column to categories table (migration + model updates)
+  - Backend now returns `image_url` and `banner_url` for categories, includes `products_count`
+
+- **Product Management Enhancements:**
+
+  - Created standalone "Add Product" page (`AdminProductCreate.tsx`) matching reference design:
+    - Product Details section (Category, Sub Category, Product Code, Dimension, Color, Materials, New Arrivals, Status)
+    - Product Description section (textarea)
+    - Product Photos section (6 upload slots with size hints: 1000px \* 800px)
+  - Added edit mode support to `AdminProductCreate` - can edit products via `/admin/products/new?edit={id}`
+  - Created "View Product Details" page (`AdminCategoryProducts.tsx`) showing:
+    - Product Details card with all specifications
+    - Product Description card
+    - Product Photos section with image gallery
+  - Added "View" action button in Products Management table (navigates to category products view)
+  - Updated "Edit" action to use same form layout as Add Product
+  - Implemented "Set Priority Product Images" page (`AdminProductImagePriority.tsx`) with drag-and-drop reordering
+  - Products added from category page now appear in Products Management (shared API endpoint)
+
+- **Image Handling Fixes:**
+
+  - Fixed product image URLs - backend now generates absolute URLs with correct port (`http://localhost:8000/storage/...`)
+  - Updated `ProductImage` model to use `getHttpHost()` for proper URL generation
+  - Fixed frontend image resolution to always use backend URL instead of frontend origin
+  - Changed image storage to preserve original filenames (sanitized + timestamp) instead of random hashes
+  - Example: `product_image_1734523456.webp` instead of `JZv6vSA2nJqk5OGznucCdG2wsrENFt0eZDN0oSfi.webp`
+  - Fixed malformed URL concatenation issues
+  - Added proper error handling for broken images (hide instead of showing placeholder)
+
+- **Backend API Updates:**
+
+  - Added `reorderImages()` method to `ProductController` for updating product image order
+  - Route: `POST /admin/products/{id}/images/reorder`
+  - Updated `uploadImage()` to store files with original filenames
+  - Product images now sorted by `order` field when fetched
+  - Fixed `is_primary` field validation (accepts "1" string for boolean conversion)
+
+- **Database:**
+
+  - Created migration to add `banner` column to categories table
+  - Reset products table AUTO_INCREMENT to 1
+  - Product images table already had `order` column (used for priority)
+
+- **UI/UX Improvements:**
+
+  - All product images now display correctly in Product Photos section
+  - Drag-and-drop interface for both category and product image priority management
+  - Breadcrumb navigation throughout admin panel
+  - Consistent form layouts matching reference designs
+  - Proper loading states and error messages
+
+- Commit: `Day_6_15112025 enhance category and product admin flows`.

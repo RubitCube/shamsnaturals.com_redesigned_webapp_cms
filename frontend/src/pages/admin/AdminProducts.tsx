@@ -216,7 +216,13 @@ const AdminProducts = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                   <button
-                    onClick={() => handleEdit(product)}
+                    onClick={() => navigate(`/admin/categories/${product.category?.id || ''}/products?product=${product.id}`)}
+                    className="text-blue-600 hover:text-blue-900"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => navigate(`/admin/products/new?edit=${product.id}`)}
                     className="text-primary-600 hover:text-primary-900"
                   >
                     Edit

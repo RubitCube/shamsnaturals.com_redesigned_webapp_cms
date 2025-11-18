@@ -121,27 +121,59 @@ class ProductController extends Controller
         $request->validate([
             'image' => 'required|image|max:2048',
             'alt_text' => 'nullable|string|max:255',
-            'is_primary' => 'boolean',
+            'is_primary' => 'nullable',
         ]);
 
         $product = Product::findOrFail($id);
         
-        $path = $request->file('image')->store('products', 'public');
+        // Store with original filename
+        $file = $request->file('image');
+        $originalName = $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        $filename = pathinfo($originalName, PATHINFO_FILENAME);
+        
+        // Sanitize filename and ensure uniqueness
+        $safeFilename = preg_replace('/[^a-zA-Z0-9_-]/', '_', $filename);
+        $uniqueFilename = $safeFilename . '_' . time() . '.' . $extension;
+        
+        $path = $file->storeAs('products', $uniqueFilename, 'public');
+        
+        // Convert is_primary to boolean
+        $isPrimary = filter_var($request->input('is_primary', false), FILTER_VALIDATE_BOOLEAN);
         
         $image = ProductImage::create([
             'product_id' => $product->id,
             'image_path' => $path,
             'alt_text' => $request->alt_text,
-            'is_primary' => $request->is_primary ?? false,
+            'is_primary' => $isPrimary,
         ]);
 
-        if ($request->is_primary) {
+        if ($isPrimary) {
             ProductImage::where('product_id', $product->id)
                 ->where('id', '!=', $image->id)
                 ->update(['is_primary' => false]);
         }
 
         return response()->json($image, 201);
+    }
+
+    public function reorderImages(Request $request, $id)
+    {
+        $request->validate([
+            'orders' => 'required|array',
+            'orders.*.id' => 'required|exists:product_images,id',
+            'orders.*.order' => 'required|integer|min:0',
+        ]);
+
+        $product = Product::findOrFail($id);
+
+        foreach ($request->input('orders') as $orderData) {
+            ProductImage::where('id', $orderData['id'])
+                ->where('product_id', $product->id)
+                ->update(['order' => $orderData['order']]);
+        }
+
+        return response()->json(['message' => 'Image order updated successfully']);
     }
 }
 

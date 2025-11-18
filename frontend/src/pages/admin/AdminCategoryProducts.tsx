@@ -6,6 +6,7 @@ interface ProductImage {
   id: number
   image_path: string
   alt_text?: string
+  image_url?: string
 }
 
 interface Product {
@@ -33,6 +34,10 @@ const AdminCategoryProducts = () => {
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // Get product ID from query params
+  const urlParams = new URLSearchParams(window.location.search)
+  const productIdFromQuery = urlParams.get('product')
 
   useEffect(() => {
     const loadData = async () => {
@@ -47,8 +52,42 @@ const AdminCategoryProducts = () => {
 
         const data = productsResp.data.data || productsResp.data
         setProducts(data)
-        if (data.length) {
-          setSelectedProductId(data[0].id)
+        
+        // If product ID is in query params, fetch full product details with images
+        if (productIdFromQuery && data.length) {
+          const productId = Number(productIdFromQuery)
+          const exists = data.find((p: Product) => p.id === productId)
+          if (exists) {
+              // Fetch full product details to ensure images are loaded
+              try {
+                const fullProductResp = await adminAPI.products.getById(productId)
+                const fullProduct = fullProductResp.data
+                // Update the product in the list with full details
+                const updatedData = data.map((p: Product) => 
+                  p.id === productId ? { ...p, images: fullProduct.images || [] } : p
+                )
+                setProducts(updatedData)
+            } catch (err) {
+              console.error('Failed to load full product details:', err)
+            }
+            setSelectedProductId(productId)
+          } else {
+            setSelectedProductId(data[0].id)
+          }
+        } else if (data.length) {
+          // For first product, also fetch full details to ensure images are loaded
+          const firstProductId = data[0].id
+          try {
+            const fullProductResp = await adminAPI.products.getById(firstProductId)
+            const fullProduct = fullProductResp.data
+            const updatedData = data.map((p: Product) => 
+              p.id === firstProductId ? { ...p, images: fullProduct.images || [] } : p
+            )
+            setProducts(updatedData)
+          } catch (err) {
+            console.error('Failed to load full product details:', err)
+          }
+          setSelectedProductId(firstProductId)
         }
       } catch (err) {
         setError('Unable to load products for this category.')
@@ -61,7 +100,22 @@ const AdminCategoryProducts = () => {
   }, [categoryId])
 
   const selectedProduct = useMemo(
-    () => products.find((product) => product.id === selectedProductId) || null,
+    () => {
+      const product = products.find((product) => product.id === selectedProductId)
+      if (!product) return null
+      
+      // If product doesn't have images loaded, fetch them
+      if (product && (!product.images || product.images.length === 0)) {
+        adminAPI.products.getById(product.id).then((resp) => {
+          const fullProduct = resp.data
+          setProducts((prev) => 
+            prev.map((p) => p.id === product.id ? { ...p, images: fullProduct.images || [] } : p)
+          )
+        }).catch(console.error)
+      }
+      
+      return product
+    },
     [products, selectedProductId]
   )
 
@@ -73,9 +127,16 @@ const AdminCategoryProducts = () => {
   const resolveImageUrl = (path?: string) => {
     if (!path) return ''
     if (path.startsWith('http')) return path
-    const base = (import.meta.env.VITE_APP_URL as string | undefined) || window.location.origin
-    const normalized = path.startsWith('storage/') ? path.substring(8) : path
-    return `${base.replace(/\/$/, '')}/storage/${normalized}`
+
+    // Always use backend URL for images
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+    const backendOrigin = apiUrl.replace(/\/api\/v1\/?$/, '') || 'http://localhost:8000'
+
+    // Remove 'storage/' prefix if present, then add it back properly
+    let normalized = path.startsWith('storage/') ? path.substring(8) : path
+    normalized = normalized.startsWith('/') ? normalized.substring(1) : normalized
+    
+    return `${backendOrigin}/storage/${normalized}`
   }
 
   const handleModify = () => {
@@ -139,7 +200,21 @@ const AdminCategoryProducts = () => {
         <div className="flex flex-wrap gap-3">
           <select
             value={selectedProductId ?? ''}
-            onChange={(e) => setSelectedProductId(Number(e.target.value))}
+            onChange={async (e) => {
+              const productId = Number(e.target.value)
+              setSelectedProductId(productId)
+              
+              // Fetch full product details with images
+              try {
+                const fullProductResp = await adminAPI.products.getById(productId)
+                const fullProduct = fullProductResp.data
+                setProducts((prev) => 
+                  prev.map((p) => p.id === productId ? { ...p, images: fullProduct.images || [] } : p)
+                )
+              } catch (err) {
+                console.error('Failed to load product images:', err)
+              }
+            }}
             className="rounded-xl border border-gray-200 px-4 py-2 text-sm"
           >
             {products.map((product) => (
@@ -229,7 +304,10 @@ const AdminCategoryProducts = () => {
               <p className="text-sm text-gray-500">Please provide the Product Photos...</p>
             </div>
             <div className="flex gap-3">
-              <button className="text-sm font-semibold text-[#2c7a4b] flex items-center gap-1">
+              <button 
+                onClick={() => navigate(`/admin/products/${selectedProduct.id}/images/priority`)}
+                className="text-sm font-semibold text-[#2c7a4b] flex items-center gap-1"
+              >
                 ⇅ Set Priority
               </button>
               <button
@@ -243,17 +321,40 @@ const AdminCategoryProducts = () => {
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {selectedProduct.images && selectedProduct.images.length > 0 ? (
-              selectedProduct.images.map((image) => (
+              selectedProduct.images.map((image) => {
+                // Use image_url from backend if available, otherwise resolve from path
+                let imageSrc = image.image_url
+                if (!imageSrc && image.image_path) {
+                  imageSrc = resolveImageUrl(image.image_path)
+                }
+                console.log('Product image:', { 
+                  id: image.id, 
+                  image_url: image.image_url, 
+                  image_path: image.image_path,
+                  final_src: imageSrc 
+                })
+                return (
                 <div key={image.id} className="rounded-2xl border border-gray-100 p-4 bg-gray-50">
                   <div className="aspect-square overflow-hidden rounded-xl bg-white shadow-sm">
                     <img
-                      src={resolveImageUrl(image.image_path)}
+                      src={imageSrc}
                       alt={image.alt_text || selectedProduct.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error('Image failed to load:', { 
+                          image_url: image.image_url, 
+                          image_path: image.image_path, 
+                          resolved: imageSrc,
+                          backendOrigin: import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, '') || 'http://localhost:8000'
+                        })
+                        // Don't set placeholder, just hide the broken image
+                        e.currentTarget.style.display = 'none'
+                      }}
                     />
                   </div>
                 </div>
-              ))
+                )
+              })
             ) : (
               <p className="text-gray-500">No photos uploaded yet.</p>
             )}

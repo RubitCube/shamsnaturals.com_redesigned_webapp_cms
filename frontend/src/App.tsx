@@ -24,6 +24,7 @@ import AdminCategoryProducts from './pages/admin/AdminCategoryProducts'
 import AdminCategories from './pages/admin/AdminCategories'
 import AdminCategoryCreate from './pages/admin/AdminCategoryCreate'
 import AdminCategoryPriority from './pages/admin/AdminCategoryPriority'
+import AdminProductImagePriority from './pages/admin/AdminProductImagePriority'
 import AdminBanners from './pages/admin/AdminBanners'
 import AdminDealers from './pages/admin/AdminDealers'
 import AdminBlogs from './pages/admin/AdminBlogs'
@@ -68,6 +69,7 @@ function App() {
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="products" element={<AdminProducts />} />
                     <Route path="products/new" element={<AdminProductCreate />} />
+                    <Route path="products/:productId/images/priority" element={<AdminProductImagePriority />} />
                     <Route path="categories/:categoryId/products" element={<AdminCategoryProducts />} />
                     <Route path="categories" element={<AdminCategories />} />
                     <Route path="categories/new" element={<AdminCategoryCreate />} />

@@ -106,6 +106,8 @@ export const adminAPI = {
     uploadImage: (id: number, formData: FormData) => api.post(`/admin/products/${id}/upload`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
+    reorderImages: (id: number, orders: { id: number; order: number }[]) =>
+      api.post(`/admin/products/${id}/images/reorder`, { orders }),
   },
   categories: {
     getAll: () => api.get('/admin/categories'),
