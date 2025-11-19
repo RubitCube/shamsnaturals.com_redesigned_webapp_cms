@@ -115,7 +115,7 @@ const AdminCategories = () => {
   const navigate = useNavigate()
 
   const handleViewProducts = (categoryId: number) => {
-    navigate(`/admin/categories/${categoryId}/products`)
+    navigate(`/admin/categories/${categoryId}/products/gallery`)
   }
 
   const handleAddProduct = (categoryId: number) => {

@@ -123,6 +123,20 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                 )}
               </svg>
             </button>
+            {/* Back Button - Show on all pages except dashboard */}
+            {location.pathname !== '/admin/dashboard' && (
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center justify-center text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a7c28] rounded-lg border border-gray-200 p-2 bg-white shadow-sm transition-colors"
+                aria-label="Go back"
+                title="Go back"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
             <h1 className="text-2xl font-semibold text-gray-900">
               {menuItems.find(item => location.pathname.startsWith(item.path))?.label || 'Admin Panel'}
             </h1>

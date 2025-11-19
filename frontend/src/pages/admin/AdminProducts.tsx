@@ -1,6 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { adminAPI } from '../../services/api'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+
+interface ProductImage {
+  id: number
+  image_path: string
+  alt_text?: string
+  image_url?: string
+}
 
 interface Product {
   id: number
@@ -8,11 +15,20 @@ interface Product {
   slug: string
   price: number
   sale_price?: number
-  category?: { name: string }
+  category?: { name: string; id?: number }
   subcategory?: { name: string }
   is_active: boolean
   is_best_seller: boolean
   is_new_arrival: boolean
+  sku?: string
+  description?: string
+  short_description?: string
+  images?: ProductImage[]
+}
+
+const formatCurrency = (value?: number) => {
+  if (typeof value !== 'number') return '—'
+  return new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(value)
 }
 
 const AdminProducts = () => {
@@ -20,6 +36,8 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null)
+  const [showDetails, setShowDetails] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     category_id: '',
@@ -48,8 +66,13 @@ const AdminProducts = () => {
 
   useEffect(() => {
     const editId = searchParams.get('edit')
+    const viewId = searchParams.get('view')
     if (editId) {
       setPendingEditId(Number(editId))
+    }
+    if (viewId) {
+      setSelectedProductId(Number(viewId))
+      setShowDetails(true)
     }
   }, [searchParams])
 
@@ -62,7 +85,21 @@ const AdminProducts = () => {
   const fetchProducts = async () => {
     try {
       const response = await adminAPI.products.getAll()
-      setProducts(response.data.data || response.data)
+      const data = response.data.data || response.data
+      
+      // Fetch full product details with images for each product
+      const productsWithImages = await Promise.all(
+        data.map(async (product: Product) => {
+          try {
+            const fullProductResp = await adminAPI.products.getById(product.id)
+            return { ...product, images: fullProductResp.data.images || [] }
+          } catch {
+            return product
+          }
+        })
+      )
+      
+      setProducts(productsWithImages)
     } catch (error) {
       console.error('Error fetching products:', error)
     } finally {
@@ -173,72 +210,335 @@ const AdminProducts = () => {
 
   const navigate = useNavigate()
 
+  const selectedProduct = useMemo(() => {
+    if (!selectedProductId) return null
+    return products.find((p) => p.id === selectedProductId) || null
+  }, [products, selectedProductId])
+
+  const shortDetails = useMemo(() => {
+    if (!selectedProduct?.short_description) return []
+    return selectedProduct.short_description.split('|').map((item) => item.trim())
+  }, [selectedProduct])
+
+  const resolveImageUrl = (path?: string) => {
+    if (!path) return ''
+    if (path.startsWith('http')) return path
+
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+    const backendOrigin = apiUrl.replace(/\/api\/v1\/?$/, '') || 'http://localhost:8000'
+
+    let normalized = path.startsWith('storage/') ? path.substring(8) : path
+    normalized = normalized.startsWith('/') ? normalized.substring(1) : normalized
+    
+    return `${backendOrigin}/storage/${normalized}`
+  }
+
+  const handleView = async (productId: number) => {
+    setSelectedProductId(productId)
+    setShowDetails(true)
+    
+    // Fetch full product details with images
+    try {
+      const fullProductResp = await adminAPI.products.getById(productId)
+      const fullProduct = fullProductResp.data
+      setProducts((prev) => 
+        prev.map((p) => p.id === productId ? { ...p, ...fullProduct } : p)
+      )
+    } catch (err) {
+      console.error('Failed to load product details:', err)
+    }
+  }
+
+  const handleModify = () => {
+    if (!selectedProduct) return
+    navigate(`/admin/products/new?edit=${selectedProduct.id}`)
+  }
+
   if (loading) {
     return <div>Loading...</div>
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Products Management</h2>
         <button onClick={() => navigate('/admin/products/new')} className="btn-primary px-4 py-2">
           Add New Product
         </button>
       </div>
 
+      {/* Product Details View */}
+      {showDetails && selectedProduct && (
+        <div className="space-y-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold text-gray-900">
+                View Product Details : {selectedProduct.category?.name || 'All Products'}
+              </h1>
+              <p className="text-gray-500 mt-1">
+                Select a product to review its specifications, description, and photo assets.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <select
+                value={selectedProductId ?? ''}
+                onChange={async (e) => {
+                  const productId = Number(e.target.value)
+                  await handleView(productId)
+                }}
+                className="rounded-xl border border-gray-200 px-4 py-2 text-sm"
+              >
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.sku || product.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleModify}
+                className="inline-flex items-center gap-2 rounded-full border border-[#d5335a]/40 text-[#d5335a] px-4 py-2 text-sm font-semibold"
+              >
+                ✏ Modify
+              </button>
+              <button
+                onClick={() => {
+                  setShowDetails(false)
+                  setSelectedProductId(null)
+                }}
+                className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Product Details Section */}
+            <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Product Details</h3>
+                  <p className="text-sm text-gray-500">Please provide the Product Details...</p>
+                </div>
+                <button onClick={handleModify} className="text-[#d5335a] text-sm font-semibold">
+                  ✏ Modify
+                </button>
+              </div>
+
+              <dl className="grid gap-y-4 md:grid-cols-2">
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.3em] text-gray-400">Product Code</dt>
+                  <dd className="text-sm font-semibold text-gray-900 mt-1">{selectedProduct.sku || selectedProduct.name}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.3em] text-gray-400">Product Dimension</dt>
+                  <dd className="text-sm font-semibold text-gray-900 mt-1">{shortDetails[0] || '—'}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.3em] text-gray-400">Product Color</dt>
+                  <dd className="text-sm font-semibold text-gray-900 mt-1">{shortDetails[1] || '—'}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.3em] text-gray-400">New Arrivals</dt>
+                  <dd className="text-sm font-semibold text-gray-900 mt-1">
+                    {selectedProduct.is_new_arrival ? 'Yes' : 'No'}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.3em] text-gray-400">Product Materials</dt>
+                  <dd className="text-sm font-semibold text-gray-900 mt-1">{shortDetails[2] || '—'}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.3em] text-gray-400">Status</dt>
+                  <dd className="text-sm font-semibold text-gray-900 mt-1">
+                    {selectedProduct.is_active ? 'Active' : 'Inactive'}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.3em] text-gray-400">Price</dt>
+                  <dd className="text-sm font-semibold text-gray-900 mt-1">
+                    {formatCurrency(selectedProduct.price)}
+                  </dd>
+                </div>
+              </dl>
+            </section>
+
+            {/* Product Description Section */}
+            <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Product Description</h3>
+                  <p className="text-sm text-gray-500">Please provide the Product Description...</p>
+                </div>
+                <button onClick={handleModify} className="text-[#d5335a] text-sm font-semibold">
+                  ✏ Modify
+                </button>
+              </div>
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                {selectedProduct.description || '—'}
+              </p>
+            </section>
+
+            {/* Product Photos Section */}
+            <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 space-y-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Product Photos</h3>
+                  <p className="text-sm text-gray-500">Please provide the Product Photos...</p>
+                </div>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => navigate(`/admin/products/${selectedProduct.id}/images/priority`)}
+                    className="text-sm font-semibold text-[#2c7a4b] flex items-center gap-1"
+                  >
+                    ⇅ Set Priority
+                  </button>
+                  <button
+                    onClick={() => navigate(`/admin/products/new?edit=${selectedProduct.id}&tab=photos`)}
+                    className="text-sm font-semibold text-[#2c7a4b] flex items-center gap-1"
+                  >
+                    + Add
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                  selectedProduct.images.map((image) => {
+                    let imageSrc = image.image_url
+                    if (!imageSrc && image.image_path) {
+                      imageSrc = resolveImageUrl(image.image_path)
+                    }
+                    return (
+                      <div key={image.id} className="rounded-2xl border border-gray-100 p-4 bg-gray-50">
+                        <div className="aspect-square overflow-hidden rounded-xl bg-white shadow-sm">
+                          <img
+                            src={imageSrc}
+                            alt={image.alt_text || selectedProduct.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p className="text-gray-500">No photos uploaded yet.</p>
+                )}
+              </div>
+            </section>
+          </div>
+        </div>
+      )}
+
+      {/* Products Table */}
+      {!showDetails && (
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {products.map((product) => (
-              <tr key={product.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {product.category?.name} {product.subcategory && `/ ${product.subcategory.name}`}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  ${product.sale_price || product.price}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs rounded-full ${product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {product.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                  <button
-                    onClick={() => navigate(`/admin/categories/${product.category?.id || ''}/products?product=${product.id}`)}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => navigate(`/admin/products/new?edit=${product.id}`)}
-                    className="text-primary-600 hover:text-primary-900"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product Code/Name</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product Color</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product Dimension</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">New Arrivals</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product Materials</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product Description</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product Photos</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {products.map((product) => {
+                const shortDetails = product.short_description ? product.short_description.split('|').map((item) => item.trim()) : []
+                const dimension = shortDetails[0] || '—'
+                const color = shortDetails[1] || '—'
+                const materials = shortDetails[2] || '—'
+                const description = product.description ? (product.description.length > 50 ? product.description.substring(0, 50) + '...' : product.description) : '—'
+                
+                return (
+                  <tr key={product.id}>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{product.id}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {product.sku || product.name}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-900">{color}</td>
+                    <td className="px-4 py-4 text-sm text-gray-900">{dimension}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {product.is_new_arrival ? 'Yes' : 'No'}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">{materials}</td>
+                    <td className="px-4 py-4 text-sm text-gray-500 max-w-xs">{description}</td>
+                    <td className="px-4 py-4">
+                      {product.images && product.images.length > 0 ? (
+                        <div className="flex gap-1">
+                          {product.images.slice(0, 3).map((image) => {
+                            const imageSrc = image.image_url || resolveImageUrl(image.image_path)
+                            return (
+                              <div key={image.id} className="w-10 h-10 rounded border border-gray-200 overflow-hidden bg-gray-50">
+                                <img
+                                  src={imageSrc}
+                                  alt={image.alt_text || product.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none'
+                                  }}
+                                />
+                              </div>
+                            )
+                          })}
+                          {product.images.length > 3 && (
+                            <div className="w-10 h-10 rounded border border-gray-200 bg-gray-100 flex items-center justify-center text-xs text-gray-500">
+                              +{product.images.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs">No photos</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {product.category?.name} {product.subcategory && `/ ${product.subcategory.name}`}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs rounded-full ${product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {product.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <button
+                        onClick={() => handleView(product.id)}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => navigate(`/admin/products/new?edit=${product.id}`)}
+                        className="text-primary-600 hover:text-primary-900"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
+      )}
 
       {/* Modal */}
       {showModal && (

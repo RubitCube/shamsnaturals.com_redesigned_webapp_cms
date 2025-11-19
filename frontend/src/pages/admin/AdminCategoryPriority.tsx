@@ -6,6 +6,8 @@ interface Category {
   id: number
   name: string
   order: number
+  image_url?: string
+  banner_url?: string
 }
 
 const AdminCategoryPriority = () => {
@@ -57,7 +59,7 @@ const AdminCategoryPriority = () => {
       setSaving(true)
       const payload = categories.map((category, index) => ({
         id: category.id,
-        order: index + 1,
+        order: index, // Start from 0
       }))
       await adminAPI.categories.reorder(payload)
       setMessage({ type: 'success', text: 'Category priorities updated successfully.' })
@@ -85,16 +87,13 @@ const AdminCategoryPriority = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold text-gray-900">Set Priority Category</h1>
-          <p className="text-gray-500 mt-1">
-            Drag each card to reorder your categories. Save when finished.
-          </p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="bg-[#2c7a4b] text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-[#25633d] disabled:opacity-60"
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-blue-700 disabled:opacity-60"
         >
-          {saving ? 'Saving...' : 'Save Reordering'}
+          {saving ? 'Saving...' : 'SAVE REORDERING'}
         </button>
       </div>
 
@@ -111,49 +110,60 @@ const AdminCategoryPriority = () => {
       )}
 
       <div className="grid gap-6 md:grid-cols-[2fr_1fr]">
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {categories.map((category, index) => (
-              <div
-                key={category.id}
-                draggable
-                onDragStart={() => handleDragStart(index)}
-                onDragEnter={() => handleDragEnter(index)}
-                onDragEnd={handleDragEnd}
-                onDragOver={(e) => e.preventDefault()}
-                className={`rounded-2xl border px-6 py-5 bg-gray-50 shadow-sm cursor-move transition ${
-                  draggingIndex === index ? 'border-[#2c7a4b] bg-white shadow-lg' : 'border-gray-200'
-                }`}
-              >
-                <p className="text-sm font-semibold text-gray-400 tracking-[0.2em] uppercase">
-                  Category
-                </p>
-                <h4 className="text-lg font-semibold text-gray-900 mt-1">{category.name}</h4>
-                <p className="text-sm text-gray-500 mt-4">
-                  Priority:{' '}
-                  <span className="text-[#d9534f] font-bold">
-                    {index + 1}
-                  </span>
-                </p>
-              </div>
-            ))}
+        <div className="space-y-6">
+          {/* Drag and Drop Priority Section */}
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {categories.map((category, index) => (
+                <div
+                  key={category.id}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragEnter={() => handleDragEnter(index)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                  className={`rounded-2xl border px-4 py-4 bg-gray-50 shadow-sm cursor-move transition ${
+                    draggingIndex === index ? 'border-[#2c7a4b] bg-white shadow-lg' : 'border-gray-200'
+                  }`}
+                >
+                  {category.image_url && (
+                    <div className="aspect-square overflow-hidden rounded-xl bg-white mb-3">
+                      <img
+                        src={category.image_url}
+                        alt={category.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    </div>
+                  )}
+                  <p className="text-sm font-semibold text-gray-400 tracking-[0.2em] uppercase">
+                    Category
+                  </p>
+                  <h4 className="text-lg font-semibold text-gray-900 mt-1">{category.name}</h4>
+                  <p className="text-sm text-gray-500 mt-4 text-center">
+                    Priority:{' '}
+                    <span className="text-[#d9534f] font-bold">
+                      {index}
+                    </span>
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 h-fit">
-          <h3 className="font-semibold text-gray-900 mb-3">How to reorder</h3>
+        <div className="bg-white rounded-3xl border border-red-200 shadow-sm p-6 h-fit">
+          <h3 className="font-semibold text-gray-900 mb-3">Instructions</h3>
           <ol className="space-y-3 text-sm text-gray-600">
             <li className="flex items-start gap-2">
-              <span className="font-bold text-[#2c7a4b]">1.</span>
-              <span>Drag any category card to the desired position.</span>
+              <span className="font-bold text-red-600">1.</span>
+              <span>Drag Category to reorder.</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="font-bold text-[#2c7a4b]">2.</span>
-              <span>Once finished, click “Save Reordering”.</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="font-bold text-[#2c7a4b]">3.</span>
-              <span>Changes reflect immediately across the storefront.</span>
+              <span className="font-bold text-red-600">2.</span>
+              <span>Click 'Save Reordering' when finished.</span>
             </li>
           </ol>
         </div>

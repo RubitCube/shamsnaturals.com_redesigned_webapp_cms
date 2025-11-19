@@ -42,6 +42,7 @@ const AdminProductImagePriority = () => {
   const [saving, setSaving] = useState(false)
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
     const id = productId || productIdFromQuery
@@ -67,6 +68,7 @@ const AdminProductImagePriority = () => {
         (a.order || 0) - (b.order || 0)
       )
       setImages(sortedImages)
+      setCurrentImageIndex(0) // Reset to first image
     } catch (error) {
       setMessage({ type: 'error', text: 'Unable to load product images.' })
     } finally {
@@ -102,7 +104,7 @@ const AdminProductImagePriority = () => {
       setSaving(true)
       const payload = images.map((image, index) => ({
         id: image.id,
-        order: index,
+        order: index, // Start from 0
       }))
       
       await adminAPI.products.reorderImages(product.id, payload)
@@ -111,12 +113,41 @@ const AdminProductImagePriority = () => {
       // Refresh images to get updated order
       setTimeout(() => {
         fetchProductAndImages(product.id)
+        setCurrentImageIndex(0) // Reset to first image
       }, 1000)
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to save ordering. Please try again.' })
     } finally {
       setSaving(false)
     }
+  }
+
+  const handlePreviousImage = () => {
+    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1))
+  }
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0))
+  }
+
+  const moveImageUp = () => {
+    if (currentImageIndex === 0) return
+    const newImages = [...images]
+    const temp = newImages[currentImageIndex]
+    newImages[currentImageIndex] = newImages[currentImageIndex - 1]
+    newImages[currentImageIndex - 1] = temp
+    setImages(newImages)
+    setCurrentImageIndex(currentImageIndex - 1)
+  }
+
+  const moveImageDown = () => {
+    if (currentImageIndex === images.length - 1) return
+    const newImages = [...images]
+    const temp = newImages[currentImageIndex]
+    newImages[currentImageIndex] = newImages[currentImageIndex + 1]
+    newImages[currentImageIndex + 1] = temp
+    setImages(newImages)
+    setCurrentImageIndex(currentImageIndex + 1)
   }
 
   if (loading) {
@@ -181,44 +212,115 @@ const AdminProductImagePriority = () => {
       )}
 
       <div className="grid gap-6 md:grid-cols-[2fr_1fr]">
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {images.length > 0 ? (
-              images.map((image, index) => {
-                const imageSrc = image.image_url || resolveImageUrl(image.image_path)
-                return (
-                  <div
-                    key={image.id}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragEnter={() => handleDragEnter(index)}
-                    onDragEnd={handleDragEnd}
-                    onDragOver={(e) => e.preventDefault()}
-                    className={`rounded-2xl border px-4 py-4 bg-gray-50 shadow-sm cursor-move transition ${
-                      draggingIndex === index ? 'border-blue-500 bg-white shadow-lg' : 'border-gray-200'
-                    }`}
-                  >
-                    <div className="aspect-square overflow-hidden rounded-xl bg-white mb-3">
-                      <img
-                        src={imageSrc}
-                        alt={image.alt_text || product.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                        }}
-                      />
-                    </div>
+        <div className="space-y-6">
+          {/* Single Product Image Gallery Card */}
+          {images.length > 0 ? (
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+              <div className="max-w-2xl mx-auto">
+                <div className="rounded-2xl border px-4 py-4 bg-gray-50 shadow-sm border-gray-200">
+                  <div className="aspect-square overflow-hidden rounded-xl bg-white mb-3 relative">
+                    {(() => {
+                      const currentImage = images[currentImageIndex]
+                      const imageSrc = currentImage?.image_url || resolveImageUrl(currentImage?.image_path)
+                      
+                      return (
+                        <>
+                          {imageSrc ? (
+                            <img
+                              src={imageSrc}
+                              alt={currentImage?.alt_text || product.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none'
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                              No Image
+                            </div>
+                          )}
+                          
+                          {/* Previous/Next Navigation Buttons */}
+                          {images.length > 1 && (
+                            <>
+                              <button
+                                onClick={handlePreviousImage}
+                                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-lg p-1.5 shadow-sm transition-colors z-10"
+                                title="Previous Image"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 text-gray-700"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={handleNextImage}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-lg p-1.5 shadow-sm transition-colors z-10"
+                                title="Next Image"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 text-gray-700"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              </button>
+                            </>
+                          )}
+                          
+                          {/* Image Counter */}
+                          {images.length > 1 && (
+                            <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                              {currentImageIndex + 1} / {images.length}
+                            </div>
+                          )}
+                        </>
+                      )
+                    })()}
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-500">
                       Priority:{' '}
-                      <span className="text-red-600 font-bold">{index}</span>
+                      <span className="text-red-600 font-bold">{currentImageIndex}</span>
                     </p>
+                    
+                    {/* Priority Change Buttons */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={moveImageUp}
+                        disabled={currentImageIndex === 0}
+                        className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Move Priority Up"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={moveImageDown}
+                        disabled={currentImageIndex === images.length - 1}
+                        className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Move Priority Down"
+                      >
+                        ↓
+                      </button>
+                    </div>
                   </div>
-                )
-              })
-            ) : (
-              <p className="text-gray-500 col-span-full">No product images found.</p>
-            )}
-          </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+              <p className="text-gray-500 text-center">No product images found.</p>
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-3xl border border-red-200 shadow-sm p-6 h-fit">
@@ -226,10 +328,14 @@ const AdminProductImagePriority = () => {
           <ol className="space-y-3 text-sm text-gray-600">
             <li className="flex items-start gap-2">
               <span className="font-bold text-red-600">1.</span>
-              <span>Drag product photos to reorder.</span>
+              <span>Use Previous/Next buttons to navigate through product images.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-bold text-red-600">2.</span>
+              <span>Use ↑ and ↓ buttons to change the priority of the current image.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-red-600">3.</span>
               <span>Click 'Save Reordering' when finished.</span>
             </li>
           </ol>

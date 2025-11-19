@@ -94,3 +94,53 @@
   - Proper loading states and error messages
 
 - Commit: `Day_6_15112025 enhance category and product admin flows`.
+
+## Day 7 – 17 Nov 2025
+
+- **Product Gallery & Priority Pages Redesign:**
+
+  - Updated Product Gallery List page (`AdminCategoryProductGallery.tsx`) to show Previous/Next navigation buttons directly on each product card
+  - Removed separate "Image Gallery" section - navigation is now on the cards themselves
+  - Each product card can cycle through its images independently with `<` and `>` buttons
+  - Added image counter (e.g., "1 / 3") on cards with multiple images
+  - Updated all Set Priority pages to match this pattern:
+    - **Product Priority Page** (`AdminCategoryProductPriority.tsx`): Previous/Next on product cards, removed separate gallery
+    - **Category Priority Page** (`AdminCategoryPriority.tsx`): Removed separate gallery section
+    - **Product Image Priority Page** (`AdminProductImagePriority.tsx`): Converted to single card view with Previous/Next navigation and priority change buttons (↑ ↓)
+  - All priority pages now start priority numbering from 0
+  - Priority change buttons (↑ ↓) added to Product Image Priority page for reordering
+
+- **Admin Layout Enhancements:**
+
+  - Added back button (←) to AdminLayout header that appears on all admin pages except dashboard
+  - Back button uses browser history (`navigate(-1)`) to return to previous page
+  - Positioned between hamburger menu and page title
+  - Styled consistently with other header buttons
+
+- **Products Management Page Enhancements:**
+
+  - Added comprehensive product details view section (similar to category products page)
+  - Product details view includes:
+    - Product Details card (Code, Dimension, Color, Materials, New Arrivals, Status, Price)
+    - Product Description card
+    - Product Photos section with grid display, Set Priority, and Add buttons
+  - Product selector dropdown to switch between products
+  - "Modify" button to edit selected product
+  - "Close" button to return to table view
+  - Updated table columns:
+    - **Added:** Product Code/Name, Product Color, Product Dimension, New Arrivals, Product Materials, Product Description, Product Photos
+    - **Removed:** Price column
+    - **Kept:** ID, Category, Status, Actions
+  - Product photos display as thumbnails (up to 3 visible, "+X" indicator for more)
+  - Product description truncated to 50 characters with ellipsis
+  - Enhanced `fetchProducts()` to load full product details including images for table display
+  - Parses `short_description` to extract dimension, color, and materials (pipe-separated format)
+
+- **Code Improvements:**
+
+  - Added `formatCurrency()` helper function for price display
+  - Improved image URL resolution for product photos in table
+  - Added horizontal scroll wrapper for wide tables
+  - Better state management for product selection and details view
+
+- Commit: `Day_7_17112025: Redesign product gallery and priority pages, add back button, enhance products management`.
