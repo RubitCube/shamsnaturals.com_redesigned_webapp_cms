@@ -137,6 +137,11 @@ const ImageUpload = ({
               src={imageUrl}
               alt="Preview"
               className="max-h-64 mx-auto rounded-lg"
+              loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
             />
             <button
               type="button"

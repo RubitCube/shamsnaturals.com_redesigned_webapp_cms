@@ -49,19 +49,8 @@ const AdminCategoryProductPriority = () => {
           return a.id - b.id
         })
         
-        // Fetch full product details with images for each product
-        const productsWithImages = await Promise.all(
-          sorted.map(async (product: Product) => {
-            try {
-              const fullProductResp = await adminAPI.products.getById(product.id)
-              return { ...product, images: fullProductResp.data.images || [] }
-            } catch {
-              return product
-            }
-          })
-        )
-        
-        setProducts(productsWithImages)
+        // Backend already includes images via ->with(['images']), so use them directly
+        setProducts(sorted)
       } catch (error) {
         setMessage({ type: 'error', text: 'Unable to load products.' })
       } finally {
@@ -246,6 +235,8 @@ const AdminCategoryProductPriority = () => {
                           src={imageUrl}
                           alt={product.name}
                           className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none'
                           }}

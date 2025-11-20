@@ -12,8 +12,15 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'subcategory', 'images'])
-            ->where('is_active', true);
+        // Optimize: Select only needed columns and eager load with ordered images
+        $query = Product::with([
+            'category:id,name,slug',
+            'subcategory:id,name,slug',
+            'images' => function($q) {
+                $q->orderBy('order')->orderBy('is_primary', 'desc')
+                  ->select('id', 'product_id', 'image_path', 'alt_text', 'order', 'is_primary');
+            }
+        ])->where('is_active', true);
 
         if ($request->has('category')) {
             $query->where('category_id', $request->category);
@@ -34,7 +41,16 @@ class ProductController extends Controller
 
     public function show($slug)
     {
-        $product = Product::with(['category', 'subcategory', 'images', 'seo'])
+        // Optimize: Eager load with ordered images and select specific columns
+        $product = Product::with([
+            'category:id,name,slug',
+            'subcategory:id,name,slug',
+            'images' => function($q) {
+                $q->orderBy('order')->orderBy('is_primary', 'desc')
+                  ->select('id', 'product_id', 'image_path', 'alt_text', 'order', 'is_primary');
+            },
+            'seo'
+        ])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
@@ -44,7 +60,15 @@ class ProductController extends Controller
 
     public function bestProducts()
     {
-        $products = Product::with(['category', 'subcategory', 'images'])
+        // Optimize: Select only needed columns and eager load with ordered images
+        $products = Product::with([
+            'category:id,name,slug',
+            'subcategory:id,name,slug',
+            'images' => function($q) {
+                $q->orderBy('order')->orderBy('is_primary', 'desc')
+                  ->select('id', 'product_id', 'image_path', 'alt_text', 'order', 'is_primary');
+            }
+        ])
             ->where('is_active', true)
             ->where('is_best_seller', true)
             ->orderBy('order')
@@ -56,7 +80,15 @@ class ProductController extends Controller
 
     public function newArrivals()
     {
-        $products = Product::with(['category', 'subcategory', 'images'])
+        // Optimize: Select only needed columns and eager load with ordered images
+        $products = Product::with([
+            'category:id,name,slug',
+            'subcategory:id,name,slug',
+            'images' => function($q) {
+                $q->orderBy('order')->orderBy('is_primary', 'desc')
+                  ->select('id', 'product_id', 'image_path', 'alt_text', 'order', 'is_primary');
+            }
+        ])
             ->where('is_active', true)
             ->where('is_new_arrival', true)
             ->orderBy('created_at', 'desc')
@@ -67,9 +99,17 @@ class ProductController extends Controller
 
     public function byCategory($category)
     {
-        $categoryModel = Category::where('slug', $category)->firstOrFail();
+        // Optimize: Select only id from category, and eager load with ordered images
+        $categoryModel = Category::where('slug', $category)->select('id')->firstOrFail();
         
-        $products = Product::with(['category', 'subcategory', 'images'])
+        $products = Product::with([
+            'category:id,name,slug',
+            'subcategory:id,name,slug',
+            'images' => function($q) {
+                $q->orderBy('order')->orderBy('is_primary', 'desc')
+                  ->select('id', 'product_id', 'image_path', 'alt_text', 'order', 'is_primary');
+            }
+        ])
             ->where('category_id', $categoryModel->id)
             ->where('is_active', true)
             ->orderBy('order')
@@ -80,12 +120,21 @@ class ProductController extends Controller
 
     public function bySubcategory($category, $subcategory)
     {
-        $categoryModel = Category::where('slug', $category)->firstOrFail();
+        // Optimize: Select only id from models, and eager load with ordered images
+        $categoryModel = Category::where('slug', $category)->select('id')->firstOrFail();
         $subcategoryModel = Subcategory::where('slug', $subcategory)
             ->where('category_id', $categoryModel->id)
+            ->select('id')
             ->firstOrFail();
         
-        $products = Product::with(['category', 'subcategory', 'images'])
+        $products = Product::with([
+            'category:id,name,slug',
+            'subcategory:id,name,slug',
+            'images' => function($q) {
+                $q->orderBy('order')->orderBy('is_primary', 'desc')
+                  ->select('id', 'product_id', 'image_path', 'alt_text', 'order', 'is_primary');
+            }
+        ])
             ->where('subcategory_id', $subcategoryModel->id)
             ->where('is_active', true)
             ->orderBy('order')

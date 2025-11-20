@@ -132,6 +132,8 @@ const AdminCategoryPriority = () => {
                         src={category.image_url}
                         alt={category.name}
                         className="w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none'
                         }}

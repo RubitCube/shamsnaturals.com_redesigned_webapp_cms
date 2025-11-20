@@ -111,6 +111,8 @@ const AboutPage = () => {
                         className="w-full h-auto relative z-10" 
                         alt={imageSeo.main_image.alt || 'Shams Naturals eco-friendly bags in UAE'}
                         title={imageSeo.main_image.title || ''}
+                        loading="lazy"
+                        decoding="async"
                       />
                     </div>
                   </div>
@@ -127,6 +129,8 @@ const AboutPage = () => {
                       className="aboutbgicon02 aboutimg absolute" 
                       alt={imageSeo.decorative_image_1.alt || ''}
                       title={imageSeo.decorative_image_1.title || ''}
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none'
                       }}
@@ -139,6 +143,8 @@ const AboutPage = () => {
                       className="aboutbgicon03 aboutimg absolute" 
                       alt={imageSeo.decorative_image_2.alt || ''}
                       title={imageSeo.decorative_image_2.title || ''}
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none'
                       }}

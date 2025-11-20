@@ -53,6 +53,8 @@ const BlogPage = () => {
                     src={imageUrl}
                     alt={blog.title}
                     className="w-full h-48 object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 )}
                 <div className="p-6">

@@ -144,3 +144,57 @@
   - Better state management for product selection and details view
 
 - Commit: `Day_7_17112025: Redesign product gallery and priority pages, add back button, enhance products management`.
+
+## Day 8 – 18 Nov 2025
+
+- **Performance Optimization - Frontend N+1 Query Fixes:**
+
+  - Fixed critical N+1 query issue in `AdminProducts.tsx` - removed individual API calls for each product to fetch images
+  - Removed unnecessary individual product fetches in `AdminCategoryProductGallery.tsx` and `AdminCategoryProductPriority.tsx`
+  - Backend already includes images via eager loading, so frontend now uses them directly
+  - **Impact:** Reduced API calls from 1 + N (e.g., 23 calls for 22 products) to just 1 call
+
+- **MySQL Query Optimization - Backend:**
+
+  - **Bulk Update Operations:**
+    - Optimized `ProductController::reorderImages()` - replaced N individual UPDATE queries with single bulk CASE statement
+    - Optimized `CategoryController::reorder()` - replaced N individual UPDATE queries with single bulk CASE statement
+    - **Impact:** Reordering 22 items now uses 1 query instead of 22 queries
+
+  - **Eager Loading with Column Selection:**
+    - Added column selection to all eager loading relationships (e.g., `category:id,name,slug`)
+    - Optimized image loading with default ordering (`orderBy('order')->orderBy('is_primary', 'desc')`)
+    - Applied to: `ProductController::index()`, `ProductController::show()`, all `API/ProductController` methods
+    - Optimized `PageController::homepage()` with `select()` to limit columns for banners, products, and events
+    - Optimized `CategoryController::show()` with ordered images and column selection
+    - **Impact:** Reduced data transfer and memory usage by fetching only needed columns
+
+  - **Model Relationship Optimization:**
+    - Added default ordering to `Product::images()` relationship in model
+    - Images now sorted at database level instead of application level
+
+  - **Database Indexes:**
+    - Created migration `2025_11_18_000001_add_performance_indexes.php` with indexes for:
+      - Products: `is_active`, `is_best_seller`, `is_new_arrival`, `order`, `category_id`, `subcategory_id`, `created_at`
+      - Composite indexes: `(is_active, is_best_seller)`, `(is_active, is_new_arrival)`
+      - Product images: `(product_id, order, is_primary)`
+      - Categories: `is_active`, `order`
+      - Banners: `(is_active, page, order)`
+      - Events: `is_published`, `event_date`
+    - **Impact:** Faster query execution for filtered and sorted operations
+
+- **Homepage Enhancements:**
+
+  - Added Previous (`<`) and Next (`>`) navigation buttons to New Arrivals section on homepage
+  - Buttons allow scrolling through all new arrivals products in groups of 5
+  - Wraps around (end → start, start → end)
+  - Buttons only appear when there are more than 5 new arrivals
+  - Styled with shadows and hover effects
+
+- **Performance Impact Summary:**
+
+  - **Before:** 23 API calls for 22 products, 22 UPDATE queries for reordering, loading all columns
+  - **After:** 1 API call for all products, 1 bulk UPDATE query for reordering, selective column loading
+  - **Expected:** Significantly faster page loads, especially with larger datasets
+
+- Commit: `Day_8_18112025: Optimize MySQL queries with bulk updates, eager loading, and database indexes`.

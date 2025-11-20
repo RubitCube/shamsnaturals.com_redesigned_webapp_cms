@@ -16,13 +16,15 @@ interface Product {
   images?: ProductImage[]
   primaryImage?: ProductImage
   short_description?: string
+  is_new_arrival?: boolean
 }
 
 interface ProductCardProps {
   product: Product
+  imageFit?: 'cover' | 'contain'
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, imageFit = 'cover' }: ProductCardProps) => {
   const image = product.primaryImage || product.images?.[0]
   const imageUrl = image?.image_path
     ? (image.image_path.startsWith('http')
@@ -30,8 +32,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
         : `http://localhost:8000/storage/${image.image_path}`)
     : '/placeholder-product.jpg'
 
-  const displayPrice = product.sale_price || product.price
-  const hasSale = product.sale_price && product.sale_price < product.price
+  const imageClass =
+    imageFit === 'contain'
+      ? 'w-full h-64 object-contain p-4 mix-blend-multiply bg-white'
+      : 'w-full h-64 object-cover'
 
   return (
     <Link to={`/products/${product.slug}`} className="card hover:shadow-xl transition-shadow duration-200">
@@ -39,33 +43,23 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <img
           src={imageUrl}
           alt={image?.alt_text || product.name}
-          className="w-full h-64 object-cover"
+          className={imageClass}
+          loading="lazy"
+          decoding="async"
         />
-        {hasSale && (
-          <span className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
-            Sale
+        {product.is_new_arrival && (
+          <span className="absolute top-2 left-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+            New
           </span>
         )}
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.name}</h3>
         {product.short_description && (
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+          <p className="text-gray-600 text-sm line-clamp-2">
             {product.short_description}
           </p>
         )}
-        <div className="flex items-center justify-between">
-          <div>
-            {hasSale && (
-              <span className="text-gray-400 line-through mr-2">
-                ${product.price.toFixed(2)}
-              </span>
-            )}
-            <span className="text-primary-600 font-bold text-xl">
-              ${displayPrice.toFixed(2)}
-            </span>
-          </div>
-        </div>
       </div>
     </Link>
   )

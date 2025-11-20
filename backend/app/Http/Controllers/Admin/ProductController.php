@@ -13,8 +13,14 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'subcategory', 'images'])
-            ->orderBy('created_at', 'desc');
+        // Optimize: Eager load relationships with ordered images
+        $query = Product::with([
+            'category:id,name,slug',
+            'subcategory:id,name,slug',
+            'images' => function($q) {
+                $q->orderBy('order')->orderBy('is_primary', 'desc');
+            }
+        ])->orderBy('id', 'asc');
 
         if ($request->has('category_id')) {
             $query->where('category_id', $request->input('category_id'));
@@ -60,15 +66,24 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = Product::with(['category', 'subcategory', 'images', 'seo'])
-            ->findOrFail($id);
+        // Optimize: Eager load with ordered images
+        $product = Product::with([
+            'category:id,name,slug',
+            'subcategory:id,name,slug',
+            'images' => function($q) {
+                $q->orderBy('order')->orderBy('is_primary', 'desc');
+            },
+            'seo'
+        ])->findOrFail($id);
 
         return response()->json($product);
     }
 
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
+        // Optimize: Use select() to only fetch needed columns
+        $product = Product::select('id', 'name', 'slug', 'category_id', 'subcategory_id', 'description', 'short_description', 'price', 'sale_price', 'sku', 'stock_quantity', 'is_best_seller', 'is_new_arrival', 'is_featured', 'is_active', 'order')
+            ->findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -88,7 +103,7 @@ class ProductController extends Controller
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
-        
+
         // Convert boolean strings to actual booleans
         if ($request->has('is_best_seller')) {
             $validated['is_best_seller'] = filter_var($request->input('is_best_seller'), FILTER_VALIDATE_BOOLEAN);
@@ -148,6 +163,7 @@ class ProductController extends Controller
             'is_primary' => $isPrimary,
         ]);
 
+        // Optimize: Use single query to update all other images
         if ($isPrimary) {
             ProductImage::where('product_id', $product->id)
                 ->where('id', '!=', $image->id)
@@ -167,10 +183,26 @@ class ProductController extends Controller
 
         $product = Product::findOrFail($id);
 
+        // Optimize: Use bulk update with case statement for better performance
+        $cases = [];
+        $ids = [];
+        $bindings = [];
+
         foreach ($request->input('orders') as $orderData) {
-            ProductImage::where('id', $orderData['id'])
-                ->where('product_id', $product->id)
-                ->update(['order' => $orderData['order']]);
+            $cases[] = "WHEN ? THEN ?";
+            $bindings[] = $orderData['id'];
+            $bindings[] = $orderData['order'];
+            $ids[] = $orderData['id'];
+        }
+
+        if (!empty($cases)) {
+            $casesString = implode(' ', $cases);
+            $idsPlaceholders = implode(',', array_fill(0, count($ids), '?'));
+            
+            \DB::statement(
+                "UPDATE product_images SET `order` = CASE id {$casesString} END WHERE id IN ({$idsPlaceholders}) AND product_id = ?",
+                array_merge($bindings, $ids, [$product->id])
+            );
         }
 
         return response()->json(['message' => 'Image order updated successfully']);

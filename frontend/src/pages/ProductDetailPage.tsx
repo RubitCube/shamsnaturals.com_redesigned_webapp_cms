@@ -64,6 +64,8 @@ const ProductDetailPage = () => {
               src={mainImageUrl}
               alt={product.name}
               className="w-full h-96 object-cover rounded-lg"
+              loading="eager"
+              decoding="async"
             />
           </div>
           {product.images && product.images.length > 1 && (
@@ -86,6 +88,8 @@ const ProductDetailPage = () => {
                       src={imageUrl}
                       alt={image.alt_text || product.name}
                       className="w-full h-24 object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                 )

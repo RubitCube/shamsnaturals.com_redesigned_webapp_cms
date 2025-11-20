@@ -156,7 +156,7 @@ const AdminBanners = () => {
             : `http://localhost:8000/storage/${banner.image_path}`
           return (
             <div key={banner.id} className="bg-white rounded-lg shadow overflow-hidden">
-              <img src={imageUrl} alt={banner.title || 'Banner'} className="w-full h-48 object-cover" />
+              <img src={imageUrl} alt={banner.title || 'Banner'} className="w-full h-48 object-cover" loading="lazy" decoding="async" />
               <div className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-semibold">{banner.title || 'No Title'}</h3>

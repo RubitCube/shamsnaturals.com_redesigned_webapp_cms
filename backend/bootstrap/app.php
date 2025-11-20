@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\ResetProductsAutoIncrement;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([
+        ResetProductsAutoIncrement::class,
+    ])
     ->withMiddleware(function (Middleware $middleware) {
         // Only apply stateful middleware to specific routes if needed
         // For token-based API auth, we don't need CSRF protection

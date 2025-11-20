@@ -74,6 +74,8 @@ const EventsGallery = ({ events, autoSlideInterval = 5000 }: EventsGalleryProps)
                       src={eventImageUrl}
                       alt={event.title}
                       className="w-full h-full object-cover"
+                      loading={index === 0 ? "eager" : "lazy"}
+                      decoding="async"
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">

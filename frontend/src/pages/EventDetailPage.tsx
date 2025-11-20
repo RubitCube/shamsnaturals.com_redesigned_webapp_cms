@@ -77,6 +77,8 @@ const EventDetailPage = () => {
             src={imageUrl}
             alt={event.title}
             className="w-full h-auto max-h-96 object-cover"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       )}

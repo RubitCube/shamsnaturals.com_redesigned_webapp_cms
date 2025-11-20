@@ -50,7 +50,8 @@ class Product extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(ProductImage::class);
+        // Optimize: Default ordering for images to avoid sorting in application
+        return $this->hasMany(ProductImage::class)->orderBy('order')->orderBy('is_primary', 'desc');
     }
 
     public function primaryImage()

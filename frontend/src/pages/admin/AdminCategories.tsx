@@ -132,7 +132,16 @@ const AdminCategories = () => {
     }
     return (
       <div className="w-14 h-14 rounded-lg overflow-hidden border border-gray-100">
-        <img src={src} alt="" className="w-full h-full object-cover" />
+        <img
+          src={src}
+          alt=""
+          className="w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
+        />
       </div>
     )
   }

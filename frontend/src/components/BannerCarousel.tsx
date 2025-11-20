@@ -29,7 +29,7 @@ const BannerCarousel = ({ banners }: BannerCarouselProps) => {
   if (!banners || banners.length === 0) return null;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl min-h-[240px] sm:min-h-[320px] lg:h-[520px]">
+    <div className="relative w-full overflow-hidden rounded-3xl h-[240px] sm:h-[320px] md:h-[400px] lg:h-[520px] max-w-full">
       {banners.map((banner, index) => {
         const bannerImageUrl = banner.image_path.startsWith("http")
           ? banner.image_path
@@ -43,11 +43,12 @@ const BannerCarousel = ({ banners }: BannerCarouselProps) => {
             }`}
           >
             {banner.link ? (
-              <Link to={banner.link}>
+              <Link to={banner.link} className="block w-full h-full">
                 <img
                   src={bannerImageUrl}
                   alt={banner.title || "Banner"}
                   className="w-full h-full object-cover"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   loading={index === 0 ? "eager" : "lazy"}
                   decoding="async"
                   sizes="(max-width: 640px) 100vw, 1200px"
@@ -58,6 +59,7 @@ const BannerCarousel = ({ banners }: BannerCarouselProps) => {
                 src={bannerImageUrl}
                 alt={banner.title || "Banner"}
                 className="w-full h-full object-cover"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 loading={index === 0 ? "eager" : "lazy"}
                 decoding="async"
                 sizes="(max-width: 640px) 100vw, 1200px"

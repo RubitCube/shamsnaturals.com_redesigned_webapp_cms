@@ -5,8 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
   },
 })
 
@@ -124,7 +123,9 @@ export const adminAPI = {
     },
     update: (id: number, data: FormData | any) => {
       if (data instanceof FormData) {
-        return api.put(`/admin/categories/${id}`, data, {
+        data.delete('_method')
+        data.append('_method', 'PUT')
+        return api.post(`/admin/categories/${id}`, data, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
       }

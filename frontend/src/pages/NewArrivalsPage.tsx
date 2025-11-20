@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { productsAPI, bannersAPI } from '../services/api'
 import ProductCard from '../components/ProductCard'
 import BannerCarousel from '../components/BannerCarousel'
@@ -53,7 +54,17 @@ const NewArrivalsPage = () => {
       {products.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <div key={product.id} className="relative">
+              <ProductCard product={{ ...product, is_new_arrival: true }} imageFit="contain" />
+              <div className="mt-4 text-center">
+                <Link
+                  to={`/products/${product.slug}`}
+                  className="btn-primary inline-block px-4 py-2 text-sm"
+                >
+                  View More
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       ) : (

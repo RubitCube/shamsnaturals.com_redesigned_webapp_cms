@@ -25,8 +25,8 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-            'banner' => 'nullable|image|max:4096',
+            'image' => 'nullable|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'banner' => 'nullable|mimes:jpeg,png,jpg,gif,webp|max:4096',
             'order' => 'nullable|integer',
             'is_active' => 'nullable',
         ]);
@@ -63,8 +63,8 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-            'banner' => 'nullable|image|max:4096',
+            'image' => 'nullable|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'banner' => 'nullable|mimes:jpeg,png,jpg,gif,webp|max:4096',
             'order' => 'nullable|integer',
             'is_active' => 'nullable',
         ]);
@@ -116,8 +116,26 @@ class CategoryController extends Controller
             'orders.*.order' => 'required|integer',
         ]);
 
+        // Optimize: Use bulk update with case statement for better performance
+        $cases = [];
+        $ids = [];
+        $bindings = [];
+
         foreach ($validated['orders'] as $orderData) {
-            Category::where('id', $orderData['id'])->update(['order' => $orderData['order']]);
+            $cases[] = "WHEN ? THEN ?";
+            $bindings[] = $orderData['id'];
+            $bindings[] = $orderData['order'];
+            $ids[] = $orderData['id'];
+        }
+
+        if (!empty($cases)) {
+            $casesString = implode(' ', $cases);
+            $idsPlaceholders = implode(',', array_fill(0, count($ids), '?'));
+            
+            \DB::statement(
+                "UPDATE categories SET `order` = CASE id {$casesString} END WHERE id IN ({$idsPlaceholders})",
+                array_merge($bindings, $ids)
+            );
         }
 
         return response()->json(['message' => 'Category priority updated successfully']);

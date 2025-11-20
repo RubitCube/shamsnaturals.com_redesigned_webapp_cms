@@ -53,22 +53,23 @@ const AdminCategoryProducts = () => {
         const data = productsResp.data.data || productsResp.data
         setProducts(data)
         
-        // If product ID is in query params, fetch full product details with images
+        // If product ID is in query params, use it if it exists in the data
         if (productIdFromQuery && data.length) {
           const productId = Number(productIdFromQuery)
           const exists = data.find((p: Product) => p.id === productId)
           if (exists) {
-              // Fetch full product details to ensure images are loaded
+            // Backend already includes images, but if they're missing, fetch full details
+            if (!exists.images || exists.images.length === 0) {
               try {
                 const fullProductResp = await adminAPI.products.getById(productId)
                 const fullProduct = fullProductResp.data
-                // Update the product in the list with full details
                 const updatedData = data.map((p: Product) => 
                   p.id === productId ? { ...p, images: fullProduct.images || [] } : p
                 )
                 setProducts(updatedData)
-            } catch (err) {
-              console.error('Failed to load full product details:', err)
+              } catch (err) {
+                console.error('Failed to load full product details:', err)
+              }
             }
             setSelectedProductId(productId)
           } else {
@@ -340,6 +341,8 @@ const AdminCategoryProducts = () => {
                       src={imageSrc}
                       alt={image.alt_text || selectedProduct.name}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         console.error('Image failed to load:', { 
                           image_url: image.image_url, 

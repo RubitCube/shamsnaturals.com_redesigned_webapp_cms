@@ -56,7 +56,12 @@ const AdminRedirect = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <AnalyticsTracker />
         <Routes>
           {/* Admin Routes */}

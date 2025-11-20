@@ -230,6 +230,8 @@ const AdminProductImagePriority = () => {
                               src={imageSrc}
                               alt={currentImage?.alt_text || product.name}
                               className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none'
                               }}

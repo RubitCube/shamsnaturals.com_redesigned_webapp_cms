@@ -53,6 +53,8 @@ const BlogDetailPage = () => {
           src={imageUrl}
           alt={blog.title}
           className="w-full h-96 object-cover rounded-lg mb-8"
+          loading="lazy"
+          decoding="async"
         />
       )}
       <h1 className="text-4xl font-bold text-gray-900 mb-4">{blog.title}</h1>
