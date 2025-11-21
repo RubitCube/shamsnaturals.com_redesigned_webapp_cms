@@ -60,6 +60,14 @@ class BannerController extends Controller
             'order' => 'nullable|integer',
             'is_active' => 'nullable',
         ]);
+        
+        // Handle empty strings as null for title and description
+        if ($request->has('title') && $request->input('title') === '') {
+            $validated['title'] = null;
+        }
+        if ($request->has('description') && $request->input('description') === '') {
+            $validated['description'] = null;
+        }
 
         if ($request->hasFile('image')) {
             if ($banner->image_path) {

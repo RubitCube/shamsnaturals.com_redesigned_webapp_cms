@@ -1,0 +1,20 @@
+{
+  "admin": {
+    "dashboard": "डैशबोर्ड",
+    "products": "उत्पाद",
+    "categories": "श्रेणियां",
+    "banners": "बैनर",
+    "dealers": "डीलर",
+    "blogs": "ब्लॉग",
+    "events": "इवेंट्स",
+    "pages": "पृष्ठ",
+    "countries": "देश (क्षेत्र)",
+    "seo": "SEO प्रबंधन",
+    "changePassword": "पासवर्ड बदलें",
+    "logout": "लॉगआउट",
+    "back": "वापस",
+    "welcome": "स्वागत है",
+    "menu": "मेनू"
+  }
+}
+

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { categoriesAPI } from '../services/api'
 import { useEffect } from 'react'
 
@@ -7,9 +8,11 @@ interface Category {
   id: number
   name: string
   slug: string
+  is_active?: boolean
 }
 
 const ProductCategoriesSidebar = () => {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -63,24 +66,26 @@ const ProductCategoriesSidebar = () => {
       >
         <div className="p-4 lg:p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase tracking-wide">
-            Product Categories
+            {t('sidebar.productCategories')}
           </h3>
           {loading ? (
-            <div className="text-gray-500 text-sm">Loading categories...</div>
+            <div className="text-gray-500 text-sm">{t('sidebar.loadingCategories')}</div>
           ) : (
             <nav className="space-y-1">
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  to={`/products/${category.slug}`}
-                  className="block px-4 py-3 text-gray-700 hover:bg-[#f0f6ec] hover:text-[#4a7c28] rounded-lg transition-colors font-medium"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {category.name}
-                </Link>
-              ))}
+              {categories
+                .filter((category) => category.is_active !== false)
+                .map((category) => (
+                  <Link
+                    key={category.id}
+                    to={`/products/category/${category.slug}`}
+                    className="block px-4 py-3 text-gray-700 hover:bg-[#f0f6ec] hover:text-[#4a7c28] rounded-lg transition-colors font-medium"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {category.name}
+                  </Link>
+                ))}
               {categories.length === 0 && (
-                <p className="text-gray-500 text-sm">No categories available.</p>
+                <p className="text-gray-500 text-sm">{t('sidebar.noCategoriesAvailable')}</p>
               )}
             </nav>
           )}

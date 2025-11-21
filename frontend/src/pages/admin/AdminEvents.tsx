@@ -53,15 +53,38 @@ const AdminEvents = () => {
     }
   }
 
+  // Helper function to convert date string to datetime-local format
+  // Backend automatically sends dates in India timezone (Asia/Kolkata) with ISO 8601 format
+  const formatDateForInput = (dateString: string): string => {
+    if (!dateString) return ''
+    
+    // Backend sends date in ISO 8601 format with timezone: YYYY-MM-DDTHH:mm:ss+05:30
+    // Parse it and format for datetime-local input: YYYY-MM-DDTHH:mm
+    const date = new Date(dateString)
+    
+    // Format for datetime-local input (YYYY-MM-DDTHH:mm)
+    // The date is already in India timezone from backend
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`
+  }
+
   const handleEdit = (event: Event) => {
     setEditingEvent(event)
     adminAPI.events.getById(event.id).then((response) => {
       const data = response.data
+      // Backend automatically sends date in India timezone, just format for input
+      const eventDateFormatted = formatDateForInput(data.event_date)
+      
       setFormData({
         title: data.title || '',
         description: data.description || '',
         content: data.content || '',
-        event_date: data.event_date ? new Date(data.event_date).toISOString().slice(0, 16) : '',
+        event_date: eventDateFormatted,
         location: data.location || '',
         is_published: data.is_published || false,
       })
@@ -76,7 +99,16 @@ const AdminEvents = () => {
       submitData.append('title', formData.title)
       submitData.append('description', formData.description)
       submitData.append('content', formData.content)
-      submitData.append('event_date', formData.event_date)
+      
+      // Backend automatically converts datetime-local value (interpreted as India timezone) to UTC
+      // Format: YYYY-MM-DD HH:mm:ss (backend will parse this as India timezone automatically)
+      if (formData.event_date) {
+        const formattedDate = formData.event_date.replace('T', ' ') + ':00'
+        submitData.append('event_date', formattedDate)
+      } else {
+        submitData.append('event_date', '')
+      }
+      
       submitData.append('location', formData.location)
       submitData.append('is_published', formData.is_published.toString())
       if (imageFile) {
@@ -139,7 +171,15 @@ const AdminEvents = () => {
                   {event.description && <div className="text-sm text-gray-500">{event.description.substring(0, 100)}...</div>}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(event.event_date).toLocaleString()}
+                  {new Date(event.event_date).toLocaleString('en-IN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'Asia/Kolkata'
+                  })}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{event.location || '-'}</td>
                 <td className="px-6 py-4 whitespace-nowrap">

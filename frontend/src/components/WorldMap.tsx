@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -47,6 +48,7 @@ interface WorldMapProps {
 }
 
 const WorldMap = ({ dealers = [] }: WorldMapProps) => {
+  const { t } = useTranslation()
   const mapRef = useRef<L.Map | null>(null)
   const navigate = useNavigate()
 
@@ -134,9 +136,9 @@ const WorldMap = ({ dealers = [] }: WorldMapProps) => {
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Dealers World Map</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('dealers.worldMap')}</h2>
           <p className="text-lg text-gray-600">
-            Click on the map to explore our dealer network
+            {t('dealers.clickToExplore')}
           </p>
         </div>
         <div

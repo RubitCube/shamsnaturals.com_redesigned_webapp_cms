@@ -1,0 +1,113 @@
+{
+  "nav": {
+    "home": "Casa",
+    "about": "Chi Siamo",
+    "products": "Prodotti",
+    "newArrivals": "Nuovi Arrivi",
+    "dealers": "Rivenditori",
+    "events": "Eventi",
+    "contact": "Contatti",
+    "dealerLogin": "Accesso Rivenditore"
+  },
+  "home": {
+    "title": "Benvenuti in Shams Naturals",
+    "newArrivals": "Nuovi Arrivi",
+    "viewMore": "Vedi di Più",
+    "allCategories": "Tutte le Categorie",
+    "productCategories": "Categorie Prodotti",
+    "allCategoryCatalogue": "Catalogo di Tutte le Categorie",
+    "browseCollection": "Sfoglia la nostra vasta collezione di borse ecologiche",
+    "bestEcoFriendlyBags": "Migliori Borse Ecologiche",
+    "discoverTopRated": "Scopri la nostra collezione di borse sostenibili più votate",
+    "checkOutLatest": "Scopri i nostri ultimi design di borse ecologiche",
+    "noCategories": "Nessuna categoria disponibile.",
+    "previous": "Precedente",
+    "next": "Successivo"
+  },
+  "products": {
+    "title": "Prodotti",
+    "viewMore": "Vedi di Più",
+    "viewDetails": "Visualizza Dettagli",
+    "newBadge": "Nuovo",
+    "bestSeller": "Bestseller",
+    "viewMoreArrow": "VEDI DI PIÙ →"
+  },
+  "about": {
+    "title": "Chi Siamo"
+  },
+  "contact": {
+    "title": "Contattaci",
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Telefono",
+    "message": "Messaggio",
+    "submit": "Invia",
+    "namePlaceholder": "Il Tuo Nome",
+    "emailPlaceholder": "tua.email@esempio.com",
+    "phonePlaceholder": "Il Tuo Numero di Telefono",
+    "messagePlaceholder": "Il Tuo Messaggio",
+    "getInTouch": "Mettiti in contatto",
+    "leaveMessage": "Lascia un Messaggio",
+    "contactDescription": "Se hai domande sui servizi che forniamo, usa semplicemente il modulo qui sotto. Cerchiamo di rispondere a tutte le domande e commenti entro 24 ore.",
+    "thankYouMessage": "Grazie per il tuo messaggio! Ti risponderemo presto.",
+    "typeYourName": "Inserisci il Tuo Nome",
+    "typeYourMobile": "Inserisci il Tuo Cellulare",
+    "typeYourEmail": "Inserisci la Tua Email",
+    "typeYourRequirements": "Inserisci le Tue Richieste Aggiuntive",
+    "submitting": "Invio in corso…",
+    "submitEnquiry": "Invia Richiesta"
+  },
+  "dealers": {
+    "title": "Selettore Rivenditori",
+    "selectCountry": "Seleziona Paese",
+    "selectState": "Seleziona Stato",
+    "noDealers": "Nessun rivenditore trovato in questa posizione",
+    "worldMap": "Mappa Mondiale dei Rivenditori",
+    "clickToExplore": "Clicca sulla mappa per esplorare la nostra rete di rivenditori"
+  },
+  "events": {
+    "title": "Eventi",
+    "description": "Resta aggiornato con le nostre ultime mostre ed eventi",
+    "readMore": "Leggi di Più",
+    "backToEvents": "Torna agli Eventi",
+    "noEvents": "Nessun evento disponibile al momento",
+    "exploreAll": "Esplora Tutto"
+  },
+  "footer": {
+    "quickLinks": "Link Rapidi",
+    "productCategories": "Categorie Prodotti",
+    "copyright": "Copyright",
+    "allRightsReserved": "Tutti i Diritti Riservati",
+    "companyDescription": "Il tuo partner di riferimento per borse ecologiche, promozionali e personalizzate negli Emirati Arabi Uniti.",
+    "liveVisitorCount": "Conteggio Visitatori in Tempo Reale",
+    "totalVisits": "Visite Totali",
+    "today": "Oggi",
+    "information": "Informazioni",
+    "dealerNetwork": "Rete di Rivenditori",
+    "blog": "Blog",
+    "contactUs": "Contattaci",
+    "contact": "Contatto",
+    "email": "Email",
+    "phone": "Telefono",
+    "websiteDesignedBy": "Sito Web Progettato e Sviluppato da"
+  },
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "noData": "Nessun dato disponibile",
+    "search": "Cerca",
+    "filter": "Filtra",
+    "previous": "Precedente",
+    "next": "Successivo"
+  },
+  "sidebar": {
+    "productCategories": "Categorie Prodotti",
+    "loadingCategories": "Caricamento categorie...",
+    "noCategoriesAvailable": "Nessuna categoria disponibile."
+  },
+  "productsPage": {
+    "title": "Prodotti",
+    "viewMore": "Vedi di Più"
+  }
+}
+

@@ -1,30 +1,33 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import logo from '../../assets/company_logo_image/shamsnaturals-logo.png'
+import LanguageSelector from '../LanguageSelector'
 
 interface AdminLayoutProps {
   children: React.ReactNode
 }
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
+  const { t } = useTranslation('admin')
   const { user, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const menuItems = [
-    { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-    { path: '/admin/products', label: 'Products', icon: '📦' },
-    { path: '/admin/categories', label: 'Categories', icon: '📁' },
-    { path: '/admin/banners', label: 'Banners', icon: '🖼️' },
-    { path: '/admin/dealers', label: 'Dealers', icon: '📍' },
-    { path: '/admin/blogs', label: 'Blogs', icon: '📝' },
-    { path: '/admin/events', label: 'Events', icon: '📅' },
-    { path: '/admin/pages', label: 'Pages', icon: '📄' },
-    { path: '/admin/countries', label: 'Countries (Region)', icon: '🌍' },
-    { path: '/admin/seo', label: 'SEO Management', icon: '🔍' },
-    { path: '/admin/change-password', label: 'Change Password', icon: '🔐' },
+    { path: '/admin/dashboard', label: t('admin.dashboard'), icon: '📊' },
+    { path: '/admin/products', label: t('admin.products'), icon: '📦' },
+    { path: '/admin/categories', label: t('admin.categories'), icon: '📁' },
+    { path: '/admin/banners', label: t('admin.banners'), icon: '🖼️' },
+    { path: '/admin/dealers', label: t('admin.dealers'), icon: '📍' },
+    { path: '/admin/blogs', label: t('admin.blogs'), icon: '📝' },
+    { path: '/admin/events', label: t('admin.events'), icon: '📅' },
+    { path: '/admin/pages', label: t('admin.pages'), icon: '📄' },
+    { path: '/admin/countries', label: t('admin.countries'), icon: '🌍' },
+    { path: '/admin/seo', label: t('admin.seo'), icon: '🔍' },
+    { path: '/admin/change-password', label: t('admin.changePassword'), icon: '🔐' },
   ]
 
   const handleLogout = () => {
@@ -86,7 +89,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             onClick={handleLogout}
             className="btn-primary w-full px-4 py-2 text-center"
           >
-            Logout
+            {t('admin.logout')}
           </button>
         </div>
       </aside>
@@ -129,8 +132,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                 type="button"
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center justify-center text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4a7c28] rounded-lg border border-gray-200 p-2 bg-white shadow-sm transition-colors"
-                aria-label="Go back"
-                title="Go back"
+                aria-label={t('admin.back')}
+                title={t('admin.back')}
               >
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -138,8 +141,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               </button>
             )}
             <h1 className="text-2xl font-semibold text-gray-900">
-              {menuItems.find(item => location.pathname.startsWith(item.path))?.label || 'Admin Panel'}
+              {menuItems.find(item => location.pathname.startsWith(item.path))?.label || t('admin.dashboard')}
             </h1>
+            <div className="ml-auto flex items-center gap-4">
+              <LanguageSelector />
+            </div>
           </div>
         </header>
 

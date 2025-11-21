@@ -7,12 +7,23 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class EventController extends Controller
 {
     public function index()
     {
         $events = Event::orderBy('event_date', 'desc')->paginate(20);
+        
+        // Automatically convert dates to admin timezone for display
+        $events->getCollection()->transform(function ($event) {
+            if ($event->event_date) {
+                // Use the accessor to get admin timezone
+                $event->event_date = $event->event_date_admin;
+            }
+            return $event;
+        });
+        
         return response()->json($events);
     }
 
@@ -38,7 +49,13 @@ class EventController extends Controller
             $validated['is_published'] = filter_var($request->input('is_published'), FILTER_VALIDATE_BOOLEAN);
         }
 
+        // The model's setEventDateAttribute mutator will automatically convert to UTC
         $event = Event::create($validated);
+        
+        // Automatically convert back to admin timezone for response
+        if ($event->event_date) {
+            $event->event_date = $event->event_date_admin;
+        }
 
         return response()->json($event, 201);
     }
@@ -46,6 +63,12 @@ class EventController extends Controller
     public function show($id)
     {
         $event = Event::with('seo')->findOrFail($id);
+        
+        // Automatically convert date to admin timezone for display
+        if ($event->event_date) {
+            $event->event_date = $event->event_date_admin;
+        }
+        
         return response()->json($event);
     }
 
@@ -76,7 +99,13 @@ class EventController extends Controller
             $validated['is_published'] = filter_var($request->input('is_published'), FILTER_VALIDATE_BOOLEAN);
         }
 
+        // The model's setEventDateAttribute mutator will automatically convert to UTC
         $event->update($validated);
+        
+        // Automatically convert back to admin timezone for response
+        if ($event->event_date) {
+            $event->event_date = $event->event_date_admin;
+        }
 
         return response()->json($event);
     }

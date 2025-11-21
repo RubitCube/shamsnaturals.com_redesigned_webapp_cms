@@ -1,0 +1,113 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "about": "من نحن",
+    "products": "المنتجات",
+    "newArrivals": "وصل حديثاً",
+    "dealers": "التجار",
+    "events": "الفعاليات",
+    "contact": "اتصل بنا",
+    "dealerLogin": "تسجيل دخول التاجر"
+  },
+  "home": {
+    "title": "مرحباً بكم في شمس ناتشورالز",
+    "newArrivals": "وصل حديثاً",
+    "viewMore": "عرض المزيد",
+    "allCategories": "جميع الفئات",
+    "productCategories": "فئات المنتجات",
+    "allCategoryCatalogue": "كتالوج جميع الفئات",
+    "browseCollection": "تصفح مجموعتنا الواسعة من الحقائب الصديقة للبيئة",
+    "bestEcoFriendlyBags": "أفضل الحقائب الصديقة للبيئة",
+    "discoverTopRated": "اكتشف مجموعتنا من الحقائب المستدامة الأعلى تقييماً",
+    "checkOutLatest": "تحقق من أحدث تصاميم الحقائب الصديقة للبيئة",
+    "noCategories": "لا توجد فئات متاحة.",
+    "previous": "السابق",
+    "next": "التالي"
+  },
+  "products": {
+    "title": "المنتجات",
+    "viewMore": "عرض المزيد",
+    "viewDetails": "عرض التفاصيل",
+    "newBadge": "جديد",
+    "bestSeller": "الأكثر مبيعاً",
+    "viewMoreArrow": "عرض المزيد →"
+  },
+  "about": {
+    "title": "من نحن"
+  },
+  "contact": {
+    "title": "اتصل بنا",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "message": "الرسالة",
+    "submit": "إرسال",
+    "namePlaceholder": "اسمك",
+    "emailPlaceholder": "بريدك.الإلكتروني@مثال.com",
+    "phonePlaceholder": "رقم هاتفك",
+    "messagePlaceholder": "رسالتك",
+    "getInTouch": "تواصل معنا",
+    "leaveMessage": "اترك رسالة",
+    "contactDescription": "إذا كان لديك أي أسئلة حول الخدمات التي نقدمها، ما عليك سوى استخدام النموذج أدناه. نحاول الرد على جميع الاستفسارات والتعليقات خلال 24 ساعة.",
+    "thankYouMessage": "شكراً لرسالتك! سنعود إليك قريباً.",
+    "typeYourName": "اكتب اسمك",
+    "typeYourMobile": "اكتب رقم هاتفك المحمول",
+    "typeYourEmail": "اكتب بريدك الإلكتروني",
+    "typeYourRequirements": "اكتب متطلباتك الإضافية",
+    "submitting": "جاري الإرسال…",
+    "submitEnquiry": "إرسال الاستفسار"
+  },
+  "dealers": {
+    "title": "اختيار التاجر",
+    "selectCountry": "اختر البلد",
+    "selectState": "اختر الولاية",
+    "noDealers": "لم يتم العثور على تجار في هذا الموقع",
+    "worldMap": "خريطة التجار العالمية",
+    "clickToExplore": "انقر على الخريطة لاستكشاف شبكة التجار الخاصة بنا"
+  },
+  "events": {
+    "title": "الفعاليات",
+    "description": "ابق على اطلاع بآخر معارضنا وفعالياتنا",
+    "readMore": "اقرأ المزيد",
+    "backToEvents": "العودة إلى الفعاليات",
+    "noEvents": "لا توجد فعاليات متاحة في الوقت الحالي",
+    "exploreAll": "استكشف الكل"
+  },
+  "footer": {
+    "quickLinks": "روابط سريعة",
+    "productCategories": "فئات المنتجات",
+    "copyright": "حقوق النشر",
+    "allRightsReserved": "جميع الحقوق محفوظة",
+    "companyDescription": "شريكك الموثوق للحقائب الصديقة للبيئة والتسويقية والمخصصة في دولة الإمارات العربية المتحدة.",
+    "liveVisitorCount": "عدد الزوار المباشر",
+    "totalVisits": "إجمالي الزيارات",
+    "today": "اليوم",
+    "information": "معلومات",
+    "dealerNetwork": "شبكة التجار",
+    "blog": "المدونة",
+    "contactUs": "اتصل بنا",
+    "contact": "اتصل",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "websiteDesignedBy": "تم تصميم وتطوير الموقع بواسطة"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "noData": "لا توجد بيانات متاحة",
+    "search": "بحث",
+    "filter": "تصفية",
+    "previous": "السابق",
+    "next": "التالي"
+  },
+  "sidebar": {
+    "productCategories": "فئات المنتجات",
+    "loadingCategories": "جاري تحميل الفئات...",
+    "noCategoriesAvailable": "لا توجد فئات متاحة."
+  },
+  "productsPage": {
+    "title": "المنتجات",
+    "viewMore": "عرض المزيد"
+  }
+}
+

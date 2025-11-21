@@ -146,9 +146,9 @@ export const adminAPI = {
     },
     update: (id: number, data: FormData | any) => {
       if (data instanceof FormData) {
-        return api.put(`/admin/banners/${id}`, data, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        // Laravel doesn't handle PUT with multipart/form-data well, so use POST with _method
+        data.append('_method', 'PUT')
+        return api.post(`/admin/banners/${id}`, data)
       }
       return api.put(`/admin/banners/${id}`, data)
     },
@@ -198,9 +198,9 @@ export const adminAPI = {
     },
     update: (id: number, data: FormData | any) => {
       if (data instanceof FormData) {
-        return api.put(`/admin/events/${id}`, data, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        // Laravel doesn't handle PUT with multipart/form-data well, so use POST with _method
+        data.append('_method', 'PUT')
+        return api.post(`/admin/events/${id}`, data)
       }
       return api.put(`/admin/events/${id}`, data)
     },

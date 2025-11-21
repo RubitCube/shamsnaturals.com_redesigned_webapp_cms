@@ -1,0 +1,113 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "products": "Products",
+    "newArrivals": "New Arrivals",
+    "dealers": "Dealers",
+    "events": "Events",
+    "contact": "Contact",
+    "dealerLogin": "Dealer Login"
+  },
+  "home": {
+    "title": "Welcome to Shams Naturals",
+    "newArrivals": "New Arrivals",
+    "viewMore": "View More",
+    "allCategories": "All Categories",
+    "productCategories": "Product Categories",
+    "allCategoryCatalogue": "All Category Catalogue",
+    "browseCollection": "Browse through our extensive collection of eco-friendly bags",
+    "bestEcoFriendlyBags": "Best Eco-Friendly Bags",
+    "discoverTopRated": "Discover our top-rated sustainable bag collection",
+    "checkOutLatest": "Check out our latest eco-friendly bag designs",
+    "noCategories": "No categories available.",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "products": {
+    "title": "Products",
+    "viewMore": "View More",
+    "viewDetails": "View Details",
+    "newBadge": "New",
+    "bestSeller": "Best Seller",
+    "viewMoreArrow": "VIEW MORE →"
+  },
+  "about": {
+    "title": "About Us"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "message": "Message",
+    "submit": "Submit",
+    "namePlaceholder": "Your Name",
+    "emailPlaceholder": "your.email@example.com",
+    "phonePlaceholder": "Your Phone Number",
+    "messagePlaceholder": "Your Message",
+    "getInTouch": "Get in touch",
+    "leaveMessage": "Leave a Message",
+    "contactDescription": "If you have any questions about the services we provide, simply use the form below. We try and respond to all queries and comments within 24 hours.",
+    "thankYouMessage": "Thank you for your message! We'll get back to you soon.",
+    "typeYourName": "Type your Name",
+    "typeYourMobile": "Type your Mobile",
+    "typeYourEmail": "Type your Email",
+    "typeYourRequirements": "Type your Additional Requirements",
+    "submitting": "Submitting…",
+    "submitEnquiry": "Submit Enquiry"
+  },
+  "dealers": {
+    "title": "Dealer Selector",
+    "selectCountry": "Select Country",
+    "selectState": "Select State",
+    "noDealers": "No dealers found in this location",
+    "worldMap": "Dealers World Map",
+    "clickToExplore": "Click on the map to explore our dealer network"
+  },
+  "events": {
+    "title": "Events",
+    "description": "Stay updated with our latest exhibitions and events",
+    "readMore": "Read More",
+    "backToEvents": "Back to Events",
+    "noEvents": "No events available at the moment",
+    "exploreAll": "Explore All"
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "productCategories": "Product Categories",
+    "copyright": "Copyright",
+    "allRightsReserved": "All Rights Reserved",
+    "companyDescription": "Your go-to partner for eco-friendly, promotional & custom bags in the UAE.",
+    "liveVisitorCount": "Live Visitor Count",
+    "totalVisits": "Total Visits",
+    "today": "Today",
+    "information": "Information",
+    "dealerNetwork": "Dealer Network",
+    "blog": "Blog",
+    "contactUs": "Contact Us",
+    "contact": "Contact",
+    "email": "Email",
+    "phone": "Phone",
+    "websiteDesignedBy": "Website Designed & Developed by"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "noData": "No data available",
+    "search": "Search",
+    "filter": "Filter",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "sidebar": {
+    "productCategories": "Product Categories",
+    "loadingCategories": "Loading categories...",
+    "noCategoriesAvailable": "No categories available."
+  },
+  "productsPage": {
+    "title": "Products",
+    "viewMore": "View More"
+  }
+}
+

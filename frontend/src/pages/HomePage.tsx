@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { homepageAPI, dealersAPI } from '../services/api'
+import { useTranslation } from 'react-i18next'
+import { homepageAPI, dealersAPI, categoriesAPI } from '../services/api'
 import BannerCarousel from '../components/BannerCarousel'
 import ProductCard from '../components/ProductCard'
 import EventsGallery from '../components/EventsGallery'
 import WorldMap from '../components/WorldMap'
 import ProductCategoriesSidebar from '../components/ProductCategoriesSidebar'
-import ProductCategoryCarousel from '../components/ProductCategoryCarousel'
 
 interface HomePageData {
   banners: any[]
@@ -16,20 +16,24 @@ interface HomePageData {
 }
 
 const HomePage = () => {
+  const { t } = useTranslation()
   const [data, setData] = useState<HomePageData | null>(null)
   const [dealers, setDealers] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [newArrivalsIndex, setNewArrivalsIndex] = useState(0)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [homepageResponse, dealersResponse] = await Promise.all([
+        const [homepageResponse, dealersResponse, categoriesResponse] = await Promise.all([
           homepageAPI.get(),
           dealersAPI.getAll().catch(() => ({ data: [] })), // Fetch dealers for map, but don't fail if it errors
+          categoriesAPI.getAll().catch(() => ({ data: [] })), // Fetch categories for catalogue
         ])
         setData(homepageResponse.data)
         setDealers(dealersResponse.data || [])
+        setCategories(categoriesResponse.data || [])
       } catch (error) {
         console.error('Error fetching homepage data:', error)
       } finally {
@@ -64,25 +68,63 @@ const HomePage = () => {
               <ProductCategoriesSidebar />
             </div>
 
-            {/* Product Category Catalogue */}
+            {/* All Category Catalogue */}
             <div className="flex-1">
               <div className="mb-6">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  Product Category Catalogue
+                  {t('home.allCategoryCatalogue')}
                 </h2>
                 <p className="text-gray-600">
-                  Browse through our extensive collection of eco-friendly bags
+                  {t('home.browseCollection')}
                 </p>
               </div>
-              <ProductCategoryCarousel limit={20} />
-              <div className="text-center mt-8">
-                <Link
-                  to="/products"
-                  className="btn-primary inline-block px-6 py-3"
-                >
-                  View All Products
-                </Link>
-              </div>
+              
+              {/* Categories Grid */}
+              {categories.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {categories.map((category) => {
+                    const categoryImageUrl = category.image_url || 
+                      (category.image 
+                        ? (category.image.startsWith('http')
+                            ? category.image
+                            : `http://localhost:8000/storage/${category.image}`)
+                        : '/placeholder-category.jpg')
+
+                    return (
+                      <Link
+                        key={category.id}
+                        to={`/products/category/${category.slug}`}
+                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group"
+                      >
+                        <div className="relative h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                          <img
+                            src={categoryImageUrl}
+                            alt={category.name}
+                            className="w-full h-full object-contain p-4 mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                            decoding="async"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder-category.jpg'
+                            }}
+                          />
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-[#4a7c28] transition-colors">
+                            {category.name}
+                          </h3>
+                          <span className="inline-block text-[#4a7c28] font-medium text-sm group-hover:underline">
+                            {t('products.viewMoreArrow')}
+                          </span>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-600">{t('home.noCategories')}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -94,10 +136,10 @@ const HomePage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Best Eco-Friendly Bags
+                {t('home.bestEcoFriendlyBags')}
               </h2>
               <p className="text-lg text-gray-600">
-                Discover our top-rated sustainable bag collection
+                {t('home.discoverTopRated')}
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -115,10 +157,10 @@ const HomePage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                New Arrivals
+                {t('home.newArrivals')}
               </h2>
               <p className="text-lg text-gray-600">
-                Check out our latest eco-friendly bag designs
+                {t('home.checkOutLatest')}
               </p>
             </div>
             <div className="relative">
@@ -194,7 +236,7 @@ const HomePage = () => {
                 to="/new-arrivals"
                 className="btn-primary inline-block px-6 py-3"
               >
-                View More
+                {t('home.viewMore')}
               </Link>
             </div>
           </div>

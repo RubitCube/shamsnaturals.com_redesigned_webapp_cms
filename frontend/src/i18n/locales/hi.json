@@ -1,0 +1,113 @@
+{
+  "nav": {
+    "home": "होम",
+    "about": "हमारे बारे में",
+    "products": "उत्पाद",
+    "newArrivals": "नए आगमन",
+    "dealers": "डीलर",
+    "events": "इवेंट्स",
+    "contact": "संपर्क करें",
+    "dealerLogin": "डीलर लॉगिन"
+  },
+  "home": {
+    "title": "शम्स नेचुरल्स में आपका स्वागत है",
+    "newArrivals": "नए आगमन",
+    "viewMore": "और देखें",
+    "allCategories": "सभी श्रेणियां",
+    "productCategories": "उत्पाद श्रेणियां",
+    "allCategoryCatalogue": "सभी श्रेणी कैटलॉग",
+    "browseCollection": "पर्यावरण के अनुकूल बैग के हमारे व्यापक संग्रह को ब्राउज़ करें",
+    "bestEcoFriendlyBags": "सर्वश्रेष्ठ पर्यावरण के अनुकूल बैग",
+    "discoverTopRated": "हमारी शीर्ष-रेटेड स्थायी बैग संग्रह की खोज करें",
+    "checkOutLatest": "हमारे नवीनतम पर्यावरण के अनुकूल बैग डिज़ाइन देखें",
+    "noCategories": "कोई श्रेणी उपलब्ध नहीं है।",
+    "previous": "पिछला",
+    "next": "अगला"
+  },
+  "products": {
+    "title": "उत्पाद",
+    "viewMore": "और देखें",
+    "viewDetails": "विवरण देखें",
+    "newBadge": "नया",
+    "bestSeller": "सर्वश्रेष्ठ विक्रेता",
+    "viewMoreArrow": "और देखें →"
+  },
+  "about": {
+    "title": "हमारे बारे में"
+  },
+  "contact": {
+    "title": "हमसे संपर्क करें",
+    "name": "नाम",
+    "email": "ईमेल",
+    "phone": "फोन",
+    "message": "संदेश",
+    "submit": "जमा करें",
+    "namePlaceholder": "आपका नाम",
+    "emailPlaceholder": "आपका.ईमेल@उदाहरण.com",
+    "phonePlaceholder": "आपका फोन नंबर",
+    "messagePlaceholder": "आपका संदेश",
+    "getInTouch": "संपर्क में रहें",
+    "leaveMessage": "एक संदेश छोड़ें",
+    "contactDescription": "यदि आपके पास हमारी सेवाओं के बारे में कोई प्रश्न हैं, तो बस नीचे दिए गए फॉर्म का उपयोग करें। हम 24 घंटे के भीतर सभी प्रश्नों और टिप्पणियों का जवाब देने का प्रयास करते हैं।",
+    "thankYouMessage": "आपके संदेश के लिए धन्यवाद! हम जल्द ही आपसे संपर्क करेंगे।",
+    "typeYourName": "अपना नाम टाइप करें",
+    "typeYourMobile": "अपना मोबाइल टाइप करें",
+    "typeYourEmail": "अपना ईमेल टाइप करें",
+    "typeYourRequirements": "अपनी अतिरिक्त आवश्यकताएं टाइप करें",
+    "submitting": "जमा हो रहा है…",
+    "submitEnquiry": "जांच जमा करें"
+  },
+  "dealers": {
+    "title": "डीलर चयनकर्ता",
+    "selectCountry": "देश चुनें",
+    "selectState": "राज्य चुनें",
+    "noDealers": "इस स्थान पर कोई डीलर नहीं मिला",
+    "worldMap": "डीलर वर्ल्ड मैप",
+    "clickToExplore": "हमारे डीलर नेटवर्क का अन्वेषण करने के लिए मानचित्र पर क्लिक करें"
+  },
+  "events": {
+    "title": "इवेंट्स",
+    "description": "हमारे नवीनतम प्रदर्शनियों और इवेंट्स के साथ अपडेट रहें",
+    "readMore": "और पढ़ें",
+    "backToEvents": "इवेंट्स पर वापस जाएं",
+    "noEvents": "इस समय कोई इवेंट उपलब्ध नहीं है",
+    "exploreAll": "सभी का अन्वेषण करें"
+  },
+  "footer": {
+    "quickLinks": "त्वरित लिंक",
+    "productCategories": "उत्पाद श्रेणियां",
+    "copyright": "कॉपीराइट",
+    "allRightsReserved": "सभी अधिकार सुरक्षित",
+    "companyDescription": "UAE में पर्यावरण के अनुकूल, प्रचार और कस्टम बैग के लिए आपका विश्वसनीय साथी।",
+    "liveVisitorCount": "लाइव विज़िटर काउंट",
+    "totalVisits": "कुल विज़िट",
+    "today": "आज",
+    "information": "जानकारी",
+    "dealerNetwork": "डीलर नेटवर्क",
+    "blog": "ब्लॉग",
+    "contactUs": "संपर्क करें",
+    "contact": "संपर्क",
+    "email": "ईमेल",
+    "phone": "फोन",
+    "websiteDesignedBy": "वेबसाइट डिज़ाइन और विकसित की गई"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "noData": "कोई डेटा उपलब्ध नहीं है",
+    "search": "खोजें",
+    "filter": "फ़िल्टर करें",
+    "previous": "पिछला",
+    "next": "अगला"
+  },
+  "sidebar": {
+    "productCategories": "उत्पाद श्रेणियां",
+    "loadingCategories": "श्रेणियां लोड हो रही हैं...",
+    "noCategoriesAvailable": "कोई श्रेणी उपलब्ध नहीं है।"
+  },
+  "productsPage": {
+    "title": "उत्पाद",
+    "viewMore": "और देखें"
+  }
+}
+

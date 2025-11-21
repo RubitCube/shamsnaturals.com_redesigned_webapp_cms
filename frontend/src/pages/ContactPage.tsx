@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import ReCAPTCHA from "react-google-recaptcha";
 import { contactAPI, bannersAPI } from "../services/api";
 import BannerCarousel from "../components/BannerCarousel";
 import contactBg from "../assets/Contact Page Image/contactimg.webp";
 
 const ContactPage = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -90,19 +92,17 @@ const ContactPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16 items-start">
           <div className="bg-white px-8 py-10 shadow-xl rounded-[32px] border border-[#d8c8a5] text-gray-900 w-full">
             <p className="text-sm font-semibold tracking-[0.35em] text-[#b08b4f] uppercase mb-2">
-              Get in touch
+              {t('contact.getInTouch')}
             </p>
             <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#355b24] uppercase mb-3">
-              Leave a Message
+              {t('contact.leaveMessage')}
             </h2>
             <p className="text-sm sm:text-base text-gray-600 mb-8">
-              If you have any questions about the services we provide, simply
-              use the form below. We try and respond to all queries and comments
-              within 24 hours.
+              {t('contact.contactDescription')}
             </p>
             {success && (
               <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
-                Thank you for your message! We'll get back to you soon.
+                {t('contact.thankYouMessage')}
               </div>
             )}
             {error && (
@@ -119,7 +119,7 @@ const ContactPage = () => {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Type your Name"
+                  placeholder={t('contact.typeYourName')}
                   className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
                 />
 
@@ -129,7 +129,7 @@ const ContactPage = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="Type your Mobile"
+                  placeholder={t('contact.typeYourMobile')}
                   className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
                 />
 
@@ -140,7 +140,7 @@ const ContactPage = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="Type your Email"
+                  placeholder={t('contact.typeYourEmail')}
                   className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
                 />
               </div>
@@ -153,7 +153,7 @@ const ContactPage = () => {
                   rows={8}
                   value={formData.message}
                   onChange={handleChange}
-                  placeholder="Type your Additional Requirements"
+                  placeholder={t('contact.typeYourRequirements')}
                   className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
                 />
               </div>
@@ -172,7 +172,7 @@ const ContactPage = () => {
                   disabled={loading}
                   className="inline-flex items-center justify-center border border-black px-8 py-3 text-xs font-semibold uppercase tracking-[0.2em] bg-white text-black rounded-none hover:bg-black hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
-                  {loading ? "Submitting…" : "Submit Enquiry"}
+                  {loading ? t('contact.submitting') : t('contact.submitEnquiry')}
                 </button>
               </div>
             </form>

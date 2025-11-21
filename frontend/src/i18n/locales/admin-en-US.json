@@ -1,0 +1,20 @@
+{
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "categories": "Categories",
+    "banners": "Banners",
+    "dealers": "Dealers",
+    "blogs": "Blogs",
+    "events": "Events",
+    "pages": "Pages",
+    "countries": "Countries (Region)",
+    "seo": "SEO Management",
+    "changePassword": "Change Password",
+    "logout": "Logout",
+    "back": "Back",
+    "welcome": "Welcome",
+    "menu": "Menu"
+  }
+}
+

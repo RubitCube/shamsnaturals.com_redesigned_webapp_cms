@@ -1,0 +1,124 @@
+# ============================================
+# Frontend .htaccess for Production Server
+# Location: Web root (where frontend/dist/ contents are uploaded)
+# Domain: shamsnaturals.com (subdomain)
+# ============================================
+
+# === PHP Settings ===
+php_flag short_open_tag on
+php_flag display_errors off
+php_value error_reporting 0
+
+# === Security: Block sensitive files ===
+<FilesMatch "(^\.env|composer\.json|composer\.lock|package\.json|yarn\.lock|artisan|server-status|phpinfo\.php|readme\.md|README\.txt|\.git|\.gitignore|\.gitattributes)$">
+    Require all denied
+</FilesMatch>
+
+# === Block known malicious patterns ===
+RewriteEngine On
+RewriteCond %{QUERY_STRING} (\.env|wp-config|eval\(|base64_encode|/etc/passwd|/proc/self/environ) [NC]
+RewriteRule .* - [F,L]
+
+# === Disable directory browsing ===
+Options -Indexes
+
+# === Block bad bots ===
+RewriteCond %{HTTP_USER_AGENT} (MJ12bot|AhrefsBot|SemrushBot|crawler|python-requests|curl|scrapy|lwp) [NC]
+RewriteRule .* - [F,L]
+
+# === Force HTTPS ===
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# === React Router Support ===
+# Handle React Router - redirect all requests to index.html
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+# === Security Headers ===
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # Remove server signature
+    Header unset Server
+    Header unset X-Powered-By
+</IfModule>
+
+# === Cache static assets ===
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/json "access plus 0 seconds"
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+    ExpiresByType font/opentype "access plus 1 year"
+    ExpiresByType application/vnd.ms-fontobject "access plus 1 year"
+</IfModule>
+
+# === Enable compression ===
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript text/xml text/plain image/x-icon image/svg+xml application/rss+xml application/javascript application/x-javascript application/xml application/xhtml+xml application/json font/ttf font/otf font/opentype application/vnd.ms-fontobject
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+</IfModule>
+
+# === PHP Handler ===
+<IfModule mime_module>
+    AddHandler application/x-httpd-ea-php82___lsphp .php .php8 .phtml
+</IfModule>
+
+# BEGIN cPanel-generated php ini directives, do not edit
+# Manual editing of this file may result in unexpected behavior.
+# To make changes to this file, use the cPanel MultiPHP INI Editor (Home >> Software >> MultiPHP INI Editor)
+# For more information, read our documentation (https://go.cpanel.net/EA4ModifyINI)
+
+<IfModule php8_module>
+    php_flag display_errors Off
+    php_value max_execution_time 60
+    php_value max_input_time 60
+    php_value max_input_vars 1000
+    php_value memory_limit 512M
+    php_value post_max_size 516M
+    php_value session.gc_maxlifetime 1440
+    php_value session.save_path "/var/cpanel/php/sessions/ea-php82"
+    php_value upload_max_filesize 512M
+    php_flag zlib.output_compression On
+</IfModule>
+
+<IfModule lsapi_module>
+    php_flag display_errors Off
+    php_value max_execution_time 60
+    php_value max_input_time 60
+    php_value max_input_vars 1000
+    php_value memory_limit 512M
+    php_value post_max_size 516M
+    php_value session.gc_maxlifetime 1440
+    php_value session.save_path "/var/cpanel/php/sessions/ea-php82"
+    php_value upload_max_filesize 512M
+    php_flag zlib.output_compression On
+</IfModule>
+# END cPanel-generated php ini directives, do not edit
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the "ea-php82" package as the default "PHP" programming language.
+<IfModule mime_module>
+    AddHandler application/x-httpd-ea-php82___lsphp .php .php8 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit
+

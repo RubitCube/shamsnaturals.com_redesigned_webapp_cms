@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Navbar from './components/Layout/Navbar'
 import Footer from './components/Layout/Footer'
 import SocialIcons from './components/Layout/SocialIcons'
+import AccessibilityToolbar from './components/AccessibilityToolbar'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 import AdminLayout from './components/admin/AdminLayout'
 import HomePage from './pages/HomePage'
@@ -103,8 +104,9 @@ function App() {
             path="/*"
             element={
               <div className="min-h-screen flex flex-col">
+                <AccessibilityToolbar />
                 <Navbar />
-                <main className="flex-grow">
+                <main id="main-content" className="flex-grow" tabIndex={-1}>
                   <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/products" element={<ProductsPage />} />

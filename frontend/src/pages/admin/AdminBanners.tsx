@@ -164,7 +164,7 @@ const AdminBanners = () => {
                     {(banner as any).page || 'homepage'}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">{banner.description}</p>
+                <p className="text-sm text-gray-600 mb-2">{banner.description || 'No description'}</p>
                 <div className="flex justify-between items-center">
                   <span className={`px-2 py-1 text-xs rounded-full ${banner.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                     {banner.is_active ? 'Active' : 'Inactive'}

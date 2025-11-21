@@ -1,0 +1,20 @@
+{
+  "admin": {
+    "dashboard": "لوحة التحكم",
+    "products": "المنتجات",
+    "categories": "الفئات",
+    "banners": "اللافتات",
+    "dealers": "التجار",
+    "blogs": "المدونة",
+    "events": "الفعاليات",
+    "pages": "الصفحات",
+    "countries": "الدول (المنطقة)",
+    "seo": "إدارة SEO",
+    "changePassword": "تغيير كلمة المرور",
+    "logout": "تسجيل الخروج",
+    "back": "رجوع",
+    "welcome": "مرحباً",
+    "menu": "القائمة"
+  }
+}
+

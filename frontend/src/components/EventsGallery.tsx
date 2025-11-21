@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 interface Event {
   id: number
@@ -17,6 +18,7 @@ interface EventsGalleryProps {
 }
 
 const EventsGallery = ({ events, autoSlideInterval = 5000 }: EventsGalleryProps) => {
+  const { t } = useTranslation()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 
@@ -45,7 +47,7 @@ const EventsGallery = ({ events, autoSlideInterval = 5000 }: EventsGalleryProps)
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-left mb-8">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Events</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('events.title')}</h2>
         </div>
 
         <div
@@ -98,7 +100,19 @@ const EventsGallery = ({ events, autoSlideInterval = 5000 }: EventsGalleryProps)
                       <div className="flex flex-wrap gap-4 mb-4 text-sm">
                         {event.event_date && (
                           <span className="flex items-center">
-                            📅 {new Date(event.event_date).toLocaleDateString()}
+                            📅 {new Date(event.event_date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              // Backend automatically sends dates in UAE timezone with timezone info
+                            })}
+                            <span className="mx-2">•</span>
+                            🕐 {new Date(event.event_date).toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true,
+                              // Backend automatically sends dates in UAE timezone with timezone info
+                            })}
                           </span>
                         )}
                         {event.location && (
@@ -111,7 +125,7 @@ const EventsGallery = ({ events, autoSlideInterval = 5000 }: EventsGalleryProps)
                         to={`/events/${event.slug}`}
                         className="inline-block btn-primary px-6 py-3"
                       >
-                        Read More
+                        {t('events.readMore')}
                       </Link>
                     </div>
                   </div>
@@ -190,7 +204,7 @@ const EventsGallery = ({ events, autoSlideInterval = 5000 }: EventsGalleryProps)
               to="/events"
               className="bg-white bg-opacity-90 hover:bg-opacity-100 text-primary-600 px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2"
             >
-              Explore All
+              {t('events.exploreAll')}
               <svg
                 className="w-5 h-5"
                 fill="none"

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { eventsAPI } from '../services/api'
 
 const EventsPage = () => {
+  const { t } = useTranslation()
   const [events, setEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -32,9 +34,9 @@ const EventsPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Events</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('events.title')}</h1>
         <p className="text-lg text-gray-600">
-          Stay updated with our latest exhibitions and events
+          {t('events.description')}
         </p>
       </div>
 
@@ -76,6 +78,15 @@ const EventsPage = () => {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
+                          // Backend automatically sends dates in UAE timezone with timezone info
+                        })}
+                        <span className="mx-2">•</span>
+                        <span className="mr-2">🕐</span>
+                        {new Date(event.event_date).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true,
+                          // Backend automatically sends dates in UAE timezone with timezone info
                         })}
                       </div>
                     )}
@@ -90,7 +101,7 @@ const EventsPage = () => {
                     to={`/events/${event.slug}`}
                     className="inline-block btn-primary px-6 py-2"
                   >
-                    Read More
+                    {t('events.readMore')}
                   </Link>
                 </div>
               </div>
@@ -99,7 +110,7 @@ const EventsPage = () => {
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-gray-600 text-lg">No events available at the moment.</p>
+          <p className="text-gray-600 text-lg">{t('events.noEvents')}</p>
         </div>
       )}
     </div>

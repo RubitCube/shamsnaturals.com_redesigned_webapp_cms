@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { eventsAPI } from '../services/api'
 
 const EventDetailPage = () => {
+  const { t } = useTranslation()
   const { slug } = useParams<{ slug: string }>()
   const [event, setEvent] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -35,9 +37,9 @@ const EventDetailPage = () => {
   if (!event) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Event Not Found</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('common.error')}</h1>
         <Link to="/events" className="text-primary-600 hover:text-primary-700">
-          Back to Events
+          {t('events.backToEvents')}
         </Link>
       </div>
     )
@@ -68,7 +70,7 @@ const EventDetailPage = () => {
             d="M15 19l-7-7 7-7"
           />
         </svg>
-        Back to Events
+        {t('events.backToEvents')}
       </Link>
 
       {imageUrl && (
@@ -95,6 +97,17 @@ const EventDetailPage = () => {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
+                  // Backend automatically sends dates in UAE timezone with timezone info
+                })}
+              </span>
+              <span className="mx-2">•</span>
+              <span className="mr-2">🕐</span>
+              <span>
+                {new Date(event.event_date).toLocaleTimeString('en-US', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                  // Backend automatically sends dates in UAE timezone with timezone info
                 })}
               </span>
             </div>

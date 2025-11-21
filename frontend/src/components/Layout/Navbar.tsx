@@ -1,9 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import logo from "../../assets/company_logo_image/shamsnaturals-logo.png";
 import { categoriesAPI, productsAPI } from "../../services/api";
+import LanguageSelector from "../LanguageSelector";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [showProductsDropdown, setShowProductsDropdown] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
@@ -112,7 +115,7 @@ const Navbar = () => {
     : categoryProducts;
 
   return (
-    <nav className="bg-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-white shadow-lg sticky top-2 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -140,13 +143,13 @@ const Navbar = () => {
               to="/"
               className="text-gray-700 hover:text-[#4a7c28] transition-colors"
             >
-              Home
+              {t('nav.home')}
             </Link>
             <Link
               to="/about"
               className="text-gray-700 hover:text-[#4a7c28] transition-colors"
             >
-              About Us
+              {t('nav.about')}
             </Link>
             <div
               className="relative"
@@ -172,7 +175,7 @@ const Navbar = () => {
                 aria-haspopup="true"
                 aria-expanded={showProductsDropdown}
               >
-                Products
+                {t('nav.products')}
                 <svg
                   width="12"
                   height="12"
@@ -355,33 +358,34 @@ const Navbar = () => {
               to="/new-arrivals"
               className="text-gray-700 hover:text-[#4a7c28] transition-colors"
             >
-              New Arrivals
+              {t('nav.newArrivals')}
             </Link>
             <Link
               to="/dealers"
               className="text-gray-700 hover:text-[#4a7c28] transition-colors"
             >
-              Dealers
+              {t('nav.dealers')}
             </Link>
             <Link
-              to="/blog"
+              to="/events"
               className="text-gray-700 hover:text-[#4a7c28] transition-colors"
             >
-              Blog
+              {t('nav.events')}
             </Link>
             <Link
               to="/contact"
               className="text-gray-700 hover:text-[#4a7c28] transition-colors"
             >
-              Contact
+              {t('nav.contact')}
             </Link>
+            <LanguageSelector />
             <a
               href="https://ecobagdealers.rubitcubedev.com"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary px-4 py-2 text-sm font-semibold"
             >
-              Dealer Login
+              {t('nav.dealerLogin')}
             </a>
           </div>
 
@@ -426,13 +430,13 @@ const Navbar = () => {
               to="/"
               className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"
             >
-              Home
+              {t('nav.home')}
             </Link>
             <Link
               to="/about"
               className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"
             >
-              About Us
+              {t('nav.about')}
             </Link>
             <div className="border border-gray-200 rounded-lg">
               <button
@@ -509,26 +513,29 @@ const Navbar = () => {
               to="/new-arrivals"
               className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"
             >
-              New Arrivals
+              {t('nav.newArrivals')}
             </Link>
             <Link
               to="/dealers"
               className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"
             >
-              Dealers
+              {t('nav.dealers')}
             </Link>
             <Link
-              to="/blog"
+              to="/events"
               className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"
             >
-              Blog
+              {t('nav.events')}
             </Link>
             <Link
               to="/contact"
               className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"
             >
-              Contact
+              {t('nav.contact')}
             </Link>
+            <div className="px-3 py-2">
+              <LanguageSelector />
+            </div>
             <a
               href="https://ecobagdealers.rubitcubedev.com"
               target="_blank"

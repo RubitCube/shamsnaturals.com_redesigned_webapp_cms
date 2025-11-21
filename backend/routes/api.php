@@ -71,8 +71,13 @@ Route::prefix('v1/admin')->middleware('auth:sanctum')->group(function () {
     Route::post('categories/reorder', [\App\Http\Controllers\Admin\CategoryController::class, 'reorder']);
     Route::apiResource('categories', \App\Http\Controllers\Admin\CategoryController::class);
     
-    // Banners
-    Route::apiResource('banners', \App\Http\Controllers\Admin\BannerController::class);
+    // Banners - Define routes manually to support POST for FormData updates
+    Route::get('banners', [\App\Http\Controllers\Admin\BannerController::class, 'index']);
+    Route::post('banners', [\App\Http\Controllers\Admin\BannerController::class, 'store']);
+    Route::get('banners/{id}', [\App\Http\Controllers\Admin\BannerController::class, 'show']);
+    Route::put('banners/{id}', [\App\Http\Controllers\Admin\BannerController::class, 'update']);
+    Route::post('banners/{id}', [\App\Http\Controllers\Admin\BannerController::class, 'update']); // Support POST for FormData with _method
+    Route::delete('banners/{id}', [\App\Http\Controllers\Admin\BannerController::class, 'destroy']);
     Route::post('banners/{id}/upload', [\App\Http\Controllers\Admin\BannerController::class, 'uploadImage']);
     
     // Dealers
@@ -96,8 +101,13 @@ Route::prefix('v1/admin')->middleware('auth:sanctum')->group(function () {
     // Blogs
     Route::apiResource('blogs', \App\Http\Controllers\Admin\BlogController::class);
     
-    // Events
-    Route::apiResource('events', \App\Http\Controllers\Admin\EventController::class);
+    // Events - Define routes manually to support POST for FormData updates
+    Route::get('events', [\App\Http\Controllers\Admin\EventController::class, 'index']);
+    Route::post('events', [\App\Http\Controllers\Admin\EventController::class, 'store']);
+    Route::get('events/{id}', [\App\Http\Controllers\Admin\EventController::class, 'show']);
+    Route::put('events/{id}', [\App\Http\Controllers\Admin\EventController::class, 'update']);
+    Route::post('events/{id}', [\App\Http\Controllers\Admin\EventController::class, 'update']); // Support POST for FormData with _method
+    Route::delete('events/{id}', [\App\Http\Controllers\Admin\EventController::class, 'destroy']);
     
     // Pages
     Route::apiResource('pages', \App\Http\Controllers\Admin\PageController::class);
