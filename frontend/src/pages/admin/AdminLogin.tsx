@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import ReCAPTCHA from 'react-google-recaptcha'
 import logo from '../../assets/company_logo_image/shamsnaturals-logo.png'
 
 const backgroundSlides = [
@@ -29,9 +30,12 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
   const { login } = useAuth()
   const navigate = useNavigate()
   const [slideIndex, setSlideIndex] = useState(0)
+
+  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -40,16 +44,30 @@ const AdminLogin = () => {
     return () => clearInterval(interval)
   }, [])
 
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // Validate reCAPTCHA if site key is configured
+    if (recaptchaSiteKey && !recaptchaToken) {
+      setError('Please complete the reCAPTCHA verification')
+      return
+    }
+
     setLoading(true)
 
     try {
-      await login(email, password)
+      // Include reCAPTCHA token in login request if available
+      await login(email, password, recaptchaToken || undefined)
       navigate('/admin/dashboard', { replace: true })
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid email or password')
+      // Reset reCAPTCHA on error
+      setRecaptchaToken(null)
     } finally {
       setLoading(false)
     }
@@ -140,10 +158,20 @@ const AdminLogin = () => {
             </div>
           </div>
 
+          {/* reCAPTCHA */}
+          {recaptchaSiteKey && (
+            <div className="flex justify-center">
+              <ReCAPTCHA
+                sitekey={recaptchaSiteKey}
+                onChange={handleRecaptchaChange}
+              />
+            </div>
+          )}
+
           <div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (recaptchaSiteKey && !recaptchaToken)}
               className="btn-primary group relative w-full flex justify-center py-2 px-4 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#9dbf93] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in...' : 'Sign in'}

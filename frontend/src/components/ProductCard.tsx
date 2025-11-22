@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 interface ProductImage {
@@ -24,19 +25,27 @@ interface ProductCardProps {
   imageFit?: 'cover' | 'contain'
 }
 
-const ProductCard = ({ product, imageFit = 'cover' }: ProductCardProps) => {
+const ProductCard = memo(({ product, imageFit = 'cover' }: ProductCardProps) => {
   const image = product.primaryImage || product.images?.[0]
-  const imageUrl = image?.image_path
-    ? (image.image_path.startsWith('http')
-        ? image.image_path
-        : `http://localhost:8000/storage/${image.image_path}`)
-    : '/placeholder-product.jpg'
-
-  const imageClass =
+  
+  const imageUrl = useMemo(() => {
+    if (!image?.image_path) return '/placeholder-product.jpg'
+    if (image.image_path.startsWith('http')) return image.image_path
+    
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+    const backendOrigin = apiUrl.replace(/\/api\/v1\/?$/, '') || 'http://localhost:8000'
+    let normalized = image.image_path.startsWith('storage/') ? image.image_path.substring(8) : image.image_path
+    normalized = normalized.startsWith('/') ? normalized.substring(1) : normalized
+    
+    return `${backendOrigin}/storage/${normalized}`
+  }, [image?.image_path])
+  
+  const imageClass = useMemo(() => 
     imageFit === 'contain'
       ? 'w-full h-64 object-contain p-4 mix-blend-multiply bg-white'
-      : 'w-full h-64 object-cover'
-
+      : 'w-full h-64 object-cover',
+    [imageFit]
+  )
   return (
     <Link to={`/products/${product.slug}`} className="card hover:shadow-xl transition-shadow duration-200">
       <div className="relative">
@@ -63,7 +72,9 @@ const ProductCard = ({ product, imageFit = 'cover' }: ProductCardProps) => {
       </div>
     </Link>
   )
-}
+})
+
+ProductCard.displayName = 'ProductCard'
 
 export default ProductCard
 

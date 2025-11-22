@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import ReCAPTCHA from "react-google-recaptcha";
 import { contactAPI, bannersAPI } from "../services/api";
 import BannerCarousel from "../components/BannerCarousel";
+import SEOHead from "../components/SEOHead";
 import contactBg from "../assets/Contact Page Image/contactimg.webp";
 
 const ContactPage = () => {
@@ -84,9 +85,48 @@ const ContactPage = () => {
     }
   };
 
+  // Generate structured data for Contact page
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: 'Contact Us - Shams Naturals',
+    description: 'Get in touch with Shams Naturals for eco-friendly bags and sustainable products. Contact us via phone, email, or visit our offices in Dubai and Poland.',
+    url: 'https://shamsnaturals.com/contact',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'Shams Naturals',
+      telephone: ['+971-55-190-6177', '+971-42-673449', '+48-578-625-210', '+48-795-876-741'],
+      email: 'info@shamsnaturals.com',
+      address: [
+        {
+          '@type': 'PostalAddress',
+          streetAddress: 'Warehouse No. 1, Al Qusais Industrial Area 4',
+          addressLocality: 'Dubai',
+          addressCountry: 'UAE'
+        },
+        {
+          '@type': 'PostalAddress',
+          streetAddress: 'Marcina Kasprzaka 31, Room 119',
+          addressLocality: 'Warsaw',
+          postalCode: '00-123',
+          addressCountry: 'Poland'
+        }
+      ]
+    }
+  }
+
   return (
-    <div>
-      {banners && banners.length > 0 && <BannerCarousel banners={banners} />}
+    <>
+      <SEOHead
+        title="Contact Us - Shams Naturals | Eco-Friendly Bags UAE"
+        description="Contact Shams Naturals for premium eco-friendly bags and sustainable products. Reach us in Dubai, UAE or Warsaw, Poland. Phone: +971-55-190-6177"
+        keywords="contact shams naturals, eco-friendly bags contact, sustainable products UAE, Dubai eco bags, contact eco bags supplier"
+        ogType="website"
+        canonicalUrl="/contact"
+        structuredData={structuredData}
+      />
+      <div>
+        {banners && banners.length > 0 && <BannerCarousel banners={banners} />}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16 items-start">
@@ -94,9 +134,9 @@ const ContactPage = () => {
             <p className="text-sm font-semibold tracking-[0.35em] text-[#b08b4f] uppercase mb-2">
               {t('contact.getInTouch')}
             </p>
-            <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#355b24] uppercase mb-3">
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#355b24] uppercase mb-3">
               {t('contact.leaveMessage')}
-            </h2>
+            </h1>
             <p className="text-sm sm:text-base text-gray-600 mb-8">
               {t('contact.contactDescription')}
             </p>
@@ -159,18 +199,18 @@ const ContactPage = () => {
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex-1">
-                  {recaptchaSiteKey && (
+                {recaptchaSiteKey && (
+                  <div className="flex-shrink-0">
                     <ReCAPTCHA
                       sitekey={recaptchaSiteKey}
                       onChange={handleRecaptchaChange}
                     />
-                  )}
-                </div>
+                  </div>
+                )}
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="inline-flex items-center justify-center border border-black px-8 py-3 text-xs font-semibold uppercase tracking-[0.2em] bg-white text-black rounded-none hover:bg-black hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  disabled={loading || !recaptchaToken}
+                  className="inline-flex items-center justify-center border border-black px-8 py-3 text-xs font-semibold uppercase tracking-[0.2em] bg-white text-black rounded-none hover:bg-black hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap sm:ml-auto"
                 >
                   {loading ? t('contact.submitting') : t('contact.submitEnquiry')}
                 </button>
@@ -265,7 +305,8 @@ const ContactPage = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

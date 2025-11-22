@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { eventsAPI } from '../services/api'
+import SEOHead from '../components/SEOHead'
 
 const EventsPage = () => {
   const { t } = useTranslation()
@@ -31,10 +32,44 @@ const EventsPage = () => {
     )
   }
 
+  // Generate structured data for Events listing page
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: 'Events - Shams Naturals',
+    description: 'Discover upcoming events, exhibitions, and trade shows featuring Shams Naturals eco-friendly bags and sustainable products.',
+    url: 'https://shamsnaturals.com/events',
+    event: events.slice(0, 10).map((event) => ({
+      '@type': 'Event',
+      name: event.title,
+      description: event.description,
+      url: `https://shamsnaturals.com/events/${event.slug}`,
+      startDate: event.event_date,
+      location: event.location ? {
+        '@type': 'Place',
+        name: event.location
+      } : undefined,
+      image: event.featured_image
+        ? (event.featured_image.startsWith('http')
+            ? event.featured_image
+            : `https://shamsnaturals.com/storage/${event.featured_image}`)
+        : undefined
+    }))
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('events.title')}</h1>
+    <>
+      <SEOHead
+        title="Events - Trade Shows & Exhibitions | Shams Naturals"
+        description="Discover upcoming events, exhibitions, and trade shows featuring Shams Naturals eco-friendly bags and sustainable products."
+        keywords="eco-friendly events, sustainable products exhibitions, trade shows UAE, eco bags events, green products events"
+        ogType="website"
+        canonicalUrl="/events"
+        structuredData={structuredData}
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('events.title')}</h1>
         <p className="text-lg text-gray-600">
           {t('events.description')}
         </p>
@@ -113,7 +148,8 @@ const EventsPage = () => {
           <p className="text-gray-600 text-lg">{t('events.noEvents')}</p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 

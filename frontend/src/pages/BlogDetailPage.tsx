@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { blogsAPI } from '../services/api'
+import SEOHead from '../components/SEOHead'
 
 const BlogDetailPage = () => {
   const { slug } = useParams()
@@ -46,8 +47,40 @@ const BlogDetailPage = () => {
         : `http://localhost:8000/storage/${blog.featured_image}`)
     : null
 
+  // Generate structured data for blog article
+  const articleStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: blog.title,
+    description: blog.excerpt || blog.description || '',
+    image: imageUrl ? [imageUrl] : [],
+    datePublished: blog.published_at || blog.created_at,
+    dateModified: blog.updated_at || blog.published_at || blog.created_at,
+    author: {
+      '@type': 'Organization',
+      name: 'Shams Naturals'
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Shams Naturals',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${import.meta.env.VITE_SITE_URL || 'https://shamsnaturals.com'}/assets/company_logo_image/shamsnaturals-logo.png`
+      }
+    }
+  }
+
   return (
-    <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <>
+      <SEOHead
+        title={blog.seo?.meta_title || blog.title}
+        description={blog.seo?.meta_description || blog.excerpt || blog.description || `Read ${blog.title} on Shams Naturals blog`}
+        keywords={blog.seo?.meta_keywords || `${blog.title}, eco-friendly, sustainable, blog`}
+        ogImage={blog.seo?.og_image || imageUrl || undefined}
+        ogType="article"
+        structuredData={articleStructuredData}
+      />
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {imageUrl && (
         <img
           src={imageUrl}
@@ -71,6 +104,7 @@ const BlogDetailPage = () => {
         dangerouslySetInnerHTML={{ __html: blog.content }}
       />
     </article>
+    </>
   )
 }
 

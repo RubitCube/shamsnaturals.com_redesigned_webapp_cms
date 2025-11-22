@@ -79,7 +79,8 @@ export const contactAPI = {
 }
 
 export const authAPI = {
-  login: (email: string, password: string) => api.post('/auth/login', { email, password }),
+  login: (email: string, password: string, recaptchaToken?: string) => 
+    api.post('/auth/login', { email, password, recaptcha_token: recaptchaToken }),
   logout: () => api.post('/auth/logout'),
   getUser: () => api.get('/auth/user'),
   changePassword: (data: { current_password: string; new_password: string; new_password_confirmation: string }) =>

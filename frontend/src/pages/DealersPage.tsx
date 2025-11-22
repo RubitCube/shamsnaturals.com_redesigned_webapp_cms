@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { dealersAPI, bannersAPI } from '../services/api'
 import BannerCarousel from '../components/BannerCarousel'
+import SEOHead from '../components/SEOHead'
 import L from 'leaflet'
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch'
 import 'leaflet/dist/leaflet.css'
@@ -388,16 +389,55 @@ const DealersPage = () => {
     )
   }
 
-  return (
-    <div>
-      {/* Banner Carousel */}
-      {banners && banners.length > 0 && (
-        <BannerCarousel banners={banners} />
-      )}
+  // Generate structured data for Dealers page
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Dealer Network - Shams Naturals',
+    description: 'Find authorized Shams Naturals dealers worldwide. Connect with our dealer network for eco-friendly bags and sustainable products.',
+    url: 'https://shamsnaturals.com/dealers',
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: dealers.length,
+      itemListElement: dealers.slice(0, 20).map((dealer, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        item: {
+          '@type': 'LocalBusiness',
+          name: dealer.company_name,
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: dealer.address,
+            addressLocality: dealer.city,
+            addressRegion: dealer.state,
+            addressCountry: dealer.country
+          },
+          telephone: dealer.phone,
+          email: dealer.email
+        }
+      }))
+    }
+  }
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Dealer Network</h1>
+  return (
+    <>
+      <SEOHead
+        title="Dealer Network - Find Authorized Dealers | Shams Naturals"
+        description="Find authorized Shams Naturals dealers worldwide. Connect with our dealer network for eco-friendly bags and sustainable products in your region."
+        keywords="shams naturals dealers, eco-friendly bags dealers, authorized dealers, sustainable products dealers, dealer network, eco bags distributors"
+        ogType="website"
+        canonicalUrl="/dealers"
+        structuredData={structuredData}
+      />
+      <div>
+        {/* Banner Carousel */}
+        {banners && banners.length > 0 && (
+          <BannerCarousel banners={banners} />
+        )}
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Dealer Network</h1>
           <p className="text-gray-600">
             Find our authorized dealers worldwide. Click on map markers to view complete dealer details and contact information.
           </p>
@@ -411,8 +451,9 @@ const DealersPage = () => {
           style={{ position: 'relative' }}
         />
       </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

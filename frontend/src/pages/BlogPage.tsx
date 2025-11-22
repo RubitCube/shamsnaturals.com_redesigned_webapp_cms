@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { blogsAPI } from '../services/api'
+import SEOHead from '../components/SEOHead'
 
 const BlogPage = () => {
   const [blogs, setBlogs] = useState<any[]>([])
@@ -29,9 +30,39 @@ const BlogPage = () => {
     )
   }
 
+  // Generate structured data for Blog listing page
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'Blog - Shams Naturals',
+    description: 'Read the latest articles about eco-friendly bags, sustainable products, and environmental consciousness from Shams Naturals.',
+    url: 'https://shamsnaturals.com/blog',
+    blogPost: blogs.slice(0, 10).map((blog) => ({
+      '@type': 'BlogPosting',
+      headline: blog.title,
+      description: blog.excerpt || blog.description,
+      url: `https://shamsnaturals.com/blog/${blog.slug}`,
+      datePublished: blog.published_at,
+      image: blog.featured_image
+        ? (blog.featured_image.startsWith('http')
+            ? blog.featured_image
+            : `https://shamsnaturals.com/storage/${blog.featured_image}`)
+        : undefined
+    }))
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-4xl font-bold text-gray-900 mb-8">Blog</h1>
+    <>
+      <SEOHead
+        title="Blog - Eco-Friendly Bags & Sustainability Articles | Shams Naturals"
+        description="Read the latest articles about eco-friendly bags, sustainable products, and environmental consciousness from Shams Naturals."
+        keywords="eco-friendly blog, sustainable products blog, eco bags articles, environmental blog, green products blog, sustainability articles"
+        ogType="website"
+        canonicalUrl="/blog"
+        structuredData={structuredData}
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">Blog</h1>
 
       {blogs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -77,7 +108,8 @@ const BlogPage = () => {
           <p className="text-gray-600 text-lg">No blog posts available.</p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 

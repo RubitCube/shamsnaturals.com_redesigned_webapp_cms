@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { productsAPI, categoriesAPI } from '../services/api'
+import SEOHead from '../components/SEOHead'
 
 interface ProductImage {
   id: number
@@ -117,9 +118,28 @@ const ProductsPage = () => {
 
   const categoryBannerUrl = currentCategory?.banner_url || resolveBannerUrl(currentCategory?.banner)
 
+  // Generate page title and description based on category
+  const pageTitle = currentCategory 
+    ? `${currentCategory.seo?.meta_title || currentCategory.name} - Products | Shams Naturals`
+    : 'Products - Eco-Friendly Bags | Shams Naturals'
+  const pageDescription = currentCategory
+    ? currentCategory.seo?.meta_description || `Browse our collection of ${currentCategory.name} - Premium eco-friendly products from Shams Naturals`
+    : 'Discover our complete collection of eco-friendly bags and sustainable products. Premium quality, environmentally conscious solutions in UAE.'
+  const pageKeywords = currentCategory
+    ? currentCategory.seo?.meta_keywords || `${currentCategory.name}, eco-friendly, sustainable products`
+    : 'products, eco-friendly bags, sustainable products, jute bags, cotton bags, UAE'
+
   return (
-    <div>
-      {/* Category Banner */}
+    <>
+      <SEOHead
+        title={pageTitle}
+        description={pageDescription}
+        keywords={pageKeywords}
+        ogImage={currentCategory?.banner_url || currentCategory?.image_url || undefined}
+        ogType="website"
+      />
+      <div>
+        {/* Category Banner */}
       {categoryBannerUrl && (
         <div className="w-full mb-8">
           <div className="relative w-full overflow-hidden rounded-lg h-[240px] sm:h-[320px] md:h-[400px] lg:h-[520px] max-w-full">
@@ -261,6 +281,7 @@ const ProductsPage = () => {
       )}
       </div>
     </div>
+    </>
   )
 }
 

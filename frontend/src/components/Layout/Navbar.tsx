@@ -380,7 +380,7 @@ const Navbar = () => {
             </Link>
             <LanguageSelector />
             <a
-              href="https://ecobagdealers.rubitcubedev.com"
+              href="https://shamsnatural.com/"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary px-4 py-2 text-sm font-semibold"
@@ -537,7 +537,7 @@ const Navbar = () => {
               <LanguageSelector />
             </div>
             <a
-              href="https://ecobagdealers.rubitcubedev.com"
+              href="https://shamsnatural.com/"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary block px-3 py-2 text-center"

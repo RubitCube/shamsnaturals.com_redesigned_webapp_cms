@@ -11,7 +11,7 @@ interface User {
 interface AuthContextType {
   user: User | null
   token: string | null
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string, recaptchaToken?: string) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
   loading: boolean
@@ -47,8 +47,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const login = async (email: string, password: string) => {
-    const response = await authAPI.login(email, password)
+  const login = async (email: string, password: string, recaptchaToken?: string) => {
+    const response = await authAPI.login(email, password, recaptchaToken)
     const { token: authToken, user: userData } = response.data
     setToken(authToken)
     setUser(userData)

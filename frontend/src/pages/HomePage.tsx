@@ -7,6 +7,7 @@ import ProductCard from '../components/ProductCard'
 import EventsGallery from '../components/EventsGallery'
 import WorldMap from '../components/WorldMap'
 import ProductCategoriesSidebar from '../components/ProductCategoriesSidebar'
+import SEOHead from '../components/SEOHead'
 
 interface HomePageData {
   banners: any[]
@@ -52,8 +53,37 @@ const HomePage = () => {
     )
   }
 
+  // Generate structured data for homepage
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Shams Naturals',
+    url: 'https://shamsnaturals.com',
+    logo: 'https://shamsnaturals.com/assets/company_logo_image/shamsnaturals-logo.png',
+    description: 'Eco-friendly bags and sustainable products in UAE',
+    sameAs: [
+      'https://www.facebook.com/shams.naturals',
+      'https://www.instagram.com/shams_naturals7',
+      'https://www.youtube.com/@SHAMSNATURALS'
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+971-55-190-6177',
+      contactType: 'Customer Service',
+      email: 'info@shamsnaturals.com'
+    }
+  }
+
   return (
     <div>
+      <SEOHead
+        title="Eco-Friendly Bags & Sustainable Products in UAE"
+        description="Discover premium eco-friendly bags and sustainable products at Shams Naturals. Leading supplier of jute bags, cotton bags, and eco-conscious solutions in UAE."
+        keywords="eco-friendly bags, sustainable products, jute bags, cotton bags, UAE, eco-conscious, green products, biodegradable bags"
+        ogImage="/assets/company_logo_image/shamsnaturals-logo.png"
+        ogType="website"
+        structuredData={structuredData}
+      />
       {/* Banner Carousel */}
       {data?.banners && data.banners.length > 0 && (
         <BannerCarousel banners={data.banners} />
@@ -71,9 +101,9 @@ const HomePage = () => {
             {/* All Category Catalogue */}
             <div className="flex-1">
               <div className="mb-6">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   {t('home.allCategoryCatalogue')}
-                </h2>
+                </h1>
                 <p className="text-gray-600">
                   {t('home.browseCollection')}
                 </p>
