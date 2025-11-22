@@ -56,10 +56,11 @@ const WorldMap = ({ dealers = [] }: WorldMapProps) => {
     // Small delay to ensure DOM is ready
     const initMap = () => {
       if (!mapRef.current) {
-        // Initialize map centered on world view
+        // Initialize map with a more zoomed-in world view
+        // Center at a point that shows most of the world well (slightly north to show more land)
         mapRef.current = L.map('world-map', {
-          center: [20, 0],
-          zoom: 2,
+          center: [25, 20], // Centered to show Europe, Africa, Middle East, and parts of Asia/Americas
+          zoom: 3, // More zoomed in than before (was 2) to show more detail
           minZoom: 2,
           maxZoom: 10,
         })
@@ -93,12 +94,16 @@ const WorldMap = ({ dealers = [] }: WorldMapProps) => {
       }
 
       // Add dealer markers if provided
+      const validDealers: Array<{ lat: number; lng: number }> = []
+      
       if (dealers.length > 0 && mapRef.current) {
         dealers.forEach((dealer) => {
           const lat = typeof dealer.latitude === 'string' ? parseFloat(dealer.latitude) : dealer.latitude
           const lng = typeof dealer.longitude === 'string' ? parseFloat(dealer.longitude) : dealer.longitude
           
           if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+            validDealers.push({ lat, lng })
+            
             const marker = L.marker([lat, lng]).addTo(mapRef.current!)
 
             const phoneNumbers = parsePhoneNumbers(dealer.phone as any)
@@ -117,6 +122,17 @@ const WorldMap = ({ dealers = [] }: WorldMapProps) => {
             })
           }
         })
+
+        // If we have valid dealers, fit the map to show all of them with some padding
+        // Otherwise, keep the default zoomed view
+        if (validDealers.length > 0 && mapRef.current) {
+          const bounds = L.latLngBounds(validDealers.map(d => [d.lat, d.lng]))
+          // Fit bounds with padding, but ensure minimum zoom level
+          mapRef.current.fitBounds(bounds, {
+            padding: [50, 50],
+            maxZoom: 5, // Don't zoom in too much, keep a world view
+          })
+        }
       }
     }
 
