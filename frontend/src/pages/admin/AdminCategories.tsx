@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { adminAPI } from '../../services/api'
+import { translateCategoryName } from '../../utils/categoryTranslations'
 
 interface Category {
   id: number
@@ -16,6 +18,7 @@ interface Category {
 }
 
 const AdminCategories = () => {
+  const { t } = useTranslation("translation");
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -122,8 +125,29 @@ const AdminCategories = () => {
     navigate(`/admin/products/new?category=${categoryId}`)
   }
 
+  const fixImageUrl = (src?: string) => {
+    if (!src) return src;
+    
+    // Check if it's an absolute URL that needs fixing
+    if (src.startsWith("http")) {
+      const siteUrl = import.meta.env.VITE_SITE_URL || "http://localhost:8000";
+      // Fix category images
+      if (src.includes("/storage/categories/") && !src.includes("/backend/public/")) {
+        const filename = src.split("/storage/categories/")[1];
+        return `${siteUrl}/backend/public/storage/categories/${filename}`;
+      }
+      // Fix banners
+      if (src.includes("/storage/banners/") && !src.includes("/backend/public/")) {
+        const filename = src.split("/storage/banners/")[1];
+        return `${siteUrl}/backend/public/storage/banners/${filename}`;
+      }
+    }
+    return src;
+  };
+
   const renderImage = (src?: string) => {
-    if (!src) {
+    const fixedSrc = fixImageUrl(src);
+    if (!fixedSrc) {
       return (
         <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-xs text-gray-400">
           —
@@ -133,7 +157,7 @@ const AdminCategories = () => {
     return (
       <div className="w-14 h-14 rounded-lg overflow-hidden border border-gray-100">
         <img
-          src={src}
+          src={fixedSrc}
           alt=""
           className="w-full h-full object-cover"
           loading="lazy"
@@ -232,7 +256,7 @@ const AdminCategories = () => {
                     <div className="flex items-center gap-3">
                       {renderImage(category.image_url)}
                       <div>
-                        <p className="font-semibold text-gray-900">{category.name}</p>
+                        <p className="font-semibold text-gray-900">{translateCategoryName(category.name, t)}</p>
                         <p className="text-xs text-gray-500">Slug: {category.slug}</p>
                       </div>
                     </div>

@@ -35,7 +35,7 @@ export default defineConfig({
         drop_console: true, // Remove console.log in production
         drop_debugger: true,
       },
-    },
+    } as any,
     // Optimize chunk size
     chunkSizeWarningLimit: 1000,
     // Enable source maps for production debugging (optional)

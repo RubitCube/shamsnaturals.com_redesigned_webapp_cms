@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { adminAPI } from "../../services/api";
+import { translateCategoryName } from "../../utils/categoryTranslations";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface ProductImage {
@@ -26,6 +28,11 @@ interface Product {
   images?: ProductImage[];
 }
 
+const BASE_URL =
+  import.meta.env.VITE_SITE_URL
+    ? import.meta.env.VITE_SITE_URL + "/backend"
+    : "http://localhost:8000/backend";
+
 const formatCurrency = (value?: number) => {
   if (typeof value !== "number") return "—";
   return new Intl.NumberFormat("en-AE", {
@@ -35,6 +42,7 @@ const formatCurrency = (value?: number) => {
 };
 
 const AdminProducts = () => {
+  const { t } = useTranslation("translation");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -338,20 +346,32 @@ const AdminProducts = () => {
 
   const resolveImageUrl = (path?: string) => {
     if (!path) return "";
-    if (path.startsWith("http")) return path;
-
-    const apiUrl =
-      ((import.meta as any).env?.VITE_API_URL as string | undefined) ||
-      "http://localhost:8000/api/v1";
-    const backendOrigin =
-      apiUrl.replace(/\/api\/v1\/?$/, "") || "http://localhost:8000";
+    
+    // Check if it's an absolute URL
+    if (path.startsWith("http")) {
+      // Fix incorrect backend URLs that are missing /backend/public/
+      const siteUrl = import.meta.env.VITE_SITE_URL || "http://localhost:8000";
+      if (path.includes("/storage/products/") && !path.includes("/backend/public/")) {
+        const filename = path.split("/storage/products/")[1];
+        return `${siteUrl}/backend/public/storage/products/${filename}`;
+      }
+      return path;
+    }
 
     let normalized = path.startsWith("storage/") ? path.substring(8) : path;
     normalized = normalized.startsWith("/")
       ? normalized.substring(1)
       : normalized;
+    // Remove 'products/' if it exists (backend already includes it in path)
+    normalized = normalized.replace(/^products\//, "");
 
-    return `${backendOrigin}/storage/${normalized}`;
+    return `${BASE_URL}/public/storage/products/${normalized}`;
+  };
+
+  // Helper to get the correct image URL from an image object
+  const getImageUrl = (image: any) => {
+    const path = image.image_url || image.image_path;
+    return resolveImageUrl(path);
   };
 
   const handleView = async (productId: number) => {
@@ -577,13 +597,10 @@ const AdminProducts = () => {
                 </div>
               </div>
 
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 grid-cols-3">
                 {selectedProduct.images && selectedProduct.images.length > 0 ? (
                   selectedProduct.images.map((image) => {
-                    let imageSrc = image.image_url;
-                    if (!imageSrc && image.image_path) {
-                      imageSrc = resolveImageUrl(image.image_path);
-                    }
+                    const imageSrc = getImageUrl(image);
                     return (
                       <div
                         key={image.id}
@@ -732,9 +749,7 @@ const AdminProducts = () => {
                         {product.images && product.images.length > 0 ? (
                           <div className="flex gap-1">
                             {product.images.slice(0, 3).map((image) => {
-                              const imageSrc =
-                                image.image_url ||
-                                resolveImageUrl(image.image_path);
+                              const imageSrc = getImageUrl(image);
                               return (
                                 <div
                                   key={image.id}
@@ -766,8 +781,8 @@ const AdminProducts = () => {
                         )}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {product.category?.name}{" "}
-                        {product.subcategory && `/ ${product.subcategory.name}`}
+                        {product.category?.name && translateCategoryName(product.category.name, t)}{" "}
+                        {product.subcategory && `/ ${translateCategoryName(product.subcategory.name, t)}`}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <button

@@ -30,7 +30,33 @@
     "viewDetails": "View Details",
     "newBadge": "New",
     "bestSeller": "Best Seller",
-    "viewMoreArrow": "VIEW MORE →"
+    "viewMoreArrow": "VIEW MORE →",
+    "dimension": "Dimension",
+    "color": "Colour",
+    "materials": "Materials",
+    "description": "Description",
+    "sku": "SKU",
+    "specifications": "Specifications",
+    "features": "Features",
+    "price": "Price",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "addToCart": "Add to Basket",
+    "relatedProducts": "Related Products",
+    "productNotFound": "Product Not Found",
+    "loadingProduct": "Loading product..."
+  },
+  "categories": {
+    "juteBags": "Jute Bags",
+    "jucoBags": "Juco Bags",
+    "canvasJuteBags": "Canvas/Jute Bags",
+    "cottonJuteStringBags": "Cotton/Jute String Bags",
+    "cottonBags120gsm": "Cotton Bags 120 gsm",
+    "cottonBags135gsm": "Cotton Bags 135 gsm",
+    "cottonBags150gsm": "Cotton Bags 150 gsm",
+    "cottonBags220235gsm": "Cotton Bags 220/235 gsm",
+    "cottonBags260gsm": "Cotton Bags 260 gsm",
+    "allCategories": "All Categories"
   },
   "about": {
     "title": "About Us"

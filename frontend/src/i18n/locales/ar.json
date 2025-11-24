@@ -30,7 +30,33 @@
     "viewDetails": "عرض التفاصيل",
     "newBadge": "جديد",
     "bestSeller": "الأكثر مبيعاً",
-    "viewMoreArrow": "عرض المزيد →"
+    "viewMoreArrow": "عرض المزيد →",
+    "dimension": "الأبعاد",
+    "color": "اللون",
+    "materials": "المواد",
+    "description": "الوصف",
+    "sku": "رمز المنتج",
+    "specifications": "المواصفات",
+    "features": "المميزات",
+    "price": "السعر",
+    "inStock": "متوفر",
+    "outOfStock": "نفذ من المخزون",
+    "addToCart": "أضف إلى السلة",
+    "relatedProducts": "منتجات ذات صلة",
+    "productNotFound": "المنتج غير موجود",
+    "loadingProduct": "جاري تحميل المنتج..."
+  },
+  "categories": {
+    "juteBags": "حقائب الجوت",
+    "jucoBags": "حقائب الجوكو",
+    "canvasJuteBags": "حقائب القماش/الجوت",
+    "cottonJuteStringBags": "حقائب بحبل القطن/الجوت",
+    "cottonBags120gsm": "حقائب القطن 120 جرام",
+    "cottonBags135gsm": "حقائب القطن 135 جرام",
+    "cottonBags150gsm": "حقائب القطن 150 جرام",
+    "cottonBags220235gsm": "حقائب القطن 220/235 جرام",
+    "cottonBags260gsm": "حقائب القطن 260 جرام",
+    "allCategories": "جميع الفئات"
   },
   "about": {
     "title": "من نحن"

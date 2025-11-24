@@ -21,6 +21,10 @@ interface Product {
   images?: ProductImage[]
 }
 
+const BASE_URL = import.meta.env.VITE_SITE_URL
+  ? `${import.meta.env.VITE_SITE_URL}/backend`
+  : 'http://localhost:8000/backend'
+
 const formatCurrency = (value?: number) => {
   if (typeof value !== 'number') return '—'
   return new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(value)
@@ -127,17 +131,30 @@ const AdminCategoryProducts = () => {
 
   const resolveImageUrl = (path?: string) => {
     if (!path) return ''
-    if (path.startsWith('http')) return path
+    
+    // Check if it's an absolute URL
+    if (path.startsWith('http')) {
+      // Fix incorrect backend URLs that are missing /backend/public/
+      const siteUrl = import.meta.env.VITE_SITE_URL || "http://localhost:8000";
+      if (path.includes("/storage/products/") && !path.includes("/backend/public/")) {
+        const filename = path.split("/storage/products/")[1];
+        return `${siteUrl}/backend/public/storage/products/${filename}`;
+      }
+      return path;
+    }
 
-    // Always use backend URL for images
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
-    const backendOrigin = apiUrl.replace(/\/api\/v1\/?$/, '') || 'http://localhost:8000'
-
-    // Remove 'storage/' prefix if present, then add it back properly
     let normalized = path.startsWith('storage/') ? path.substring(8) : path
     normalized = normalized.startsWith('/') ? normalized.substring(1) : normalized
-    
-    return `${backendOrigin}/storage/${normalized}`
+    // Remove 'products/' if it exists (backend already includes it in path)
+    normalized = normalized.replace(/^products\//, "");
+
+    return `${BASE_URL}/public/storage/products/${normalized}`
+  }
+
+  // Helper to get the correct image URL from an image object
+  const getImageUrl = (image: any) => {
+    const path = image.image_url || image.image_path;
+    return resolveImageUrl(path);
   }
 
   const handleModify = () => {
@@ -245,7 +262,7 @@ const AdminCategoryProducts = () => {
             </button>
           </div>
 
-          <dl className="grid gap-y-4 md:grid-cols-2">
+          <dl className="grid gap-y-4 grid-cols-2">
             <div>
               <dt className="text-xs uppercase tracking-[0.3em] text-gray-400">Product Code</dt>
               <dd className="text-sm font-semibold text-gray-900 mt-1">{selectedProduct.sku || selectedProduct.name}</dd>
@@ -320,14 +337,10 @@ const AdminCategoryProducts = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 grid-cols-3">
             {selectedProduct.images && selectedProduct.images.length > 0 ? (
               selectedProduct.images.map((image) => {
-                // Use image_url from backend if available, otherwise resolve from path
-                let imageSrc = image.image_url
-                if (!imageSrc && image.image_path) {
-                  imageSrc = resolveImageUrl(image.image_path)
-                }
+                const imageSrc = getImageUrl(image);
                 console.log('Product image:', { 
                   id: image.id, 
                   image_url: image.image_url, 
@@ -348,7 +361,7 @@ const AdminCategoryProducts = () => {
                           image_url: image.image_url, 
                           image_path: image.image_path, 
                           resolved: imageSrc,
-                          backendOrigin: import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, '') || 'http://localhost:8000'
+                          baseUrl: BASE_URL
                         })
                         // Don't set placeholder, just hide the broken image
                         e.currentTarget.style.display = 'none'

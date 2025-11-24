@@ -9,6 +9,8 @@ const EventDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  // Build BASE URL from env
+  const BASE_URL = import.meta.env.VITE_API_URL.replace('/api/v1', '')
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -51,7 +53,8 @@ const EventDetailPage = () => {
   const imageUrl = event.featured_image
     ? event.featured_image.startsWith("http")
       ? event.featured_image
-      : `http://localhost:8000/storage/${event.featured_image}`
+      : //: `http://localhost:8000/storage/${event.featured_image}`
+        `${BASE_URL}/storage/${event.featured_image}`
     : null;
 
   // Generate structured data for event

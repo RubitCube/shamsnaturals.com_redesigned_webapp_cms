@@ -70,14 +70,6 @@ const parseDealerMetadata = (description?: string) => {
   return { location: '', website: '' }
 }
 
-const buildDealerDescription = (location: string, website: string) => {
-  if (!location && !website) {
-    return ''
-  }
-
-  return JSON.stringify({ location, website })
-}
-
 const normalizePhoneForInput = (value?: string) => {
   if (!value) return ''
   return value.replace(/[^0-9]/g, '')

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { productsAPI } from '../services/api'
+import { translateCategoryName } from '../utils/categoryTranslations'
 
 interface ProductImage {
   id: number
@@ -25,6 +27,7 @@ interface ProductCategoryCarouselProps {
 }
 
 const ProductCategoryCarousel = ({ categorySlug, limit = 20 }: ProductCategoryCarouselProps) => {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -50,19 +53,33 @@ const ProductCategoryCarousel = ({ categorySlug, limit = 20 }: ProductCategoryCa
   }, [categorySlug, limit])
 
   const resolveImageUrl = (image?: ProductImage) => {
-    if (!image?.image_path) return '/placeholder-product.jpg'
-    if (image.image_path.startsWith('http')) return image.image_path
+    const BASE_URL = import.meta.env.VITE_SITE_URL
+      ? import.meta.env.VITE_SITE_URL + "/backend"
+      : "http://localhost:8000/backend";
+
+    if (!image?.image_path) return `${BASE_URL}/public/storage/products/placeholder-product.jpg`;
     
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
-    const backendOrigin = apiUrl.replace(/\/api\/v1\/?$/, '') || 'http://localhost:8000'
+    // Check if it's an absolute URL
+    if (image.image_path.startsWith('http')) {
+      // Fix incorrect backend URLs that are missing /backend/public/
+      const siteUrl = import.meta.env.VITE_SITE_URL || "http://localhost:8000";
+      if (image.image_path.includes("/storage/products/") && !image.image_path.includes("/backend/public/")) {
+        const filename = image.image_path.split("/storage/products/")[1];
+        return `${siteUrl}/backend/public/storage/products/${filename}`;
+      }
+      return image.image_path;
+    }
     
-    let normalized = image.image_path.startsWith('storage/') ? image.image_path.substring(8) : image.image_path
-    normalized = normalized.startsWith('/') ? normalized.substring(1) : normalized
+    let normalized = image.image_path;
+    // Remove leading 'storage/' or '/'
+    normalized = normalized.replace(/^storage\//, "").replace(/^\//, "");
+    // Remove 'products/' if it exists (backend already includes it in path)
+    normalized = normalized.replace(/^products\//, "");
     
-    return `${backendOrigin}/storage/${normalized}`
+    return `${BASE_URL}/public/storage/products/${normalized}`;
   }
 
-  const productsPerSlide = 4
+  const productsPerSlide = 3
   const totalSlides = Math.ceil(products.length / productsPerSlide)
 
   const goToSlide = (index: number) => {
@@ -94,18 +111,43 @@ const ProductCategoryCarousel = ({ categorySlug, limit = 20 }: ProductCategoryCa
   }
 
   return (
-    <div className="relative">
-      <div className="overflow-hidden rounded-lg">
-        <div
-          className="flex transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+    <div className="flex items-center gap-4">
+      {/* Previous Button */}
+      {totalSlides > 1 && (
+        <button
+          onClick={goToPrevious}
+          className="flex-shrink-0 bg-white shadow-lg rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-50 transition-all border border-gray-200 cursor-pointer"
+          aria-label="Previous slide"
+          type="button"
         >
-          {Array.from({ length: totalSlides }).map((_, slideIndex) => {
-            const startIndex = slideIndex * productsPerSlide
-            const slideProducts = products.slice(startIndex, startIndex + productsPerSlide)
+          <svg
+            className="w-6 h-6 text-gray-700"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      )}
 
-            return (
-              <div key={slideIndex} className="min-w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+      <div className="flex-1 relative">
+        <div className="overflow-hidden rounded-lg">
+          <div
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          >
+            {Array.from({ length: totalSlides }).map((_, slideIndex) => {
+              const startIndex = slideIndex * productsPerSlide
+              const slideProducts = products.slice(startIndex, startIndex + productsPerSlide)
+
+              return (
+                <div key={slideIndex} className="min-w-full grid grid-cols-3 gap-6 px-4">
                 {slideProducts.map((product) => {
                   const image = product.primaryImage || product.images?.[0]
                   const imageUrl = resolveImageUrl(image)
@@ -116,7 +158,7 @@ const ProductCategoryCarousel = ({ categorySlug, limit = 20 }: ProductCategoryCa
                       className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                     >
                       <Link to={`/products/${product.slug}`} className="block">
-                        <div className="relative h-48 bg-gray-100 flex items-center justify-center">
+                        <div className="relative h-64 bg-gray-100 flex items-center justify-center">
                           <img
                             src={imageUrl}
                             alt={image?.alt_text || product.name}
@@ -124,28 +166,31 @@ const ProductCategoryCarousel = ({ categorySlug, limit = 20 }: ProductCategoryCa
                             loading="lazy"
                             decoding="async"
                             onError={(e) => {
-                              e.currentTarget.src = '/placeholder-product.jpg'
+                              const BASE_URL = import.meta.env.VITE_SITE_URL
+                                ? import.meta.env.VITE_SITE_URL + "/backend"
+                                : "http://localhost:8000/backend";
+                              e.currentTarget.src = `${BASE_URL}/public/storage/products/placeholder-product.jpg`
                             }}
                           />
                         </div>
-                        <div className="p-4">
-                          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                        <div className="p-5">
+                          <h3 className="font-semibold text-xl text-gray-900 mb-2 line-clamp-2">
                             {product.name}
                           </h3>
                           {product.sku && (
-                            <p className="text-sm text-gray-500 mb-2">Code: {product.sku}</p>
+                            <p className="text-base text-gray-500 mb-2">Code: {product.sku}</p>
                           )}
                           {product.category && (
-                            <p className="text-xs text-gray-400 uppercase">
-                              {product.category.name}
+                            <p className="text-sm text-gray-400 uppercase">
+                              {translateCategoryName(product.category.name, t)}
                             </p>
                           )}
                         </div>
                       </Link>
-                      <div className="px-4 pb-4">
+                      <div className="px-5 pb-5">
                         <Link
                           to={`/products/${product.slug}`}
-                          className="block w-full text-center bg-[#dcecd5] hover:bg-[#c5d9b8] text-[#0f3b1e] font-semibold py-2 rounded-lg transition-colors"
+                          className="block w-full text-center bg-[#dcecd5] hover:bg-[#c5d9b8] text-[#0f3b1e] font-semibold py-3 rounded-lg transition-colors text-base"
                         >
                           View More
                         </Link>
@@ -155,37 +200,13 @@ const ProductCategoryCarousel = ({ categorySlug, limit = 20 }: ProductCategoryCa
                 })}
               </div>
             )
-          })}
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Navigation Arrows */}
-      {totalSlides > 1 && (
-        <>
-          <button
-            onClick={goToPrevious}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 transition-colors z-10"
-            aria-label="Previous slide"
-          >
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={goToNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 transition-colors z-10"
-            aria-label="Next slide"
-          >
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </>
-      )}
-
-      {/* Dots Indicator */}
-      {totalSlides > 1 && (
-        <div className="flex justify-center mt-6 space-x-2">
+        {/* Dots Indicator */}
+        {totalSlides > 1 && (
+          <div className="flex justify-center mt-6 space-x-2">
           {Array.from({ length: totalSlides }).map((_, index) => (
             <button
               key={index}
@@ -195,8 +216,33 @@ const ProductCategoryCarousel = ({ categorySlug, limit = 20 }: ProductCategoryCa
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Next Button */}
+      {totalSlides > 1 && (
+        <button
+          onClick={goToNext}
+          className="flex-shrink-0 bg-white shadow-lg rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-50 transition-all border border-gray-200 cursor-pointer"
+          aria-label="Next slide"
+          type="button"
+        >
+          <svg
+            className="w-6 h-6 text-gray-700"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
       )}
     </div>
   )

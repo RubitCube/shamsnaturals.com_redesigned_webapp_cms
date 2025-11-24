@@ -7,6 +7,25 @@ const AboutPage = () => {
   const [page, setPage] = useState<any>(null);
   const [banners, setBanners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  // Build BASE URL from env
+  const BASE_URL = import.meta.env.VITE_API_URL.replace("/api/v1", "");
+
+  /*const buildImageUrl = (img: string) => {
+    if (!img) return "/placeholder-product.jpg";
+    if (img.startsWith("http")) return img;
+    return `${BASE_URL}/storage/${img}`;
+  };*/
+
+  const buildImageUrl = (img: string) => {
+    if (!img) return "/placeholder-product.jpg";
+    if (img.startsWith("http")) return img;
+  
+    // remove leading slash to avoid double slashes
+    const cleanPath = img.replace(/^\/+/, "");
+  
+    return `${BASE_URL}/storage/pages/${cleanPath}`;
+  };
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -134,11 +153,7 @@ const AboutPage = () => {
                     <div className="w-full xl:w-5/12 2xl:w-6/12 px-0 text-center hidden xl:block xl:absolute xl:right-0 xl:top-[40%] py-5 my-auto z-10">
                       <div className="aboutbg relative">
                         <img
-                          src={
-                            mainImageSrc.startsWith("http")
-                              ? mainImageSrc
-                              : `http://localhost:8000/storage/${mainImageSrc}`
-                          }
+                          src={buildImageUrl(mainImageSrc)}
                           className="w-full h-auto relative z-10"
                           alt={
                             imageSeo.main_image.alt ||
@@ -147,6 +162,10 @@ const AboutPage = () => {
                           title={imageSeo.main_image.title || ""}
                           loading="lazy"
                           decoding="async"
+                          onError={(e) =>
+                            (e.currentTarget.src = "/placeholder-product.jpg")
+                          }
+                          
                         />
                       </div>
                     </div>
@@ -162,11 +181,7 @@ const AboutPage = () => {
                     {/* about02 - Upper outline illustration (tote bag) */}
                     {decorativeImage1 && (
                       <img
-                        src={
-                          decorativeImage1.startsWith("http")
-                            ? decorativeImage1
-                            : `http://localhost:8000/storage/${decorativeImage1}`
-                        }
+                        src={buildImageUrl(decorativeImage1)}
                         className="aboutbgicon02 aboutimg absolute"
                         alt={imageSeo.decorative_image_1.alt || ""}
                         title={imageSeo.decorative_image_1.title || ""}
@@ -180,11 +195,7 @@ const AboutPage = () => {
                     {/* about03 - Lower outline illustration (drawstring bag) */}
                     {decorativeImage2 && (
                       <img
-                        src={
-                          decorativeImage2.startsWith("http")
-                            ? decorativeImage2
-                            : `http://localhost:8000/storage/${decorativeImage2}`
-                        }
+                        src={buildImageUrl(decorativeImage2)}
                         className="aboutbgicon03 aboutimg absolute"
                         alt={imageSeo.decorative_image_2.alt || ""}
                         title={imageSeo.decorative_image_2.title || ""}

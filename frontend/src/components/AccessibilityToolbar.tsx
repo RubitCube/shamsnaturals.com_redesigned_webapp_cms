@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 
 const AccessibilityToolbar = () => {
-  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isToolbarVisible, setIsToolbarVisible] = useState(false);
   const [fontSize, setFontSize] = useState(100); // Percentage

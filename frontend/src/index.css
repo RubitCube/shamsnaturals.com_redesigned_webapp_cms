@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force desktop layout on all screen sizes */
+body {
+  min-width: 1280px;
+  overflow-x: auto;
+}
+
+#root {
+  min-width: 1280px;
+}
+
 /* Cross-Browser Compatibility Fixes */
 
 /* Ensure smooth scrolling works across browsers */

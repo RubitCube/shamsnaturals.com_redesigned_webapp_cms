@@ -30,7 +30,33 @@
     "viewDetails": "Visualizza Dettagli",
     "newBadge": "Nuovo",
     "bestSeller": "Bestseller",
-    "viewMoreArrow": "VEDI DI PIÙ →"
+    "viewMoreArrow": "VEDI DI PIÙ →",
+    "dimension": "Dimensione",
+    "color": "Colore",
+    "materials": "Materiali",
+    "description": "Descrizione",
+    "sku": "Codice",
+    "specifications": "Specifiche",
+    "features": "Caratteristiche",
+    "price": "Prezzo",
+    "inStock": "Disponibile",
+    "outOfStock": "Esaurito",
+    "addToCart": "Aggiungi al Carrello",
+    "relatedProducts": "Prodotti Correlati",
+    "productNotFound": "Prodotto Non Trovato",
+    "loadingProduct": "Caricamento prodotto..."
+  },
+  "categories": {
+    "juteBags": "Borse di Juta",
+    "jucoBags": "Borse di Juco",
+    "canvasJuteBags": "Borse di Tela/Juta",
+    "cottonJuteStringBags": "Borse a Cordoncino Cotone/Juta",
+    "cottonBags120gsm": "Borse di Cotone 120 gsm",
+    "cottonBags135gsm": "Borse di Cotone 135 gsm",
+    "cottonBags150gsm": "Borse di Cotone 150 gsm",
+    "cottonBags220235gsm": "Borse di Cotone 220/235 gsm",
+    "cottonBags260gsm": "Borse di Cotone 260 gsm",
+    "allCategories": "Tutte le Categorie"
   },
   "about": {
     "title": "Chi Siamo"

@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { adminAPI } from '../../services/api'
 
+const BASE_URL = import.meta.env.VITE_SITE_URL
+  ? `${import.meta.env.VITE_SITE_URL}/backend`
+  : 'http://localhost:8000/backend'
+
 interface ProductImage {
   id: number
   image_path: string
@@ -63,16 +67,30 @@ const AdminCategoryProductGallery = () => {
     loadData()
   }, [categoryId])
 
-  const resolveImageUrl = (image?: ProductImage) => {
-    if (!image) return ''
-    if (image.image_url) return image.image_url
-    if (!image.image_path) return ''
+  const resolveImagePath = (path?: string) => {
+    if (!path) return '';
+    
+    // Check if it's an absolute URL that needs fixing
+    if (path.startsWith('http')) {
+      const siteUrl = import.meta.env.VITE_SITE_URL || "http://localhost:8000";
+      if (path.includes("/storage/products/") && !path.includes("/backend/public/")) {
+        const filename = path.split("/storage/products/")[1];
+        return `${siteUrl}/backend/public/storage/products/${filename}`;
+      }
+      return path;
+    }
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
-    const backendOrigin = apiUrl.replace(/\/api\/v1\/?$/, '') || 'http://localhost:8000'
-    let normalized = image.image_path.startsWith('storage/') ? image.image_path.substring(8) : image.image_path
-    normalized = normalized.startsWith('/') ? normalized.substring(1) : normalized
-    return `${backendOrigin}/storage/${normalized}`
+    let normalized = path.startsWith('storage/') ? path.substring(8) : path;
+    normalized = normalized.startsWith('/') ? normalized.substring(1) : normalized;
+    // Remove 'products/' if it exists (backend already includes it in path)
+    normalized = normalized.replace(/^products\//, "");
+    return `${BASE_URL}/public/storage/products/${normalized}`;
+  };
+
+  const resolveImageUrl = (image?: ProductImage) => {
+    if (!image) return '';
+    const path = image.image_url || image.image_path;
+    return resolveImagePath(path);
   }
 
   const filteredProducts = products.filter((product) => {

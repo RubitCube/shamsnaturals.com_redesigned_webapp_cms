@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { adminAPI } from '../../services/api'
+import { translateCategoryName } from '../../utils/categoryTranslations'
 
 interface Category {
   id: number
@@ -11,6 +13,7 @@ interface Category {
 }
 
 const AdminCategoryPriority = () => {
+  const { t } = useTranslation("translation");
   const navigate = useNavigate()
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,6 +35,26 @@ const AdminCategoryPriority = () => {
       setLoading(false)
     }
   }
+
+  const fixImageUrl = (src?: string) => {
+    if (!src) return src;
+    
+    // Check if it's an absolute URL that needs fixing
+    if (src.startsWith("http")) {
+      const siteUrl = import.meta.env.VITE_SITE_URL || "http://localhost:8000";
+      // Fix category images
+      if (src.includes("/storage/categories/") && !src.includes("/backend/public/")) {
+        const filename = src.split("/storage/categories/")[1];
+        return `${siteUrl}/backend/public/storage/categories/${filename}`;
+      }
+      // Fix banners
+      if (src.includes("/storage/banners/") && !src.includes("/backend/public/")) {
+        const filename = src.split("/storage/banners/")[1];
+        return `${siteUrl}/backend/public/storage/banners/${filename}`;
+      }
+    }
+    return src;
+  };
 
   const reorderList = (list: Category[], startIndex: number, endIndex: number) => {
     const result = Array.from(list)
@@ -109,11 +132,11 @@ const AdminCategoryPriority = () => {
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-[2fr_1fr]">
+      <div className="grid gap-6 grid-cols-[2fr_1fr]">
         <div className="space-y-6">
           {/* Drag and Drop Priority Section */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 grid-cols-3">
               {categories.map((category, index) => (
                 <div
                   key={category.id}
@@ -129,7 +152,7 @@ const AdminCategoryPriority = () => {
                   {category.image_url && (
                     <div className="aspect-square overflow-hidden rounded-xl bg-white mb-3">
                       <img
-                        src={category.image_url}
+                        src={fixImageUrl(category.image_url)}
                         alt={category.name}
                         className="w-full h-full object-cover"
                         loading="lazy"
@@ -143,7 +166,7 @@ const AdminCategoryPriority = () => {
                   <p className="text-sm font-semibold text-gray-400 tracking-[0.2em] uppercase">
                     Category
                   </p>
-                  <h4 className="text-lg font-semibold text-gray-900 mt-1">{category.name}</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 mt-1">{translateCategoryName(category.name, t)}</h4>
                   <p className="text-sm text-gray-500 mt-4 text-center">
                     Priority:{' '}
                     <span className="text-[#d9534f] font-bold">

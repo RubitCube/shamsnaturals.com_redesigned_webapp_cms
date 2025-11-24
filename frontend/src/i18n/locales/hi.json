@@ -30,7 +30,33 @@
     "viewDetails": "विवरण देखें",
     "newBadge": "नया",
     "bestSeller": "सर्वश्रेष्ठ विक्रेता",
-    "viewMoreArrow": "और देखें →"
+    "viewMoreArrow": "और देखें →",
+    "dimension": "आयाम",
+    "color": "रंग",
+    "materials": "सामग्री",
+    "description": "विवरण",
+    "sku": "उत्पाद कोड",
+    "specifications": "विशिष्टताएँ",
+    "features": "विशेषताएं",
+    "price": "मूल्य",
+    "inStock": "स्टॉक में",
+    "outOfStock": "स्टॉक में नहीं",
+    "addToCart": "कार्ट में जोड़ें",
+    "relatedProducts": "संबंधित उत्पाद",
+    "productNotFound": "उत्पाद नहीं मिला",
+    "loadingProduct": "उत्पाद लोड हो रहा है..."
+  },
+  "categories": {
+    "juteBags": "जूट बैग",
+    "jucoBags": "जूको बैग",
+    "canvasJuteBags": "कैनवास/जूट बैग",
+    "cottonJuteStringBags": "कॉटन/जूट स्ट्रिंग बैग",
+    "cottonBags120gsm": "कॉटन बैग 120 जीएसएम",
+    "cottonBags135gsm": "कॉटन बैग 135 जीएसएम",
+    "cottonBags150gsm": "कॉटन बैग 150 जीएसएम",
+    "cottonBags220235gsm": "कॉटन बैग 220/235 जीएसएम",
+    "cottonBags260gsm": "कॉटन बैग 260 जीएसएम",
+    "allCategories": "सभी श्रेणियाँ"
   },
   "about": {
     "title": "हमारे बारे में"

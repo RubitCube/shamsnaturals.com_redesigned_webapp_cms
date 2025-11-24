@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [])
 
-  const fetchUser = async (authToken: string) => {
+  const fetchUser = async (_authToken: string) => {
     try {
       const response = await authAPI.getUser()
       setUser(response.data)

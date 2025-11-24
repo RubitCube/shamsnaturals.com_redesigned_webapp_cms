@@ -1,78 +1,80 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { homepageAPI, dealersAPI, categoriesAPI } from '../services/api'
-import BannerCarousel from '../components/BannerCarousel'
-import ProductCard from '../components/ProductCard'
-import EventsGallery from '../components/EventsGallery'
-import WorldMap from '../components/WorldMap'
-import ProductCategoriesSidebar from '../components/ProductCategoriesSidebar'
-import SEOHead from '../components/SEOHead'
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { homepageAPI, dealersAPI, categoriesAPI } from "../services/api";
+import BannerCarousel from "../components/BannerCarousel";
+import ProductCard from "../components/ProductCard";
+import EventsGallery from "../components/EventsGallery";
+import WorldMap from "../components/WorldMap";
+import ProductCategoriesSidebar from "../components/ProductCategoriesSidebar";
+import SEOHead from "../components/SEOHead";
+import { translateCategoryName } from "../utils/categoryTranslations";
 
 interface HomePageData {
-  banners: any[]
-  best_products: any[]
-  new_arrivals: any[]
-  events: any[]
+  banners: any[];
+  best_products: any[];
+  new_arrivals: any[];
+  events: any[];
 }
 
 const HomePage = () => {
-  const { t } = useTranslation()
-  const [data, setData] = useState<HomePageData | null>(null)
-  const [dealers, setDealers] = useState<any[]>([])
-  const [categories, setCategories] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [newArrivalsIndex, setNewArrivalsIndex] = useState(0)
+  const { t } = useTranslation();
+  const [data, setData] = useState<HomePageData | null>(null);
+  const [dealers, setDealers] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newArrivalsIndex, setNewArrivalsIndex] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [homepageResponse, dealersResponse, categoriesResponse] = await Promise.all([
-          homepageAPI.get(),
-          dealersAPI.getAll().catch(() => ({ data: [] })), // Fetch dealers for map, but don't fail if it errors
-          categoriesAPI.getAll().catch(() => ({ data: [] })), // Fetch categories for catalogue
-        ])
-        setData(homepageResponse.data)
-        setDealers(dealersResponse.data || [])
-        setCategories(categoriesResponse.data || [])
+        const [homepageResponse, dealersResponse, categoriesResponse] =
+          await Promise.all([
+            homepageAPI.get(),
+            dealersAPI.getAll().catch(() => ({ data: [] })), // Fetch dealers for map, but don't fail if it errors
+            categoriesAPI.getAll().catch(() => ({ data: [] })), // Fetch categories for catalogue
+          ]);
+        setData(homepageResponse.data);
+        setDealers(dealersResponse.data || []);
+        setCategories(categoriesResponse.data || []);
       } catch (error) {
-        console.error('Error fetching homepage data:', error)
+        console.error("Error fetching homepage data:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
-    )
+    );
   }
 
   // Generate structured data for homepage
   const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Shams Naturals',
-    url: 'https://shamsnaturals.com',
-    logo: 'https://shamsnaturals.com/assets/company_logo_image/shamsnaturals-logo.png',
-    description: 'Eco-friendly bags and sustainable products in UAE',
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Shams Naturals",
+    url: "https://shamsnaturals.com",
+    logo: "https://shamsnaturals.com/assets/company_logo_image/shamsnaturals-logo.png",
+    description: "Eco-friendly bags and sustainable products in UAE",
     sameAs: [
-      'https://www.facebook.com/shams.naturals',
-      'https://www.instagram.com/shams_naturals7',
-      'https://www.youtube.com/@SHAMSNATURALS'
+      "https://www.facebook.com/shams.naturals",
+      "https://www.instagram.com/shams_naturals7",
+      "https://www.youtube.com/@SHAMSNATURALS",
     ],
     contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+971-55-190-6177',
-      contactType: 'Customer Service',
-      email: 'info@shamsnaturals.com'
-    }
-  }
+      "@type": "ContactPoint",
+      telephone: "+971-55-190-6177",
+      contactType: "Customer Service",
+      email: "info@shamsnaturals.com",
+    },
+  };
 
   return (
     <div>
@@ -92,9 +94,9 @@ const HomePage = () => {
       {/* Product Categories Sidebar & Catalogue Section */}
       <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-row gap-8">
             {/* Product Categories Sidebar */}
-            <div className="lg:w-64 flex-shrink-0">
+            <div className="w-64 flex-shrink-0">
               <ProductCategoriesSidebar />
             </div>
 
@@ -102,57 +104,73 @@ const HomePage = () => {
             <div className="flex-1">
               <div className="mb-6">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {t('home.allCategoryCatalogue')}
+                  {t("home.allCategoryCatalogue")}
                 </h1>
-                <p className="text-gray-600">
-                  {t('home.browseCollection')}
-                </p>
+                <p className="text-gray-600">{t("home.browseCollection")}</p>
               </div>
-              
+
               {/* Categories Grid */}
               {categories.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-3 gap-6">
                   {categories.map((category) => {
-                    const categoryImageUrl = category.image_url || 
-                      (category.image 
-                        ? (category.image.startsWith('http')
-                            ? category.image
-                            : `http://localhost:8000/storage/${category.image}`)
-                        : '/placeholder-category.jpg')
+                    const categoryImageUrl =
+                      category.image_url ||
+                      (category.image
+                        ? category.image.startsWith("http")
+                          ? category.image
+                          : `http://localhost:8000/storage/${category.image}`
+                        : "/placeholder-category.jpg");
 
                     return (
-                      <Link
+                      <div
                         key={category.id}
-                        to={`/products/category/${category.slug}`}
                         className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group"
                       >
-                        <div className="relative h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
-                          <img
-                            src={categoryImageUrl}
-                            alt={category.name}
-                            className="w-full h-full object-contain p-4 mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
-                            loading="lazy"
-                            decoding="async"
-                            onError={(e) => {
-                              e.currentTarget.src = '/placeholder-category.jpg'
-                            }}
-                          />
+                        <Link
+                          to={`/products/category/${category.slug}`}
+                          className="block"
+                        >
+                          <div className="relative h-64 bg-gray-100 flex items-center justify-center overflow-hidden">
+                            <img
+                              src={categoryImageUrl}
+                              alt={category.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              loading="lazy"
+                              decoding="async"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  "/placeholder-category.jpg";
+                                e.currentTarget.classList.remove(
+                                  "object-cover"
+                                );
+                                e.currentTarget.classList.add(
+                                  "object-contain",
+                                  "p-4"
+                                );
+                              }}
+                            />
+                          </div>
+                          <div className="p-6">
+                            <h3 className="font-semibold text-xl text-gray-900 mb-3 group-hover:text-[#4a7c28] transition-colors">
+                              {translateCategoryName(category.name, t)}
+                            </h3>
+                          </div>
+                        </Link>
+                        <div className="px-6 pb-6">
+                          <Link
+                            to={`/products/category/${category.slug}`}
+                            className="block w-full text-center bg-[#dcecd5] hover:bg-[#c5d9b8] text-[#0f3b1e] font-semibold py-3 rounded-lg transition-colors text-base"
+                          >
+                            {t("products.viewMore")}
+                          </Link>
                         </div>
-                        <div className="p-4">
-                          <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-[#4a7c28] transition-colors">
-                            {category.name}
-                          </h3>
-                          <span className="inline-block text-[#4a7c28] font-medium text-sm group-hover:underline">
-                            {t('products.viewMoreArrow')}
-                          </span>
-                        </div>
-                      </Link>
-                    )
+                      </div>
+                    );
                   })}
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-gray-600">{t('home.noCategories')}</p>
+                  <p className="text-gray-600">{t("home.noCategories")}</p>
                 </div>
               )}
             </div>
@@ -166,13 +184,13 @@ const HomePage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                {t('home.bestEcoFriendlyBags')}
+                {t("home.bestEcoFriendlyBags")}
               </h2>
               <p className="text-lg text-gray-600">
-                {t('home.discoverTopRated')}
+                {t("home.discoverTopRated")}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-4 gap-6">
               {data.best_products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -187,23 +205,28 @@ const HomePage = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                {t('home.newArrivals')}
+                {t("home.newArrivals")}
               </h2>
               <p className="text-lg text-gray-600">
-                {t('home.checkOutLatest')}
+                {t("home.checkOutLatest")}
               </p>
             </div>
-            <div className="relative">
+            <div className="flex items-center gap-4">
               {/* Previous Button */}
-              {data.new_arrivals.length > 5 && (
+              {data.new_arrivals.length > 4 && (
                 <button
                   onClick={() => {
-                    setNewArrivalsIndex((prev) => 
-                      prev === 0 ? data.new_arrivals.length - 5 : prev - 5
-                    )
+                    setNewArrivalsIndex((prev) => {
+                      const newIndex = prev - 4;
+                      return newIndex < 0
+                        ? Math.max(0, data.new_arrivals.length - 4)
+                        : newIndex;
+                    });
                   }}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors"
+                  disabled={newArrivalsIndex === 0}
+                  className="flex-shrink-0 bg-white shadow-lg rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed border border-gray-200 cursor-pointer"
                   aria-label="Previous products"
+                  type="button"
                 >
                   <svg
                     className="w-6 h-6 text-gray-700"
@@ -222,28 +245,33 @@ const HomePage = () => {
               )}
 
               {/* Products Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+              <div className="flex-1 grid grid-cols-4 gap-6">
                 {data.new_arrivals
-                  .slice(newArrivalsIndex, newArrivalsIndex + 5)
+                  .slice(newArrivalsIndex, newArrivalsIndex + 4)
                   .map((product) => (
                     <ProductCard
                       key={product.id}
                       product={{ ...product, is_new_arrival: true }}
-                      imageFit="contain"
+                      imageFit="cover"
                     />
                   ))}
               </div>
 
               {/* Next Button */}
-              {data.new_arrivals.length > 5 && (
+              {data.new_arrivals.length > 4 && (
                 <button
                   onClick={() => {
-                    setNewArrivalsIndex((prev) => 
-                      prev + 5 >= data.new_arrivals.length ? 0 : prev + 5
-                    )
+                    setNewArrivalsIndex((prev) => {
+                      const newIndex = prev + 4;
+                      return newIndex >= data.new_arrivals.length
+                        ? 0
+                        : newIndex;
+                    });
                   }}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors"
+                  disabled={newArrivalsIndex + 4 >= data.new_arrivals.length}
+                  className="flex-shrink-0 bg-white shadow-lg rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed border border-gray-200 cursor-pointer"
                   aria-label="Next products"
+                  type="button"
                 >
                   <svg
                     className="w-6 h-6 text-gray-700"
@@ -266,7 +294,7 @@ const HomePage = () => {
                 to="/new-arrivals"
                 className="btn-primary inline-block px-6 py-3"
               >
-                {t('home.viewMore')}
+                {t("home.viewMore")}
               </Link>
             </div>
           </div>
@@ -281,8 +309,7 @@ const HomePage = () => {
       {/* Dealers World Map Section */}
       <WorldMap dealers={dealers} />
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
-
+export default HomePage;

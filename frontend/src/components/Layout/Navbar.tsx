@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import logo from "../../assets/company_logo_image/shamsnaturals-logo.png";
 import { categoriesAPI, productsAPI } from "../../services/api";
 import LanguageSelector from "../LanguageSelector";
+import { translateCategoryName } from "../../utils/categoryTranslations";
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -138,7 +139,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="flex items-center space-x-8">
             <Link
               to="/"
               className="text-gray-700 hover:text-[#4a7c28] transition-colors"
@@ -229,10 +230,10 @@ const Navbar = () => {
                             onClick={() => {
                               setActiveCategoryId(category.id);
                               setShowProductsDropdown(false);
-                              navigate(`/products/${category.slug}`);
+                              navigate(`/products/category/${category.slug}`);
                             }}
                           >
-                            {category.name}
+                            {translateCategoryName(category.name, t)}
                           </button>
                         ))}
                         {!categories.length && !menuLoading && (
@@ -265,11 +266,11 @@ const Navbar = () => {
                                   setActiveSubcategoryId(subcategory.id);
                                   setShowProductsDropdown(false);
                                   navigate(
-                                    `/products/${activeCategory?.slug}/${subcategory.slug}`
+                                    `/products/category/${activeCategory?.slug}/subcategory/${subcategory.slug}`
                                   );
                                 }}
                               >
-                                {subcategory.name}
+                                {translateCategoryName(subcategory.name, t)}
                               </button>
                             )
                           )
@@ -286,8 +287,8 @@ const Navbar = () => {
                         <div>
                           <p className="text-xs uppercase text-gray-500 tracking-wide">
                             {activeSubcategory
-                              ? `Products in ${activeSubcategory.name}`
-                              : `Top ${activeCategory?.name} products`}
+                              ? `Products in ${translateCategoryName(activeSubcategory.name, t)}`
+                              : `Top ${activeCategory ? translateCategoryName(activeCategory.name, t) : ''} products`}
                           </p>
                           <p className="text-sm text-gray-700">
                             {displayedProducts.length} item
@@ -298,8 +299,8 @@ const Navbar = () => {
                           <Link
                             to={
                               activeSubcategory
-                                ? `/products/${activeCategory.slug}/${activeSubcategory.slug}`
-                                : `/products/${activeCategory.slug}`
+                                ? `/products/category/${activeCategory.slug}/subcategory/${activeSubcategory.slug}`
+                                : `/products/category/${activeCategory.slug}`
                             }
                             className="text-xs font-semibold text-[#4a7c28] hover:underline"
                           >
@@ -390,7 +391,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-700 hover:text-primary-600 focus:outline-none"
@@ -424,7 +425,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden">
+        <div className="hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
             <Link
               to="/"
@@ -470,14 +471,14 @@ const Navbar = () => {
                       {categories.map((category) => (
                         <Link
                           key={category.id}
-                          to={`/products/${category.slug}`}
+                          to={`/products/category/${category.slug}`}
                           className="block px-2 py-1 rounded text-sm text-gray-700 hover:bg-white"
                           onClick={() => {
                             setIsOpen(false);
                             setMobileProductsOpen(false);
                           }}
                         >
-                          {category.name}
+                          {translateCategoryName(category.name, t)}
                         </Link>
                       ))}
                     </div>
@@ -492,14 +493,14 @@ const Navbar = () => {
                           (subcategory: any) => (
                             <Link
                               key={subcategory.id}
-                              to={`/products/${activeCategory.slug}/${subcategory.slug}`}
+                              to={`/products/category/${activeCategory.slug}/subcategory/${subcategory.slug}`}
                               className="block px-2 py-1 rounded text-sm text-gray-700 hover:bg-white"
                               onClick={() => {
                                 setIsOpen(false);
                                 setMobileProductsOpen(false);
                               }}
                             >
-                              {subcategory.name}
+                              {translateCategoryName(subcategory.name, t)}
                             </Link>
                           )
                         )}

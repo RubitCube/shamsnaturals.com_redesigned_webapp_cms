@@ -80,9 +80,18 @@ const AdminSEO = () => {
       meta_keywords: seo.meta_keywords || '',
       og_image: seo.og_image || '',
       image_seo: {
-        main_image: seo.image_seo?.main_image || { alt: '', title: '' },
-        decorative_image_1: seo.image_seo?.decorative_image_1 || { alt: '', title: '' },
-        decorative_image_2: seo.image_seo?.decorative_image_2 || { alt: '', title: '' },
+        main_image: {
+          alt: seo.image_seo?.main_image?.alt || '',
+          title: seo.image_seo?.main_image?.title || '',
+        },
+        decorative_image_1: {
+          alt: seo.image_seo?.decorative_image_1?.alt || '',
+          title: seo.image_seo?.decorative_image_1?.title || '',
+        },
+        decorative_image_2: {
+          alt: seo.image_seo?.decorative_image_2?.alt || '',
+          title: seo.image_seo?.decorative_image_2?.title || '',
+        },
       },
     })
   }

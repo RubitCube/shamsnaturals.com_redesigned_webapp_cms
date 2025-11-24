@@ -128,8 +128,8 @@ const DealersPage = () => {
         if (lastDealerCountRef.current > 0 && newDealers.length > lastDealerCountRef.current) {
           // Find the newest dealer (last one in the list with coordinates)
           const newestDealer = newDealers
-            .filter(d => d.latitude && d.longitude)
-            .sort((a, b) => b.id - a.id)[0]
+            .filter((d: Dealer) => d.latitude && d.longitude)
+            .sort((a: Dealer, b: Dealer) => b.id - a.id)[0]
           
           if (newestDealer && mapInstanceRef.current) {
             const lat = typeof newestDealer.latitude === 'string' 
@@ -211,7 +211,7 @@ const DealersPage = () => {
           icon: new L.Icon.Default(),
           draggable: false,
         },
-        popupFormat: ({ query, result }: any) => result.label,
+        popupFormat: ({ result }: any) => result.label,
         maxMarkers: 1,
         retainZoomLevel: false,
         animateZoom: true,

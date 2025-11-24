@@ -21,7 +21,18 @@ const ContactPage = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+  // Use test keys for localhost/development, production keys for live site
+  const isLocalhost =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname.startsWith("192.168.");
+
+  // Google's test site key - always passes validation for testing
+  const testRecaptchaSiteKey = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
+
+  const recaptchaSiteKey = isLocalhost
+    ? testRecaptchaSiteKey
+    : import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -87,33 +98,39 @@ const ContactPage = () => {
 
   // Generate structured data for Contact page
   const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ContactPage',
-    name: 'Contact Us - Shams Naturals',
-    description: 'Get in touch with Shams Naturals for eco-friendly bags and sustainable products. Contact us via phone, email, or visit our offices in Dubai and Poland.',
-    url: 'https://shamsnaturals.com/contact',
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    name: "Contact Us - Shams Naturals",
+    description:
+      "Get in touch with Shams Naturals for eco-friendly bags and sustainable products. Contact us via phone, email, or visit our offices in Dubai and Poland.",
+    url: "https://shamsnaturals.com/contact",
     mainEntity: {
-      '@type': 'Organization',
-      name: 'Shams Naturals',
-      telephone: ['+971-55-190-6177', '+971-42-673449', '+48-578-625-210', '+48-795-876-741'],
-      email: 'info@shamsnaturals.com',
+      "@type": "Organization",
+      name: "Shams Naturals",
+      telephone: [
+        "+971-55-190-6177",
+        "+971-42-673449",
+        "+48-578-625-210",
+        "+48-795-876-741",
+      ],
+      email: "info@shamsnaturals.com",
       address: [
         {
-          '@type': 'PostalAddress',
-          streetAddress: 'Warehouse No. 1, Al Qusais Industrial Area 4',
-          addressLocality: 'Dubai',
-          addressCountry: 'UAE'
+          "@type": "PostalAddress",
+          streetAddress: "Warehouse No. 1, Al Qusais Industrial Area 4",
+          addressLocality: "Dubai",
+          addressCountry: "UAE",
         },
         {
-          '@type': 'PostalAddress',
-          streetAddress: 'Marcina Kasprzaka 31, Room 119',
-          addressLocality: 'Warsaw',
-          postalCode: '00-123',
-          addressCountry: 'Poland'
-        }
-      ]
-    }
-  }
+          "@type": "PostalAddress",
+          streetAddress: "Marcina Kasprzaka 31, Room 119",
+          addressLocality: "Warsaw",
+          postalCode: "00-123",
+          addressCountry: "Poland",
+        },
+      ],
+    },
+  };
 
   return (
     <>
@@ -128,98 +145,105 @@ const ContactPage = () => {
       <div>
         {banners && banners.length > 0 && <BannerCarousel banners={banners} />}
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16 items-start">
-          <div className="bg-white px-8 py-10 shadow-xl rounded-[32px] border border-[#d8c8a5] text-gray-900 w-full">
-            <p className="text-sm font-semibold tracking-[0.35em] text-[#b08b4f] uppercase mb-2">
-              {t('contact.getInTouch')}
-            </p>
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#355b24] uppercase mb-3">
-              {t('contact.leaveMessage')}
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mb-8">
-              {t('contact.contactDescription')}
-            </p>
-            {success && (
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
-                {t('contact.thankYouMessage')}
-              </div>
-            )}
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                {error}
-              </div>
-            )}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder={t('contact.typeYourName')}
-                  className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
-                />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Form and Image Row */}
+          <div className="grid grid-cols-2 gap-10 mb-12">
+            {/* Contact Form */}
+            <div className="bg-white px-8 py-10 shadow-xl rounded-[32px] border border-[#d8c8a5] text-gray-900 w-full h-full flex flex-col">
+              <p className="text-sm font-semibold tracking-[0.35em] text-[#b08b4f] uppercase mb-2">
+                {t("contact.getInTouch")}
+              </p>
+              <h1 className="text-4xl font-extrabold tracking-tight text-[#355b24] uppercase mb-3">
+                {t("contact.leaveMessage")}
+              </h1>
+              <p className="text-sm text-gray-600 mb-6">
+                {t("contact.contactDescription")}
+              </p>
+              {success && (
+                <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
+                  {t("contact.thankYouMessage")}
+                </div>
+              )}
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                  {error}
+                </div>
+              )}
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-5 flex-1 flex flex-col"
+              >
+                <div className="grid grid-cols-3 gap-4">
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder={t("contact.typeYourName")}
+                    className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
+                  />
 
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder={t('contact.typeYourMobile')}
-                  className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
-                />
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder={t("contact.typeYourMobile")}
+                    className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
+                  />
 
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder={t('contact.typeYourEmail')}
-                  className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
-                />
-              </div>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder={t("contact.typeYourEmail")}
+                    className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
+                  />
+                </div>
 
-              <div>
-                <textarea
-                  id="message"
-                  name="message"
-                  required
-                  rows={8}
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder={t('contact.typeYourRequirements')}
-                  className="w-full px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500"
-                />
-              </div>
+                <div className="flex-1">
+                  <textarea
+                    id="message"
+                    name="message"
+                    required
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder={t("contact.typeYourRequirements")}
+                    className="w-full h-full min-h-[200px] px-4 py-3 rounded-md border border-[#d8c8a5] focus:outline-none focus:ring-2 focus:ring-[#a6813a] placeholder:text-gray-500 resize-none"
+                  />
+                </div>
 
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 {recaptchaSiteKey && (
-                  <div className="flex-shrink-0">
+                  <div className="flex justify-center">
                     <ReCAPTCHA
                       sitekey={recaptchaSiteKey}
                       onChange={handleRecaptchaChange}
                     />
                   </div>
                 )}
-                <button
-                  type="submit"
-                  disabled={loading || !recaptchaToken}
-                  className="inline-flex items-center justify-center border border-black px-8 py-3 text-xs font-semibold uppercase tracking-[0.2em] bg-white text-black rounded-none hover:bg-black hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap sm:ml-auto"
-                >
-                  {loading ? t('contact.submitting') : t('contact.submitEnquiry')}
-                </button>
-              </div>
-            </form>
-          </div>
 
-          <div className="space-y-6">
-            <div className="rounded-[28px] overflow-hidden border border-[#d8c8a5] shadow-lg">
+                <div className="flex justify-center">
+                  <button
+                    type="submit"
+                    disabled={loading || !recaptchaToken}
+                    className="inline-flex items-center justify-center border border-black px-12 py-3 text-xs font-semibold uppercase tracking-[0.2em] bg-white text-black rounded-none hover:bg-black hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading
+                      ? t("contact.submitting")
+                      : t("contact.submitEnquiry")}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Contact Image */}
+            <div className="rounded-[28px] overflow-hidden border border-[#d8c8a5] shadow-lg h-full">
               <img
                 src={contactBg}
                 alt="Contact"
@@ -227,9 +251,14 @@ const ContactPage = () => {
                 loading="lazy"
               />
             </div>
-            <div className="flex flex-col gap-6 md:flex-row">
-              <div className="card p-6 border border-[#d8c8a5] rounded-2xl shadow-sm md:flex-[0.95]">
-                <h3 className="text-xl font-semibold text-primary-700 uppercase tracking-wide border-b border-gray-200 pb-2">
+          </div>
+
+          {/* Address Cards Row - Centered Below */}
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-2 gap-8">
+              {/* Dubai Address Card */}
+              <div className="bg-white p-6 border border-[#d8c8a5] rounded-2xl shadow-lg">
+                <h3 className="text-xl font-semibold text-primary-700 uppercase tracking-wide border-b border-gray-200 pb-2 mb-3">
                   Dubai Address
                 </h3>
                 <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
@@ -266,8 +295,9 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              <div className="card p-6 border border-[#d8c8a5] rounded-2xl shadow-sm md:flex-[1.05]">
-                <h3 className="text-xl font-semibold text-primary-700 uppercase tracking-wide border-b border-gray-200 pb-2">
+              {/* Poland Address Card */}
+              <div className="bg-white p-6 border border-[#d8c8a5] rounded-2xl shadow-lg">
+                <h3 className="text-xl font-semibold text-primary-700 uppercase tracking-wide border-b border-gray-200 pb-2 mb-3">
                   Poland Address
                 </h3>
                 <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
@@ -304,7 +334,6 @@ const ContactPage = () => {
             </div>
           </div>
         </div>
-      </div>
       </div>
     </>
   );

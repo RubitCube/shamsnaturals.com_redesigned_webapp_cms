@@ -35,8 +35,8 @@ const Footer = () => {
 
   return (
     <footer className="bg-[#f3eadc] text-[#1f2d1c] relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="grid grid-cols-4 gap-4">
           {/* Company Info */}
           <div>
             <a
@@ -49,17 +49,17 @@ const Footer = () => {
               <img
                 src={logo}
                 alt="Shams Naturals"
-                className="h-16 w-auto object-contain mb-4"
+                className="h-10 w-auto object-contain mb-1"
                 loading="lazy"
                 width={160}
                 height={48}
               />
             </a>
-            <p className="text-sm">
+            <p className="text-xs leading-relaxed">
               {t('footer.companyDescription')}
             </p>
-            <div className="mt-4 text-sm text-[#4a7c28]">
-              <p className="font-semibold">{t('footer.liveVisitorCount')}</p>
+            <div className="mt-1.5 text-xs text-[#4a7c28]">
+              <p className="font-semibold text-sm">{t('footer.liveVisitorCount')}</p>
               <p>{t('footer.totalVisits')}: {totalVisits !== null ? totalVisits.toLocaleString() : '—'}</p>
               <p>{t('footer.today')}: {todayVisits !== null ? todayVisits.toLocaleString() : '—'}</p>
             </div>
@@ -67,8 +67,8 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-[#1a4a2a] font-semibold mb-4">{t('footer.quickLinks')}</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="text-[#1a4a2a] font-semibold mb-1.5 text-sm">{t('footer.quickLinks')}</h4>
+            <ul className="space-y-0.5 text-xs">
               <li>
                 <Link to="/" className="transition-colors hover:text-[#6ea766]">
                   {t('nav.home')}
@@ -94,8 +94,8 @@ const Footer = () => {
 
           {/* Information */}
           <div>
-            <h4 className="text-[#1a4a2a] font-semibold mb-4">{t('footer.information')}</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="text-[#1a4a2a] font-semibold mb-1.5 text-sm">{t('footer.information')}</h4>
+            <ul className="space-y-0.5 text-xs">
               <li>
                 <Link to="/dealers" className="transition-colors hover:text-[#6ea766]">
                   {t('footer.dealerNetwork')}
@@ -116,8 +116,8 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h4 className="text-[#1a4a2a] font-semibold mb-4">{t('footer.contact')}</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="text-[#1a4a2a] font-semibold mb-1.5 text-sm">{t('footer.contact')}</h4>
+            <ul className="space-y-0.5 text-xs">
               <li>
                 {t('footer.email')}:{' '}
                 <a
@@ -140,7 +140,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-[#d7ccb9] mt-8 pt-8 text-center text-sm space-y-2">
+        <div className="border-t border-[#d7ccb9] mt-3 pt-3 text-center text-xs space-y-0.5">
           <p>&copy; {new Date().getFullYear()} Shams Naturals. {t('footer.allRightsReserved')}</p>
           <p className="text-xs text-gray-600">
             {t('footer.websiteDesignedBy')}{' '}
