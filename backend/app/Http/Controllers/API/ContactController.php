@@ -24,7 +24,15 @@ class ContactController extends Controller
         ]);
 
         // Verify reCAPTCHA
-        $recaptchaSecret = config('services.recaptcha.secret');
+        // Use Google's test secret for localhost/development (always passes)
+        // Test secret: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+        $isLocalhost = in_array($request->getHost(), ['localhost', '127.0.0.1']) || 
+                       str_starts_with($request->getHost(), '192.168.');
+        
+        $recaptchaSecret = $isLocalhost 
+            ? '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'  // Google test secret
+            : config('services.recaptcha.secret');
+        
         $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => $recaptchaSecret,
             'response' => $request->recaptcha_token,
